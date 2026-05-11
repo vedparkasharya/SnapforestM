@@ -1,0 +1,79 @@
+import { NextRequest } from "next/server";
+import crypto from "crypto";
+import connectDB from "@/lib/db";
+import Booking from "@/models/Booking";
+import Room from "@/models/Room";
+import User from "@/models/User";
+import { successResponse, errorResponse } from "@/lib/api-response";
+import { sendBookingConfirmationEmail } from "@/lib/email";
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.text();
+    const signature = request.headers.get("x-razorpay-signature");
+
+    // Verify webhook signature
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_WEBHOOK_SECRET!)
+      .update(body)
+      .digest("hex");
+
+    if (signature !== expectedSignature) {
+      return errorResponse("Invalid webhook signature", 400);
+    }
+
+    const event = JSON.parse(body);
+
+    // Handle duplicate events
+    if (event.event === "payment.captured") {
+      const payment = event.payload.payment.entity;
+      const orderId = payment.order_id;
+
+      await connectDB();
+
+      // Check if already processed
+      const existing = await Booking.findOne({
+        razorpayPaymentId: payment.id,
+        status: "confirmed",
+      });
+
+      if (existing) {
+        return successResponse({}, "Payment already processed");
+      }
+
+      const booking = await Booking.findOneAndUpdate(
+        { razorpayOrderId: orderId },
+        {
+          razorpayPaymentId: payment.id,
+          paymentStatus: "paid",
+          status: "confirmed",
+          expiresAt: null,
+        },
+        { new: true }
+      )
+        .populate("room")
+        .populate("user");
+
+      if (booking) {
+        await sendBookingConfirmationEmail({
+          userName: booking.user.name,
+          userEmail: booking.user.email,
+          roomName: booking.room.name,
+          roomAddress: `${booking.room.address}, ${booking.room.city}`,
+          date: new Date(booking.date).toLocaleDateString("en-IN"),
+          startTime: booking.startTime,
+          endTime: booking.endTime,
+          totalAmount: booking.totalAmount,
+          bookingType: booking.bookingType,
+          mapLink: booking.room.mapLink,
+          status: "Confirmed",
+        });
+      }
+    }
+
+    return successResponse({}, "Webhook processed");
+  } catch (error: any) {
+    console.error("Webhook error:", error);
+    return errorResponse(error.message || "Webhook processing failed");
+  }
+}

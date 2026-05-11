@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --radius: 0.75rem;
+  --background: 220 20% 4%;
+  --foreground: 0 0% 95%;
+  --card: 220 18% 8%;
+  --card-foreground: 0 0% 95%;
+  --popover: 220 18% 6%;
+  --popover-foreground: 0 0% 95%;
+  --primary: 168 100% 48%;
+  --primary-foreground: 220 20% 4%;
+  --secondary: 270 60% 60%;
+  --secondary-foreground: 0 0% 95%;
+  --muted: 220 14% 14%;
+  --muted-foreground: 220 10% 60%;
+  --accent: 168 100% 48%;
+  --accent-foreground: 220 20% 4%;
+  --destructive: 0 70% 50%;
+  --destructive-foreground: 0 0% 95%;
+  --border: 220 14% 18%;
+  --input: 220 14% 14%;
+  --ring: 168 100% 48%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl;
+  }
+  .neon-glow {
+    box-shadow: 0 0 20px rgba(0, 245, 212, 0.3), 0 0 40px rgba(0, 245, 212, 0.1);
+  }
+  .neon-text {
+    @apply text-neon-cyan;
+    text-shadow: 0 0 10px rgba(0, 245, 212, 0.5), 0 0 20px rgba(0, 245, 212, 0.3);
+  }
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #00f5d4, #9b5de5, #f15bb5);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
