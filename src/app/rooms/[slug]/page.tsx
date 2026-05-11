@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { MapPin, Star, Users, ArrowLeft, Wifi, Camera, Mic, Music, Monitor, Lightbulb, Speaker } from "lucide-react";
 import Link from "next/link";
 import BookingWidget from "@/components/booking/BookingWidget";
+import RoomGallery from "@/components/rooms/RoomGallery";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const equipmentIcons: Record<string, React.ReactNode> = {
@@ -41,7 +41,6 @@ export default function RoomDetailPage() {
   const params = useParams();
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
     async function fetchRoom() {
@@ -69,7 +68,7 @@ export default function RoomDetailPage() {
             <div className="lg:col-span-2 space-y-4">
               <Skeleton className="aspect-video rounded-xl" />
               <div className="flex gap-2">
-                {Array.from({ length: 4 }).map((_, i) => (
+                {Array.from({ length: 5 }).map((_, i) => (
                   <Skeleton key={i} className="w-24 h-16 rounded-lg" />
                 ))}
               </div>
@@ -109,43 +108,13 @@ export default function RoomDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Images & Details */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Main Image */}
+            {/* Room Image Gallery */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="relative aspect-video rounded-xl overflow-hidden"
             >
-              <Image
-                src={room.images[selectedImage] || "/rooms/photo-studio.jpg"}
-                alt={room.name}
-                fill
-                className="object-cover"
-              />
+              <RoomGallery images={room.images} roomName={room.name} />
             </motion.div>
-
-            {/* Thumbnail Gallery */}
-            {room.images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
-                {room.images.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedImage(i)}
-                    className={`relative w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-colors ${
-                      selectedImage === i
-                        ? "border-neon-cyan"
-                        : "border-transparent hover:border-white/20"
-                    }`}
-                  >
-                    <Image
-                      src={img}
-                      alt={`${room.name} ${i + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
 
             {/* Room Info */}
             <motion.div
