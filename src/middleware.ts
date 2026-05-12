@@ -5,9 +5,10 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
-    console.log("[Middleware] path:", path, "token.sub:", token?.sub, "token.role:", (token as any)?.role);
+    console.log("[Middleware] path:", path, "hasToken:", !!token, "role:", (token as any)?.role);
 
-    if (path.startsWith("/admin")) {
+    // Admin route protection
+    if (path.startsWith("/admin") || path.startsWith("/api/admin")) {
       if ((token as any)?.role !== "admin") {
         console.warn("[Middleware] Admin access denied - role:", (token as any)?.role);
         return NextResponse.redirect(new URL("/", req.url));
@@ -15,6 +16,7 @@ export default withAuth(
       console.log("[Middleware] Admin access granted");
     }
 
+    // Protected routes
     if (path.startsWith("/dashboard") || path.startsWith("/api/user")) {
       if (!token) {
         console.warn("[Middleware] No token for protected path:", path);
@@ -27,8 +29,9 @@ export default withAuth(
   {
     callbacks: {
       authorized({ token }) {
-        console.log("[Middleware] authorized callback - hasToken:", !!token);
-        return !!token;
+        // Always return true to let the middleware function handle auth logic
+        // This prevents redirect loops
+        return true;
       },
     },
     pages: {
@@ -38,5 +41,10 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/api/user/:path*", "/api/admin/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/api/user/:path*",
+    "/api/admin/:path*",
+  ],
 };

@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { motion } from "framer-motion";
-import { Calendar, Clock, AlertTriangle, Check } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  AlertTriangle,
+  Check,
+  LogIn,
+  User,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPrice, getTimeSlots, isPastDate, isPastTimeSlot } from "@/lib/utils";
 
@@ -18,7 +26,7 @@ interface BookingWidgetProps {
 }
 
 export default function BookingWidget({ room }: BookingWidgetProps) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -28,6 +36,12 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
   const [loading, setLoading] = useState(false);
 
   const timeSlots = getTimeSlots();
+
+  // Debug session in booking widget
+  useEffect(() => {
+    console.log("[BookingWidget] Session status:", status);
+    console.log("[BookingWidget] Session user:", session?.user);
+  }, [session, status]);
 
   const calculateTotal = () => {
     if (bookingType === "daily") return room.pricePerDay;
@@ -104,10 +118,71 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
   };
 
   const total = calculateTotal();
+  const isAuthenticated = status === "authenticated" && !!session?.user;
+  const isLoading = status === "loading";
 
   return (
     <div className="glass-card p-6 sticky top-24">
       <h3 className="text-xl font-semibold mb-4">Book This Studio</h3>
+
+      {/* Session Status Banner */}
+      {isLoading ? (
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5 mb-4">
+          <Loader2 className="w-5 h-5 animate-spin text-neon-cyan" />
+          <span className="text-sm text-muted-foreground">Checking session...</span>
+        </div>
+      ) : !isAuthenticated ? (
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 rounded-xl bg-gradient-to-r from-neon-cyan/10 to-neon-purple/10 border border-neon-cyan/20 mb-4"
+        >
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-neon-cyan/10">
+              <LogIn className="w-5 h-5 text-neon-cyan" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium mb-1">Sign in to book</p>
+              <p className="text-xs text-muted-foreground mb-3">
+                Login with your Google account to make a booking
+              </p>
+              <Button
+                variant="neon"
+                size="sm"
+                className="w-full"
+                onClick={() => signIn("google", { callbackUrl: window.location.href })}
+              >
+                <User className="w-4 h-4 mr-2" />
+                Sign In with Google
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20 mb-4"
+        >
+          {session.user.image ? (
+            <img
+              src={session.user.image}
+              alt=""
+              className="w-8 h-8 rounded-full"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <User className="w-5 h-5 text-green-400" />
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">
+              {session.user.name || "Signed in"}
+            </p>
+            <p className="text-xs text-muted-foreground">Ready to book</p>
+          </div>
+          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+        </motion.div>
+      )}
 
       {/* Booking Type */}
       <div className="flex gap-2 mb-4">
@@ -222,7 +297,8 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
           {agreedToPolicy && <Check className="w-3.5 h-3.5 text-black" />}
         </div>
         <span className="text-xs text-muted-foreground leading-relaxed">
-          I agree to the damage policy. I will be responsible for any damage caused to equipment during my booking.
+          I agree to the damage policy. I will be responsible for any damage
+          caused to equipment during my booking.
         </span>
       </label>
 
@@ -231,10 +307,25 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
         className="w-full"
         variant="neon"
         size="lg"
-        disabled={!agreedToPolicy || !date || (bookingType === "hourly" && (!startTime || !endTime)) || loading}
+        disabled={
+          !isAuthenticated ||
+          !agreedToPolicy ||
+          !date ||
+          (bookingType === "hourly" && (!startTime || !endTime)) ||
+          loading
+        }
         onClick={handleBooking}
       >
-        {loading ? "Processing..." : "Book Now"}
+        {loading ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Processing...
+          </>
+        ) : !isAuthenticated ? (
+          "Sign in to Book"
+        ) : (
+          "Book Now"
+        )}
       </Button>
 
       <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
