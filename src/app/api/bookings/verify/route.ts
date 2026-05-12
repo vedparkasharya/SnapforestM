@@ -14,33 +14,51 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { bookingId, razorpayPaymentId, razorpayOrderId, razorpaySignature } = body;
 
-    // Verify Razorpay signature
-    const generatedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
-      .update(`${razorpayOrderId}|${razorpayPaymentId}`)
-      .digest("hex");
-
-    if (generatedSignature !== razorpaySignature) {
-      return errorResponse("Invalid payment signature", 400);
-    }
-
     await connectDB();
 
-    // Check for duplicate payment
-    const existingBooking = await Booking.findOne({
-      razorpayPaymentId,
-      status: "confirmed",
-    });
+    // Find the booking first to check if it's demo mode
+    const existingBookingCheck = await Booking.findById(bookingId);
+    if (!existingBookingCheck) {
+      return errorResponse("Booking not found", 404);
+    }
 
-    if (existingBooking) {
-      return successResponse(existingBooking, "Payment already processed");
+    const isDemoMode = existingBookingCheck.razorpayOrderId?.startsWith("demo_");
+
+    // Only verify Razorpay signature for real payments
+    // Demo mode bookings bypass signature verification
+    if (!isDemoMode) {
+      const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
+      if (!razorpayKeySecret) {
+        return errorResponse("Payment gateway not configured", 500);
+      }
+
+      const generatedSignature = crypto
+        .createHmac("sha256", razorpayKeySecret)
+        .update(`${razorpayOrderId}|${razorpayPaymentId}`)
+        .digest("hex");
+
+      if (generatedSignature !== razorpaySignature) {
+        return errorResponse("Invalid payment signature", 400);
+      }
+    }
+
+    // Check for duplicate payment (real payments only)
+    if (!isDemoMode && razorpayPaymentId) {
+      const duplicateBooking = await Booking.findOne({
+        razorpayPaymentId,
+        status: "confirmed",
+      });
+
+      if (duplicateBooking) {
+        return successResponse(duplicateBooking, "Payment already processed");
+      }
     }
 
     // Update booking
     const booking = await Booking.findByIdAndUpdate(
       bookingId,
       {
-        razorpayPaymentId,
+        razorpayPaymentId: razorpayPaymentId || `demo_payment_${Date.now()}`,
         paymentStatus: "paid",
         status: "confirmed",
         expiresAt: null,
@@ -54,22 +72,35 @@ export async function POST(request: NextRequest) {
       return errorResponse("Booking not found", 404);
     }
 
-    // Send confirmation email
-    await sendBookingConfirmationEmail({
-      userName: booking.user.name,
-      userEmail: booking.user.email,
-      roomName: booking.room.name,
-      roomAddress: `${booking.room.address}, ${booking.room.city}`,
-      date: new Date(booking.date).toLocaleDateString("en-IN"),
-      startTime: booking.startTime,
-      endTime: booking.endTime,
-      totalAmount: booking.totalAmount,
-      bookingType: booking.bookingType,
-      mapLink: booking.room.mapLink,
-      status: "Confirmed",
-    });
+    // Send confirmation email only if user exists
+    // Since auth is optional, booking.user may be null
+    if (booking.user?.email) {
+      try {
+        await sendBookingConfirmationEmail({
+          userName: booking.user.name || "Guest",
+          userEmail: booking.user.email,
+          roomName: booking.room?.name || "Studio",
+          roomAddress: booking.room ? `${booking.room.address}, ${booking.room.city}` : "",
+          date: new Date(booking.date).toLocaleDateString("en-IN"),
+          startTime: booking.startTime,
+          endTime: booking.endTime,
+          totalAmount: booking.totalAmount,
+          bookingType: booking.bookingType,
+          mapLink: booking.room?.mapLink,
+          status: "Confirmed",
+        });
+      } catch (emailError) {
+        console.error("[Verify] Email send failed (non-critical):", emailError);
+        // Don't fail the booking if email fails
+      }
+    }
 
-    return successResponse(booking, "Payment verified and booking confirmed");
+    return successResponse(
+      booking,
+      isDemoMode
+        ? "Demo payment verified and booking confirmed"
+        : "Payment verified and booking confirmed"
+    );
   } catch (error: any) {
     console.error("Payment verification error:", error);
     return errorResponse(error.message || "Payment verification failed");

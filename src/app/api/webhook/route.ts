@@ -14,9 +14,16 @@ export async function POST(request: NextRequest) {
     const body = await request.text();
     const signature = request.headers.get("x-razorpay-signature");
 
+    // Check if webhook secret is configured
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      console.log("[Webhook] RAZORPAY_WEBHOOK_SECRET not configured - skipping webhook processing");
+      return successResponse({}, "Webhook not configured - ignored");
+    }
+
     // Verify webhook signature
     const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_WEBHOOK_SECRET!)
+      .createHmac("sha256", webhookSecret)
       .update(body)
       .digest("hex");
 
@@ -56,20 +63,25 @@ export async function POST(request: NextRequest) {
         .populate("room")
         .populate("user");
 
-      if (booking) {
-        await sendBookingConfirmationEmail({
-          userName: booking.user.name,
-          userEmail: booking.user.email,
-          roomName: booking.room.name,
-          roomAddress: `${booking.room.address}, ${booking.room.city}`,
-          date: new Date(booking.date).toLocaleDateString("en-IN"),
-          startTime: booking.startTime,
-          endTime: booking.endTime,
-          totalAmount: booking.totalAmount,
-          bookingType: booking.bookingType,
-          mapLink: booking.room.mapLink,
-          status: "Confirmed",
-        });
+      // Send confirmation email only if user exists
+      if (booking?.user?.email) {
+        try {
+          await sendBookingConfirmationEmail({
+            userName: booking.user.name || "Guest",
+            userEmail: booking.user.email,
+            roomName: booking.room?.name || "Studio",
+            roomAddress: booking.room ? `${booking.room.address}, ${booking.room.city}` : "",
+            date: new Date(booking.date).toLocaleDateString("en-IN"),
+            startTime: booking.startTime,
+            endTime: booking.endTime,
+            totalAmount: booking.totalAmount,
+            bookingType: booking.bookingType,
+            mapLink: booking.room?.mapLink,
+            status: "Confirmed",
+          });
+        } catch (emailError) {
+          console.error("[Webhook] Email send failed (non-critical):", emailError);
+        }
       }
     }
 

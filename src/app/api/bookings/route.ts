@@ -9,6 +9,19 @@ import { BookingSchema } from "@/types";
 export const dynamic = 'force-dynamic';
 
 /**
+ * Normalize a date string to start/end of day range
+ * This handles timezone issues by matching any time within the target day
+ */
+function getDateRange(dateStr: string) {
+  const date = new Date(dateStr);
+  // Set to midnight UTC to ensure consistent comparison
+  const start = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 1);
+  return { start, end };
+}
+
+/**
  * Create booking + Razorpay order
  *
  * No authentication required - anyone can book.
@@ -29,13 +42,16 @@ export async function POST(request: NextRequest) {
     const room = await Room.findById(body.roomId);
     if (!room) return errorResponse("Room not found", 404);
 
-    // Check for overlapping bookings
+    // Normalize date for comparison - use date range to handle timezone issues
+    const { start: dateStart, end: dateEnd } = getDateRange(body.date);
+
+    // Check for overlapping bookings on the same day
     const existingBooking = await Booking.findOne({
       room: body.roomId,
-      date: new Date(body.date),
+      date: { $gte: dateStart, $lt: dateEnd },
       status: { $in: ["pending", "confirmed"] },
       $or: [
-        { startTime: { $lte: body.endTime }, endTime: { $gte: body.startTime } },
+        { startTime: { $lt: body.endTime }, endTime: { $gt: body.startTime } },
       ],
     });
 
@@ -47,9 +63,12 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 15);
 
+    // Normalize date to midnight UTC for consistent storage and comparison
+    const normalizedDate = getDateRange(body.date).start;
+
     const booking = await Booking.create({
       room: body.roomId,
-      date: new Date(body.date),
+      date: normalizedDate,
       startTime: body.startTime,
       endTime: body.endTime,
       totalAmount: body.totalAmount,
@@ -63,9 +82,31 @@ export async function POST(request: NextRequest) {
     const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
     const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
 
+    // If Razorpay keys are not configured, return demo mode response
+    // This allows testing the booking flow without real payment credentials
     if (!razorpayKeyId || !razorpayKeySecret) {
-      console.error("[Bookings] Razorpay credentials missing");
-      return errorResponse("Payment gateway not configured", 500);
+      console.log("[Bookings] Razorpay keys not configured - running in demo mode");
+
+      // Generate a demo order ID for testing
+      const demoOrderId = `demo_${booking._id}_${Date.now()}`;
+
+      await Booking.findByIdAndUpdate(booking._id, {
+        razorpayOrderId: demoOrderId,
+      });
+
+      return successResponse(
+        {
+          booking,
+          razorpayOrder: {
+            id: demoOrderId,
+            amount: body.totalAmount * 100, // paise
+            currency: "INR",
+          },
+          demoMode: true,
+        },
+        "Demo booking created. Add Razorpay keys to enable real payments.",
+        201
+      );
     }
 
     const razorpay = new Razorpay({
@@ -96,6 +137,7 @@ export async function POST(request: NextRequest) {
           amount: order.amount,
           currency: order.currency,
         },
+        demoMode: false,
       },
       "Booking created. Complete payment to confirm.",
       201

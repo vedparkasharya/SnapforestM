@@ -46,6 +46,7 @@ export default function DashboardPage() {
   const [cancelling, setCancelling] = useState<string | null>(null);
 
   const paymentSuccess = searchParams.get("payment") === "success";
+  const isDemo = searchParams.get("demo") === "true";
 
   useEffect(() => {
     fetchBookings();
@@ -186,10 +187,18 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 mb-6"
+            className={`flex items-center gap-3 p-4 rounded-xl mb-6 ${
+              isDemo
+                ? "bg-yellow-500/10 border border-yellow-500/30 text-yellow-400"
+                : "bg-green-500/10 border border-green-500/30 text-green-400"
+            }`}
           >
             <CheckCircle className="w-5 h-5 flex-shrink-0" />
-            <span>Payment successful! Your booking has been confirmed.</span>
+            <span>
+              {isDemo
+                ? "Demo booking confirmed! Add Razorpay keys for real payments."
+                : "Payment successful! Your booking has been confirmed."}
+            </span>
           </motion.div>
         )}
 

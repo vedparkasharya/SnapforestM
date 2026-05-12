@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   Check,
   Loader2,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPrice, getTimeSlots, isPastTimeSlot } from "@/lib/utils";
@@ -35,6 +36,7 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
   const [bookingType, setBookingType] = useState<"hourly" | "daily">("hourly");
   const [agreedToPolicy, setAgreedToPolicy] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [demoMode, setDemoMode] = useState(false);
 
   const timeSlots = getTimeSlots();
 
@@ -55,6 +57,7 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
     if (!agreedToPolicy) return;
 
     setLoading(true);
+    setDemoMode(false);
     try {
       const res = await fetch("/api/bookings", {
         method: "POST",
@@ -70,14 +73,48 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
       });
       const data = await res.json();
       if (data.success) {
-        if (data.data?.razorpayOrder) {
+        const razorpayOrder = data.data?.razorpayOrder;
+        const isDemo = data.data?.demoMode === true;
+
+        if (isDemo) {
+          // Demo mode: skip Razorpay, directly verify
+          setDemoMode(true);
+          const verifyRes = await fetch("/api/bookings/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              bookingId: data.data.booking._id,
+              razorpayPaymentId: `demo_payment_${Date.now()}`,
+              razorpayOrderId: razorpayOrder?.id,
+              razorpaySignature: "demo_signature",
+            }),
+          });
+          const verifyData = await verifyRes.json();
+          if (verifyData.success) {
+            router.push("/dashboard?payment=success&demo=true");
+          } else {
+            alert(verifyData.message || "Demo booking verification failed");
+            setLoading(false);
+          }
+          return;
+        }
+
+        // Real Razorpay payment flow
+        if (razorpayOrder && typeof window !== "undefined" && (window as any).Razorpay) {
+          const rzpKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+          if (!rzpKey) {
+            alert("Payment gateway key not configured. Please contact support.");
+            setLoading(false);
+            return;
+          }
+
           const rzp = new (window as any).Razorpay({
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-            amount: data.data.razorpayOrder.amount,
-            currency: data.data.razorpayOrder.currency,
+            key: rzpKey,
+            amount: razorpayOrder.amount,
+            currency: razorpayOrder.currency,
             name: "SnapforestX",
             description: `Booking: ${room.name}`,
-            order_id: data.data.razorpayOrder.id,
+            order_id: razorpayOrder.id,
             handler: async (response: any) => {
               await fetch("/api/bookings/verify", {
                 method: "POST",
@@ -96,6 +133,9 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
             },
           });
           rzp.open();
+        } else {
+          alert("Payment gateway not loaded. Please refresh the page.");
+          setLoading(false);
         }
       } else {
         alert(data.message || "Booking failed");
@@ -103,7 +143,7 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
       }
     } catch (error) {
       console.error("Booking error:", error);
-      alert("Something went wrong");
+      alert("Something went wrong. Please try again.");
       setLoading(false);
     }
   };
@@ -260,8 +300,20 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
         <span>Cancellation allowed up to 30 min before</span>
       </div>
 
-      {/* Razorpay Script */}
-      <script src="https://checkout.razorpay.com/v1/checkout.js" async />
+      {/* Demo Mode Banner */}
+      {demoMode && (
+        <div className="mt-3 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-start gap-2">
+          <Info className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-yellow-200/80">
+            Running in demo mode. Add Razorpay keys to enable real payments.
+          </p>
+        </div>
+      )}
+
+      {/* Razorpay Script - only load if keys are configured */}
+      {process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID && (
+        <script src="https://checkout.razorpay.com/v1/checkout.js" async />
+      )}
     </div>
   );
 }
