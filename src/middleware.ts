@@ -5,6 +5,7 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
+
     console.log("[Middleware] path:", path, "hasToken:", !!token, "role:", (token as any)?.role);
 
     // Admin route protection
@@ -16,7 +17,7 @@ export default withAuth(
       console.log("[Middleware] Admin access granted");
     }
 
-    // Protected routes
+    // Protected routes: dashboard and user API
     if (path.startsWith("/dashboard") || path.startsWith("/api/user")) {
       if (!token) {
         console.warn("[Middleware] No token for protected path:", path);
@@ -30,21 +31,26 @@ export default withAuth(
     callbacks: {
       authorized({ token }) {
         // Always return true to let the middleware function handle auth logic
-        // This prevents redirect loops
+        // This prevents redirect loops while still allowing token inspection
         return true;
       },
     },
     pages: {
       signIn: "/",
+      error: "/",
     },
+    secret: process.env.NEXTAUTH_SECRET,
   }
 );
 
+// CRITICAL: Only match protected routes, EXCLUDE /api/auth/*
+// DO NOT include /api/auth/* in the matcher - it will break authentication
 export const config = {
   matcher: [
     "/dashboard/:path*",
     "/admin/:path*",
     "/api/user/:path*",
     "/api/admin/:path*",
+    "/api/bookings/:path*",
   ],
 };

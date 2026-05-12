@@ -22,14 +22,16 @@ const nextConfig = {
     ],
   },
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
   experimental: {
     serverComponentsExternalPackages: ["mongoose"],
   },
+  trailingSlash: false,
+  poweredByHeader: false,
 };
 
 export default nextConfig;

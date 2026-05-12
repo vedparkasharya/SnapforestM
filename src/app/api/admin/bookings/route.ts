@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Booking from "@/models/Booking";
 import User from "@/models/User";

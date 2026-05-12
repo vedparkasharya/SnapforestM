@@ -17,20 +17,22 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+// Fixed callback URL for Google OAuth - NEVER use window.location.href
+const CALLBACK_URL = "https://snapforest-m.vercel.app";
+
 export default function Navbar() {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [signingIn, setSigningIn] = useState(false);
 
   const isAdmin = (session?.user as any)?.role === "admin";
 
   // Debug session state
   useEffect(() => {
     console.log("[Navbar] Session status:", status);
-    console.log("[Navbar] Session data:", session);
-    console.log("[Navbar] User:", session?.user);
-    console.log("[Navbar] IsAdmin:", isAdmin);
-  }, [session, status, isAdmin]);
+    console.log("[Navbar] Session user:", session?.user);
+  }, [session, status]);
 
   // Handle scroll effect
   useEffect(() => {
@@ -41,27 +43,24 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Force session update on mount to ensure fresh session
-  useEffect(() => {
-    const refreshSession = async () => {
-      if (status === "authenticated") {
-        console.log("[Navbar] Forcing session update");
-        await update();
-      }
-    };
-    refreshSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleSignIn = () => {
-    // Use redirect: true (default) for Google OAuth - this ensures session is properly established
-    signIn("google", {
-      callbackUrl: window.location.href,
-    });
+  const handleSignIn = async () => {
+    console.log("[Navbar] Starting Google sign-in...");
+    setSigningIn(true);
+    try {
+      // Use redirect: true (required for OAuth flow)
+      // Use FIXED production URL as callbackUrl (NOT window.location.href)
+      await signIn("google", {
+        callbackUrl: CALLBACK_URL,
+      });
+    } catch (error) {
+      console.error("[Navbar] Sign-in error:", error);
+      setSigningIn(false);
+    }
   };
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: "/", redirect: true });
+    console.log("[Navbar] Signing out...");
+    signOut({ callbackUrl: CALLBACK_URL, redirect: true });
   };
 
   return (
@@ -157,8 +156,16 @@ export default function Navbar() {
 
             {/* Show unauthenticated state */}
             {status === "unauthenticated" && (
-              <Button variant="neon" size="sm" onClick={handleSignIn}>
-                Sign In
+              <Button
+                variant="neon"
+                size="sm"
+                onClick={handleSignIn}
+                disabled={signingIn}
+              >
+                {signingIn ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : null}
+                {signingIn ? "Signing in..." : "Sign In"}
               </Button>
             )}
           </div>
@@ -261,12 +268,16 @@ export default function Navbar() {
                     variant="neon"
                     size="sm"
                     className="w-full"
+                    disabled={signingIn}
                     onClick={() => {
                       handleSignIn();
                       setIsOpen(false);
                     }}
                   >
-                    Sign In with Google
+                    {signingIn ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : null}
+                    {signingIn ? "Signing in..." : "Sign In with Google"}
                   </Button>
                 )
               )}

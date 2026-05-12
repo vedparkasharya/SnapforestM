@@ -25,6 +25,9 @@ interface BookingWidgetProps {
   };
 }
 
+// Fixed callback URL for Google OAuth - NEVER use window.location.href
+const CALLBACK_URL = "https://snapforest-m.vercel.app";
+
 export default function BookingWidget({ room }: BookingWidgetProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -34,14 +37,24 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
   const [bookingType, setBookingType] = useState<"hourly" | "daily">("hourly");
   const [agreedToPolicy, setAgreedToPolicy] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [signingIn, setSigningIn] = useState(false);
 
   const timeSlots = getTimeSlots();
 
   // Sign in handler - uses redirect:true for proper session establishment
-  const handleSignIn = () => {
-    signIn("google", {
-      callbackUrl: window.location.href,
-    });
+  const handleSignIn = async () => {
+    console.log("[BookingWidget] Starting Google sign-in...");
+    setSigningIn(true);
+    try {
+      // CRITICAL: Use FIXED production URL, NOT window.location.href
+      // This prevents preview deployment URI mismatch errors
+      await signIn("google", {
+        callbackUrl: CALLBACK_URL,
+      });
+    } catch (error) {
+      console.error("[BookingWidget] Sign-in error:", error);
+      setSigningIn(false);
+    }
   };
 
   // Debug session in booking widget
@@ -158,9 +171,14 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
                 size="sm"
                 className="w-full"
                 onClick={handleSignIn}
+                disabled={signingIn}
               >
-                <User className="w-4 h-4 mr-2" />
-                Sign In with Google
+                {signingIn ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <User className="w-4 h-4 mr-2" />
+                )}
+                {signingIn ? "Signing in..." : "Sign In with Google"}
               </Button>
             </div>
           </div>
