@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -20,7 +19,6 @@ import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   const { data: session, status, update } = useSession();
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -55,16 +53,11 @@ export default function Navbar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSignIn = async () => {
-    const result = await signIn("google", {
+  const handleSignIn = () => {
+    // Use redirect: true (default) for Google OAuth - this ensures session is properly established
+    signIn("google", {
       callbackUrl: window.location.href,
-      redirect: false,
     });
-    console.log("[Navbar] SignIn result:", result);
-    if (result?.ok) {
-      console.log("[Navbar] Sign in successful, refreshing session...");
-      router.refresh();
-    }
   };
 
   const handleSignOut = () => {
