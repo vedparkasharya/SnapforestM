@@ -1,41 +1,20 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSession, signIn, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu,
   X,
-  User,
-  LogOut,
-  LayoutDashboard,
-  Shield,
   Home,
   Calendar,
-  Loader2,
+  LayoutDashboard,
+  Shield,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
-/**
- * Navbar component with authentication
- * 
- * CRITICAL: Using relative callback URL ("/") instead of hardcoded production URL
- * This allows the OAuth flow to work on any deployment (preview, production, local)
- */
 export default function Navbar() {
-  const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [signingIn, setSigningIn] = useState(false);
-
-  const isAdmin = (session?.user as any)?.role === "admin";
-
-  // Debug session state
-  useEffect(() => {
-    console.log("[Navbar] Session status:", status);
-    console.log("[Navbar] Session user:", session?.user);
-  }, [session, status]);
 
   // Handle scroll effect
   useEffect(() => {
@@ -44,25 +23,6 @@ export default function Navbar() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const handleSignIn = useCallback(async () => {
-    console.log("[Navbar] Starting Google sign-in...");
-    setSigningIn(true);
-    try {
-      // Use relative callback URL - works on any deployment
-      await signIn("google", {
-        callbackUrl: "/",
-      });
-    } catch (error) {
-      console.error("[Navbar] Sign-in error:", error);
-      setSigningIn(false);
-    }
-  }, []);
-
-  const handleSignOut = useCallback(() => {
-    console.log("[Navbar] Signing out...");
-    signOut({ callbackUrl: "/", redirect: true });
   }, []);
 
   return (
@@ -98,78 +58,20 @@ export default function Navbar() {
               <Calendar className="w-4 h-4" />
               Rooms
             </Link>
-
-            {/* Show loading state */}
-            {status === "loading" && (
-              <div className="flex items-center space-x-2 text-muted-foreground">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-sm">Loading...</span>
-              </div>
-            )}
-
-            {/* Show authenticated state */}
-            {status === "authenticated" && session?.user && (
-              <>
-                <Link
-                  href="/dashboard"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  Dashboard
-                </Link>
-                {isAdmin && (
-                  <Link
-                    href="/admin"
-                    className="text-sm text-neon-cyan hover:text-neon-cyan/80 transition-colors flex items-center gap-1"
-                  >
-                    <Shield className="w-4 h-4" />
-                    Admin
-                  </Link>
-                )}
-                <div className="flex items-center space-x-3 pl-4 border-l border-white/10">
-                  <div className="flex items-center space-x-2">
-                    {session.user.image ? (
-                      <img
-                        src={session.user.image}
-                        alt={session.user.name || "User"}
-                        className="w-8 h-8 rounded-full ring-2 ring-neon-cyan/30"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center">
-                        <User className="w-4 h-4 text-white" />
-                      </div>
-                    )}
-                    <span className="text-sm font-medium max-w-[120px] truncate">
-                      {session.user.name || "User"}
-                    </span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleSignOut}
-                    className="text-muted-foreground hover:text-destructive"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </Button>
-                </div>
-              </>
-            )}
-
-            {/* Show unauthenticated state */}
-            {status === "unauthenticated" && (
-              <Button
-                variant="neon"
-                size="sm"
-                onClick={handleSignIn}
-                disabled={signingIn}
-              >
-                {signingIn ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : null}
-                {signingIn ? "Signing in..." : "Sign In"}
-              </Button>
-            )}
+            <Link
+              href="/dashboard"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              Dashboard
+            </Link>
+            <Link
+              href="/admin"
+              className="text-sm text-neon-cyan hover:text-neon-cyan/80 transition-colors flex items-center gap-1"
+            >
+              <Shield className="w-4 h-4" />
+              Admin
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -210,79 +112,20 @@ export default function Navbar() {
               >
                 Rooms
               </Link>
-
-              {status === "loading" && (
-                <div className="flex items-center space-x-2 py-2 text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm">Loading session...</span>
-                </div>
-              )}
-
-              {status === "authenticated" && session?.user ? (
-                <>
-                  <Link
-                    href="/dashboard"
-                    className="block py-2 text-sm"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Dashboard
-                  </Link>
-                  {isAdmin && (
-                    <Link
-                      href="/admin"
-                      className="block py-2 text-sm text-neon-cyan"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Admin Panel
-                    </Link>
-                  )}
-                  <div className="flex items-center gap-3 py-2 border-t border-white/5">
-                    {session.user.image ? (
-                      <img
-                        src={session.user.image}
-                        alt={session.user.name || ""}
-                        className="w-8 h-8 rounded-full"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center">
-                        <User className="w-4 h-4 text-white" />
-                      </div>
-                    )}
-                    <span className="text-sm font-medium">
-                      {session.user.name || "User"}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      handleSignOut();
-                      setIsOpen(false);
-                    }}
-                    className="flex items-center space-x-2 py-2 text-sm text-destructive"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Sign Out</span>
-                  </button>
-                </>
-              ) : (
-                status === "unauthenticated" && (
-                  <Button
-                    variant="neon"
-                    size="sm"
-                    className="w-full"
-                    disabled={signingIn}
-                    onClick={() => {
-                      handleSignIn();
-                      setIsOpen(false);
-                    }}
-                  >
-                    {signingIn ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : null}
-                    {signingIn ? "Signing in..." : "Sign In with Google"}
-                  </Button>
-                )
-              )}
+              <Link
+                href="/dashboard"
+                className="block py-2 text-sm"
+                onClick={() => setIsOpen(false)}
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/admin"
+                className="block py-2 text-sm text-neon-cyan"
+                onClick={() => setIsOpen(false)}
+              >
+                Admin Panel
+              </Link>
             </div>
           </motion.div>
         )}

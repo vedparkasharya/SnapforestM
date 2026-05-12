@@ -1,29 +1,17 @@
 import { NextRequest } from "next/server";
-import { getServerSession } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Room from "@/models/Room";
-import User from "@/models/User";
-import { successResponse, errorResponse, unauthorizedError, forbiddenError, notFoundError } from "@/lib/api-response";
+import { successResponse, errorResponse, notFoundError } from "@/lib/api-response";
 
 export const dynamic = 'force-dynamic';
 
-// Update room
+// Update room (no auth required)
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
-      return unauthorizedError();
-    }
-
     await connectDB();
-
-    const user = await User.findOne({ email: session.user.email });
-    if (!user || user.role !== "admin") {
-      return forbiddenError();
-    }
 
     const body = await request.json();
     const room = await Room.findByIdAndUpdate(
@@ -43,23 +31,13 @@ export async function PUT(
   }
 }
 
-// Delete room
+// Delete room (no auth required)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
-      return unauthorizedError();
-    }
-
     await connectDB();
-
-    const user = await User.findOne({ email: session.user.email });
-    if (!user || user.role !== "admin") {
-      return forbiddenError();
-    }
 
     const room = await Room.findByIdAndDelete(params.id);
 

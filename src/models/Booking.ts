@@ -22,7 +22,8 @@ const BookingSchema = new Schema<IBooking>(
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "User is required"],
+      required: false,
+      default: null,
     },
     room: {
       type: Schema.Types.ObjectId,

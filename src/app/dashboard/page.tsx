@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Calendar,
@@ -41,8 +40,6 @@ interface Booking {
 }
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,16 +48,8 @@ export default function DashboardPage() {
   const paymentSuccess = searchParams.get("payment") === "success";
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/");
-    }
-  }, [status, router]);
-
-  useEffect(() => {
-    if (session?.user) {
-      fetchBookings();
-    }
-  }, [session]);
+    fetchBookings();
+  }, []);
 
   const fetchBookings = async () => {
     try {
@@ -109,7 +98,7 @@ export default function DashboardPage() {
   const past = bookings.filter((b) => b.status === "completed");
   const cancelled = bookings.filter((b) => b.status === "cancelled");
 
-  if (status === "loading" || loading) {
+  if (loading) {
     return (
       <main className="min-h-screen pt-24 px-4">
         <div className="max-w-5xl mx-auto space-y-6">

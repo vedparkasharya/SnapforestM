@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -87,8 +85,6 @@ const categoryLabels: Record<string, string> = {
 };
 
 export default function AdminPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -102,21 +98,8 @@ export default function AdminPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/");
-    } else if (
-      status === "authenticated" &&
-      (session?.user as any)?.role !== "admin"
-    ) {
-      router.push("/");
-    }
-  }, [status, session, router]);
-
-  useEffect(() => {
-    if (session?.user && (session?.user as any)?.role === "admin") {
-      fetchAllData();
-    }
-  }, [session]);
+    fetchAllData();
+  }, []);
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -287,7 +270,7 @@ export default function AdminPage() {
       r.city?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (status === "loading" || loading) {
+  if (loading) {
     return (
       <main className="min-h-screen pt-24 px-4">
         <div className="max-w-7xl mx-auto space-y-6">
@@ -301,8 +284,6 @@ export default function AdminPage() {
       </main>
     );
   }
-
-  if ((session?.user as any)?.role !== "admin") return null;
 
   return (
     <main className="min-h-screen pt-24 px-4 pb-12">
@@ -1006,29 +987,27 @@ function RoomFormFields({ room }: { room?: Room }) {
         <input
           name="equipment"
           defaultValue={room?.equipment?.join(", ")}
-          placeholder="WiFi, Microphone, Camera, LED Lights"
+          placeholder="Microphone, Camera, Lights"
           className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1"
         />
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className="text-sm font-medium">Price/Hour (₹)</label>
+          <label className="text-sm font-medium">Price/Hour</label>
           <input
             name="pricePerHour"
             type="number"
             required
-            min="0"
             defaultValue={room?.pricePerHour}
             className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1"
           />
         </div>
         <div>
-          <label className="text-sm font-medium">Price/Day (₹)</label>
+          <label className="text-sm font-medium">Price/Day</label>
           <input
             name="pricePerDay"
             type="number"
             required
-            min="0"
             defaultValue={room?.pricePerDay}
             className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1"
           />
@@ -1039,16 +1018,16 @@ function RoomFormFields({ room }: { room?: Room }) {
             name="capacity"
             type="number"
             required
-            min="1"
             defaultValue={room?.capacity}
             className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1"
           />
         </div>
       </div>
       <div>
-        <label className="text-sm font-medium">Google Maps Link</label>
+        <label className="text-sm font-medium">Map Link (optional)</label>
         <input
           name="mapLink"
+          type="url"
           defaultValue={room?.mapLink}
           placeholder="https://maps.google.com/..."
           className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1"
@@ -1063,7 +1042,7 @@ function RoomFormFields({ room }: { room?: Room }) {
           className="w-4 h-4 rounded"
         />
         <label htmlFor="featured" className="text-sm">
-          Feature this room on homepage
+          Featured room
         </label>
       </div>
     </>

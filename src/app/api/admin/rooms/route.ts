@@ -1,26 +1,14 @@
 import { NextRequest } from "next/server";
-import { getServerSession } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Room from "@/models/Room";
-import User from "@/models/User";
-import { successResponse, errorResponse, unauthorizedError, forbiddenError } from "@/lib/api-response";
+import { successResponse, errorResponse } from "@/lib/api-response";
 
 export const dynamic = 'force-dynamic';
 
-// Create room
+// Create room (no auth required)
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
-      return unauthorizedError();
-    }
-
     await connectDB();
-
-    const user = await User.findOne({ email: session.user.email });
-    if (!user || user.role !== "admin") {
-      return forbiddenError();
-    }
 
     const body = await request.json();
     const room = await Room.create(body);
@@ -32,20 +20,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Get all rooms (admin)
+// Get all rooms (no auth required)
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
-      return unauthorizedError();
-    }
-
     await connectDB();
-
-    const user = await User.findOne({ email: session.user.email });
-    if (!user || user.role !== "admin") {
-      return forbiddenError();
-    }
 
     const rooms = await Room.find().sort({ createdAt: -1 }).lean();
     return successResponse(rooms);

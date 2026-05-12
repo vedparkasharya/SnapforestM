@@ -1,29 +1,20 @@
 import { NextRequest } from "next/server";
 import Razorpay from "razorpay";
-import { getServerSession } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Booking from "@/models/Booking";
 import Room from "@/models/Room";
-import User from "@/models/User";
-import { successResponse, errorResponse, unauthorizedError, validationError } from "@/lib/api-response";
+import { successResponse, errorResponse, validationError } from "@/lib/api-response";
 import { BookingSchema } from "@/types";
 
 export const dynamic = 'force-dynamic';
 
 /**
  * Create booking + Razorpay order
- * 
- * FIX: Using proper ES module import for Razorpay instead of require()
- * This prevents issues in serverless/Edge environments
+ *
+ * No authentication required - anyone can book.
  */
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session?.user?.email) {
-      return unauthorizedError("Please sign in to book");
-    }
-
     // Validate request body
     const body = await request.json();
     const validated = BookingSchema.safeParse(body);
@@ -33,10 +24,6 @@ export async function POST(request: NextRequest) {
 
     // Connect to database
     await connectDB();
-
-    // Find user
-    const user = await User.findOne({ email: session.user.email });
-    if (!user) return errorResponse("User not found", 404);
 
     // Find room
     const room = await Room.findById(body.roomId);
@@ -61,7 +48,6 @@ export async function POST(request: NextRequest) {
     expiresAt.setMinutes(expiresAt.getMinutes() + 15);
 
     const booking = await Booking.create({
-      user: user._id,
       room: body.roomId,
       date: new Date(body.date),
       startTime: body.startTime,
@@ -93,7 +79,6 @@ export async function POST(request: NextRequest) {
       receipt: `booking_${booking._id}`,
       notes: {
         bookingId: booking._id.toString(),
-        userId: user._id.toString(),
         roomId: body.roomId,
       },
     });
@@ -117,7 +102,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: any) {
     console.error("[Bookings] Create booking error:", error);
-    
+
     // Handle specific Razorpay errors
     if (error?.statusCode === 401) {
       return errorResponse("Payment gateway authentication failed. Check Razorpay keys.", 500);
@@ -125,25 +110,17 @@ export async function POST(request: NextRequest) {
     if (error?.error?.description) {
       return errorResponse(`Payment error: ${error.error.description}`);
     }
-    
+
     return errorResponse(error.message || "Failed to create booking");
   }
 }
 
-// Get user bookings
+// Get all bookings (no auth required)
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
-      return unauthorizedError();
-    }
-
     await connectDB();
 
-    const user = await User.findOne({ email: session.user.email });
-    if (!user) return errorResponse("User not found", 404);
-
-    const bookings = await Booking.find({ user: user._id })
+    const bookings = await Booking.find()
       .populate("room", "name address city images slug")
       .sort({ createdAt: -1 })
       .lean();

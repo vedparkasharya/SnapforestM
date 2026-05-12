@@ -1,14 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useSession, signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Camera, Mic, Music } from "lucide-react";
 import Link from "next/link";
 
 export default function Hero() {
-  const { data: session } = useSession();
-
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-16">
       {/* Background Effects */}
@@ -63,11 +60,6 @@ export default function Hero() {
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
-          {!session?.user && (
-            <Button size="lg" variant="outline" onClick={() => signIn("google")}>
-              Sign In to Book
-            </Button>
-          )}
         </motion.div>
 
         {/* Stats */}

@@ -1,26 +1,12 @@
 import { NextRequest } from "next/server";
-import { getServerSession } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Booking from "@/models/Booking";
-import User from "@/models/User";
-import { successResponse, errorResponse, unauthorizedError, forbiddenError } from "@/lib/api-response";
+import { successResponse, errorResponse } from "@/lib/api-response";
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
-      return unauthorizedError();
-    }
-
-    await connectDB();
-
-    const user = await User.findOne({ email: session.user.email });
-    if (!user || user.role !== "admin") {
-      return forbiddenError();
-    }
-
     const body = await request.json();
     const { bookingId } = body;
 

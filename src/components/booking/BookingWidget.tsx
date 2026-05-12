@@ -1,20 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import {
   Calendar,
   Clock,
   AlertTriangle,
   Check,
-  LogIn,
-  User,
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatPrice, getTimeSlots, isPastDate, isPastTimeSlot } from "@/lib/utils";
+import { formatPrice, getTimeSlots, isPastTimeSlot } from "@/lib/utils";
 
 interface BookingWidgetProps {
   room: {
@@ -27,12 +24,10 @@ interface BookingWidgetProps {
 
 /**
  * Booking Widget Component
- * 
- * CRITICAL FIX: Using relative callback URL (window.location.pathname)
- * instead of hardcoded production URL for OAuth sign-in
+ *
+ * No authentication required - anyone can book directly.
  */
 export default function BookingWidget({ room }: BookingWidgetProps) {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -40,31 +35,8 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
   const [bookingType, setBookingType] = useState<"hourly" | "daily">("hourly");
   const [agreedToPolicy, setAgreedToPolicy] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [signingIn, setSigningIn] = useState(false);
 
   const timeSlots = getTimeSlots();
-
-  // Sign in handler - uses current page path as callback
-  const handleSignIn = useCallback(async () => {
-    console.log("[BookingWidget] Starting Google sign-in...");
-    setSigningIn(true);
-    try {
-      // Use current page path for redirect after sign-in
-      // This keeps the user on the same room page after login
-      await signIn("google", {
-        callbackUrl: window.location.pathname + window.location.search,
-      });
-    } catch (error) {
-      console.error("[BookingWidget] Sign-in error:", error);
-      setSigningIn(false);
-    }
-  }, []);
-
-  // Debug session in booking widget
-  useEffect(() => {
-    console.log("[BookingWidget] Session status:", status);
-    console.log("[BookingWidget] Session user:", session?.user);
-  }, [session, status]);
 
   const calculateTotal = () => {
     if (bookingType === "daily") return room.pricePerDay;
@@ -76,10 +48,6 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
   };
 
   const handleBooking = async () => {
-    if (!session?.user) {
-      alert("Please sign in to book");
-      return;
-    }
     if (!date || !startTime || !endTime) {
       alert("Please select date and time");
       return;
@@ -141,76 +109,10 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
   };
 
   const total = calculateTotal();
-  const isAuthenticated = status === "authenticated" && !!session?.user;
-  const isLoading = status === "loading";
 
   return (
     <div className="glass-card p-6 sticky top-24">
       <h3 className="text-xl font-semibold mb-4">Book This Studio</h3>
-
-      {/* Session Status Banner */}
-      {isLoading ? (
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5 mb-4">
-          <Loader2 className="w-5 h-5 animate-spin text-neon-cyan" />
-          <span className="text-sm text-muted-foreground">Checking session...</span>
-        </div>
-      ) : !isAuthenticated ? (
-        <motion.div
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 rounded-xl bg-gradient-to-r from-neon-cyan/10 to-neon-purple/10 border border-neon-cyan/20 mb-4"
-        >
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-neon-cyan/10">
-              <LogIn className="w-5 h-5 text-neon-cyan" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium mb-1">Sign in to book</p>
-              <p className="text-xs text-muted-foreground mb-3">
-                Login with your Google account to make a booking
-              </p>
-              <Button
-                variant="neon"
-                size="sm"
-                className="w-full"
-                onClick={handleSignIn}
-                disabled={signingIn}
-              >
-                {signingIn ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <User className="w-4 h-4 mr-2" />
-                )}
-                {signingIn ? "Signing in..." : "Sign In with Google"}
-              </Button>
-            </div>
-          </div>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20 mb-4"
-        >
-          {session.user.image ? (
-            <img
-              src={session.user.image}
-              alt=""
-              className="w-8 h-8 rounded-full"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <User className="w-5 h-5 text-green-400" />
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">
-              {session.user.name || "Signed in"}
-            </p>
-            <p className="text-xs text-muted-foreground">Ready to book</p>
-          </div>
-          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-        </motion.div>
-      )}
 
       {/* Booking Type */}
       <div className="flex gap-2 mb-4">
@@ -336,7 +238,6 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
         variant="neon"
         size="lg"
         disabled={
-          !isAuthenticated ||
           !agreedToPolicy ||
           !date ||
           (bookingType === "hourly" && (!startTime || !endTime)) ||
@@ -349,8 +250,6 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             Processing...
           </>
-        ) : !isAuthenticated ? (
-          "Sign in to Book"
         ) : (
           "Book Now"
         )}
