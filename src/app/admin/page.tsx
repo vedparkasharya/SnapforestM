@@ -70,6 +70,7 @@ interface Room {
   reviews: number;
   capacity: number;
   isAvailable: boolean;
+  mapLink?: string;
   createdAt: string;
 }
 

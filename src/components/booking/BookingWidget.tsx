@@ -3,6 +3,19 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
+
+// Sign in handler with session refresh
+async function handleSignIn() {
+  const result = await signIn("google", {
+    callbackUrl: window.location.href,
+    redirect: false,
+  });
+  console.log("[BookingWidget] SignIn result:", result);
+  if (result?.ok) {
+    console.log("[BookingWidget] Sign in successful, refreshing...");
+    window.location.reload();
+  }
+}
 import { motion } from "framer-motion";
 import {
   Calendar,
@@ -150,7 +163,7 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
                 variant="neon"
                 size="sm"
                 className="w-full"
-                onClick={() => signIn("google", { callbackUrl: window.location.href })}
+                onClick={handleSignIn}
               >
                 <User className="w-4 h-4 mr-2" />
                 Sign In with Google
