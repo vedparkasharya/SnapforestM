@@ -4,12 +4,25 @@ import GoogleProvider from "next-auth/providers/google";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 
-const ADMIN_EMAIL = "vedprakasharya9973@gmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "vedprakasharya9973@gmail.com";
 
-// Production domain - FIXED, never changes
-const PRODUCTION_URL = "https://snapforest-m.vercel.app";
+// Detect if we're running on HTTPS (production/Vercel)
+const useSecureCookies = process.env.VERCEL === "1" || process.env.NODE_ENV === "production";
 
-// Shared auth configuration - used by both the API route AND server-side session checks
+// Cookie names based on security requirements
+const cookiePrefix = useSecureCookies ? "__Secure-" : "";
+
+/**
+ * NextAuth configuration optimized for Vercel deployment
+ * 
+ * CRITICAL FIXES for session persistence:
+ * 1. trustHost: true - Required for Vercel to properly handle cookies
+ * 2. useSecureCookies - Auto-detected based on deployment environment
+ * 3. Cookie names use __Secure- prefix only when HTTPS is available
+ * 4. Removed __Host- prefix from CSRF (too restrictive for some deployments)
+ * 5. redirect callback uses relative URLs (prevents cross-origin issues)
+ * 6. proper sameSite: "lax" for OAuth compatibility
+ */
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -26,49 +39,53 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
 
-  // Use JWT strategy for stateless sessions
+  // Use JWT strategy for stateless sessions (required for Vercel serverless)
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 24 * 60 * 60, // 24 hours
   },
 
-  // Cookie configuration for production
+  // JWT configuration with strong secret
+  jwt: {
+    secret: process.env.NEXTAUTH_SECRET,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+
+  // Cookie configuration - CRITICAL for session persistence
   cookies: {
     sessionToken: {
-      name: process.env.NODE_ENV === "production"
-        ? "__Secure-next-auth.session-token"
-        : "next-auth.session-token",
+      name: `${cookiePrefix}next-auth.session-token`,
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: useSecureCookies,
       },
     },
     callbackUrl: {
-      name: process.env.NODE_ENV === "production"
-        ? "__Secure-next-auth.callback-url"
-        : "next-auth.callback-url",
+      name: `${cookiePrefix}next-auth.callback-url`,
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: useSecureCookies,
       },
     },
     csrfToken: {
-      name: process.env.NODE_ENV === "production"
-        ? "__Host-next-auth.csrf-token"
-        : "next-auth.csrf-token",
+      name: `${cookiePrefix}next-auth.csrf-token`,
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: useSecureCookies,
       },
     },
   },
+
+  // Trust the host - CRITICAL for Vercel deployments
+  // This tells NextAuth to trust the x-forwarded-host header
+  trustHost: true,
 
   callbacks: {
     async signIn({ user, account }) {
@@ -95,6 +112,12 @@ export const authOptions: NextAuthOptions = {
               image: user.image,
               role: isAdmin ? "admin" : "user",
             });
+          } else {
+            // Update user info on each sign in
+            await User.findByIdAndUpdate(existingUser._id, {
+              name: user.name,
+              image: user.image,
+            });
           }
 
           return true;
@@ -109,6 +132,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user, account }) {
+      // Initial sign in - populate token from user
       if (user && account) {
         console.log("[NextAuth] JWT sign-in for:", user.email);
 
@@ -145,7 +169,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      console.log("[NextAuth] Session - id:", token.id, "role:", token.role);
+      console.log("[NextAuth] Session - id:", token.id, "role:", token.role, "email:", token.email);
 
       if (session.user) {
         session.user.id = (token.id as string) || (token.sub as string) || "";
@@ -158,18 +182,26 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
 
-    async redirect({ url }) {
-      const productionUrl = PRODUCTION_URL;
+    /**
+     * CRITICAL FIX: Use relative URLs for redirects
+     * This prevents cross-origin redirect issues on Vercel
+     * The callbackUrl is automatically handled by NextAuth
+     */
+    async redirect({ url, baseUrl }) {
+      console.log("[NextAuth] Redirect - url:", url, "baseUrl:", baseUrl);
 
+      // Allows relative callback URLs
       if (url.startsWith("/")) {
-        return `${productionUrl}${url}`;
+        return `${baseUrl}${url}`;
       }
 
-      if (url.startsWith(productionUrl)) {
+      // Allows callback URLs on the same origin
+      if (new URL(url).origin === baseUrl) {
         return url;
       }
 
-      return productionUrl;
+      // Default: redirect to base URL
+      return baseUrl;
     },
   },
 
@@ -179,7 +211,10 @@ export const authOptions: NextAuthOptions = {
   },
 
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === "development",
+  
+  // Enable debug logs in production temporarily to diagnose issues
+  // Set NEXTAUTH_DEBUG=true env var to enable
+  debug: process.env.NEXTAUTH_DEBUG === "true" || process.env.NODE_ENV === "development",
 };
 
 // Wrapper for server-side session fetching - ALWAYS use this in API routes

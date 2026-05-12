@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import Razorpay from "razorpay";
 import { getServerSession } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Booking from "@/models/Booking";
@@ -7,25 +8,35 @@ import User from "@/models/User";
 import { successResponse, errorResponse, unauthorizedError, validationError } from "@/lib/api-response";
 import { BookingSchema } from "@/types";
 
-// Create booking + Razorpay order
+/**
+ * Create booking + Razorpay order
+ * 
+ * FIX: Using proper ES module import for Razorpay instead of require()
+ * This prevents issues in serverless/Edge environments
+ */
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
     const session = await getServerSession();
     if (!session?.user?.email) {
       return unauthorizedError("Please sign in to book");
     }
 
+    // Validate request body
     const body = await request.json();
     const validated = BookingSchema.safeParse(body);
     if (!validated.success) {
       return validationError("Invalid booking data", validated.error.message);
     }
 
+    // Connect to database
     await connectDB();
 
+    // Find user
     const user = await User.findOne({ email: session.user.email });
     if (!user) return errorResponse("User not found", 404);
 
+    // Find room
     const room = await Room.findById(body.roomId);
     if (!room) return errorResponse("Room not found", 404);
 
@@ -61,10 +72,17 @@ export async function POST(request: NextRequest) {
     });
 
     // Create Razorpay order
-    const Razorpay = require("razorpay");
+    const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
+    const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!razorpayKeyId || !razorpayKeySecret) {
+      console.error("[Bookings] Razorpay credentials missing");
+      return errorResponse("Payment gateway not configured", 500);
+    }
+
     const razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
+      key_id: razorpayKeyId,
+      key_secret: razorpayKeySecret,
     });
 
     const order = await razorpay.orders.create({
@@ -96,7 +114,16 @@ export async function POST(request: NextRequest) {
       201
     );
   } catch (error: any) {
-    console.error("Create booking error:", error);
+    console.error("[Bookings] Create booking error:", error);
+    
+    // Handle specific Razorpay errors
+    if (error?.statusCode === 401) {
+      return errorResponse("Payment gateway authentication failed. Check Razorpay keys.", 500);
+    }
+    if (error?.error?.description) {
+      return errorResponse(`Payment error: ${error.error.description}`);
+    }
+    
     return errorResponse(error.message || "Failed to create booking");
   }
 }
@@ -121,7 +148,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse(bookings);
   } catch (error) {
-    console.error("Get bookings error:", error);
+    console.error("[Bookings] Get bookings error:", error);
     return errorResponse("Failed to fetch bookings");
   }
 }

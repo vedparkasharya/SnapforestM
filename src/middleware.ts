@@ -1,6 +1,12 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
+/**
+ * Middleware for protecting routes with NextAuth
+ * 
+ * IMPORTANT: /api/auth/* routes are automatically excluded
+ * by NextAuth and should NEVER be included in the matcher
+ */
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
@@ -17,8 +23,8 @@ export default withAuth(
       console.log("[Middleware] Admin access granted");
     }
 
-    // Protected routes: dashboard and user API
-    if (path.startsWith("/dashboard") || path.startsWith("/api/user")) {
+    // Protected routes: dashboard requires authentication
+    if (path.startsWith("/dashboard")) {
       if (!token) {
         console.warn("[Middleware] No token for protected path:", path);
         return NextResponse.redirect(new URL("/", req.url));
@@ -39,7 +45,7 @@ export default withAuth(
       signIn: "/",
       error: "/",
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    // Note: secret is automatically read from NEXTAUTH_SECRET env var
   }
 );
 
@@ -49,7 +55,6 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/admin/:path*",
-    "/api/user/:path*",
     "/api/admin/:path*",
     "/api/bookings/:path*",
   ],

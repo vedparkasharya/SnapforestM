@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 import { motion } from "framer-motion";
@@ -25,9 +25,12 @@ interface BookingWidgetProps {
   };
 }
 
-// Fixed callback URL for Google OAuth - NEVER use window.location.href
-const CALLBACK_URL = "https://snapforest-m.vercel.app";
-
+/**
+ * Booking Widget Component
+ * 
+ * CRITICAL FIX: Using relative callback URL (window.location.pathname)
+ * instead of hardcoded production URL for OAuth sign-in
+ */
 export default function BookingWidget({ room }: BookingWidgetProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -41,21 +44,21 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
 
   const timeSlots = getTimeSlots();
 
-  // Sign in handler - uses redirect:true for proper session establishment
-  const handleSignIn = async () => {
+  // Sign in handler - uses current page path as callback
+  const handleSignIn = useCallback(async () => {
     console.log("[BookingWidget] Starting Google sign-in...");
     setSigningIn(true);
     try {
-      // CRITICAL: Use FIXED production URL, NOT window.location.href
-      // This prevents preview deployment URI mismatch errors
+      // Use current page path for redirect after sign-in
+      // This keeps the user on the same room page after login
       await signIn("google", {
-        callbackUrl: CALLBACK_URL,
+        callbackUrl: window.location.pathname + window.location.search,
       });
     } catch (error) {
       console.error("[BookingWidget] Sign-in error:", error);
       setSigningIn(false);
     }
-  };
+  }, []);
 
   // Debug session in booking widget
   useEffect(() => {

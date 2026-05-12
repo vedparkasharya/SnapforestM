@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,9 +17,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Fixed callback URL for Google OAuth - NEVER use window.location.href
-const CALLBACK_URL = "https://snapforest-m.vercel.app";
-
+/**
+ * Navbar component with authentication
+ * 
+ * CRITICAL: Using relative callback URL ("/") instead of hardcoded production URL
+ * This allows the OAuth flow to work on any deployment (preview, production, local)
+ */
 export default function Navbar() {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
@@ -43,25 +46,24 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleSignIn = async () => {
+  const handleSignIn = useCallback(async () => {
     console.log("[Navbar] Starting Google sign-in...");
     setSigningIn(true);
     try {
-      // Use redirect: true (required for OAuth flow)
-      // Use FIXED production URL as callbackUrl (NOT window.location.href)
+      // Use relative callback URL - works on any deployment
       await signIn("google", {
-        callbackUrl: CALLBACK_URL,
+        callbackUrl: "/",
       });
     } catch (error) {
       console.error("[Navbar] Sign-in error:", error);
       setSigningIn(false);
     }
-  };
+  }, []);
 
-  const handleSignOut = () => {
+  const handleSignOut = useCallback(() => {
     console.log("[Navbar] Signing out...");
-    signOut({ callbackUrl: CALLBACK_URL, redirect: true });
-  };
+    signOut({ callbackUrl: "/", redirect: true });
+  }, []);
 
   return (
     <nav
