@@ -6,15 +6,9 @@ import User from "@/models/User";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "vedprakasharya9973@gmail.com";
 
-/**
- * NextAuth Configuration - Simplified & Reliable
- *
- * CRITICAL PRINCIPLES:
- * 1. ONE consistent NEXTAUTH_SECRET env var across all environments
- * 2. Default NextAuth cookies (most reliable, auto-secure)
- * 3. trustHost: true for Vercel serverless
- * 4. JWT strategy for stateless sessions
- */
+// Same secret jo pehle se use ho raha hai
+const FALLBACK_SECRET = "weiX5ZownFNAbdRxyaVpXxbSgxBs/MDidyvN3vG9xNY=";
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -33,11 +27,10 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
+    maxAge: 30 * 24 * 60 * 60,
+    updateAge: 24 * 60 * 60,
   },
 
-  // Trust host headers - REQUIRED for Vercel
   trustHost: true,
 
   callbacks: {
@@ -47,10 +40,7 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === "google") {
         try {
           await connectDB();
-
-          const existingUser = await User.findOne({
-            email: user.email,
-          });
+          const existingUser = await User.findOne({ email: user.email });
 
           if (!existingUser) {
             const isAdmin =
@@ -151,13 +141,14 @@ export const authOptions: NextAuthOptions = {
     error: "/",
   },
 
-  // Use secret from env var - MUST be consistent across deploys
-  secret: process.env.NEXTAUTH_SECRET,
+  // ✅ Env var prefer karo, nahi toh same fallback secret
+  secret: process.env.NEXTAUTH_SECRET || FALLBACK_SECRET,
 
-  // Debug only in development
-  debug: process.env.NODE_ENV === "development",
+  // ✅ Debug ON — Vercel Runtime Logs mein exact error dikhega
+  debug: true,
 };
 
 export async function getServerSession() {
   return getSession(authOptions);
 }
+
