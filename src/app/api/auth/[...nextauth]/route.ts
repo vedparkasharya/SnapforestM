@@ -1,4 +1,5 @@
-import NextAuth from "next-auth";
+
+        import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
@@ -15,13 +16,6 @@ const handler = NextAuth({
 
   callbacks: {
     async signIn({ user, account }) {
-      console.log(
-        "[Auth] signIn callback - provider:",
-        account?.provider,
-        "email:",
-        user.email
-      );
-
       if (account?.provider === "google") {
         try {
           await connectDB();
@@ -35,45 +29,17 @@ const handler = NextAuth({
               user.email?.toLowerCase().trim() ===
               ADMIN_EMAIL.toLowerCase().trim();
 
-            console.log(
-              "[Auth] Creating new user:",
-              user.email,
-              "role:",
-              isAdmin ? "admin" : "user"
-            );
-
             await User.create({
               name: user.name,
               email: user.email,
               image: user.image,
               role: isAdmin ? "admin" : "user",
             });
-          } else {
-            if (
-              existingUser.email?.toLowerCase().trim() ===
-                ADMIN_EMAIL.toLowerCase().trim() &&
-              existingUser.role !== "admin"
-            ) {
-              console.log(
-                "[Auth] Promoting to admin:",
-                existingUser.email
-              );
-
-              existingUser.role = "admin";
-              await existingUser.save();
-            }
-
-            console.log(
-              "[Auth] Existing user found:",
-              existingUser.email,
-              "role:",
-              existingUser.role
-            );
           }
 
           return true;
         } catch (error) {
-          console.error("[Auth] signIn error:", error);
+          console.error(error);
           return false;
         }
       }
@@ -81,13 +47,8 @@ const handler = NextAuth({
       return true;
     },
 
-    async jwt({ token, user, account, trigger, session }) {
-      if (user && account) {
-        console.log(
-          "[Auth] jwt callback - initial sign-in for:",
-          user.email
-        );
-
+    async jwt({ token, user }) {
+      if (user) {
         try {
           await connectDB();
 
@@ -96,63 +57,25 @@ const handler = NextAuth({
           });
 
           if (dbUser) {
-            token.sub = dbUser._id.toString();
+            token.id = dbUser._id.toString();
             token.role = dbUser.role;
-            token.email = dbUser.email;
-            token.picture = dbUser.image;
-            token.name = dbUser.name;
-
-            console.log(
-              "[Auth] jwt token populated - id:",
-              token.sub,
-              "role:",
-              token.role
-            );
-          } else {
-            token.sub = user.id;
-            token.role = "user";
-            token.email = user.email;
-            token.name = user.name;
-            token.picture = user.image;
-
-            console.warn(
-              "[Auth] jwt fallback - user not found in DB"
-            );
           }
         } catch (error) {
-          console.error("[Auth] jwt DB error:", error);
-          token.role = "user";
+          console.error(error);
         }
-      }
-
-      if (trigger === "update" && session) {
-        console.log("[Auth] jwt update trigger");
-        token = { ...token, ...session };
       }
 
       return token;
     },
 
     async session({ session, token }) {
-      if (token && session) {
-        session.user = session.user || {};
-
-        (session.user as any).id = token.sub || "";
-        (session.user as any).role =
-          (token.role as "user" | "admin") || "user";
+      if (session.user) {
+        (session.user as any).id = token.id;
+        (session.user as any).role = token.role;
 
         session.user.name = token.name || "";
         session.user.email = token.email || "";
         session.user.image = token.picture || "";
-
-        console.log(
-          "[Auth] session callback - id:",
-          token.sub,
-          "role:",
-          token.role,
-          "email:",
-          token.email
-        );
       }
 
       return session;
@@ -161,7 +84,6 @@ const handler = NextAuth({
 
   pages: {
     signIn: "/",
-    error: "/",
   },
 
   session: {
@@ -170,8 +92,6 @@ const handler = NextAuth({
   },
 
   secret: process.env.NEXTAUTH_SECRET,
-
-  debug: process.env.NODE_ENV === "development",
 });
 
 export { handler as GET, handler as POST };
