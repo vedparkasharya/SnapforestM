@@ -1014,4 +1014,7 @@ function RoomFormFields({ room }: { room?: Room }) {
         <div><label className="text-sm font-medium">Capacity</label><input name="capacity" type="number" required defaultValue={room?.capacity} className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1" /></div>
       </div>
       <div className="flex items-center gap-2"><input type="checkbox" name="featured" id="featured" defaultChecked={room?.featured} className="w-4 h-4 rounded" /><label htmlFor="featured" className="text-sm">Featured room</label></div>
-      <div><label className="text-sm font-medium">Map Link (optional)</label><input name="mapLink" defaultValue={room?.mapLink} placeholder="https://maps.google.com/..." className="w-full h-10 rounded-lg border border-input bg-
+      <div><label className="text-sm font-medium">Map Link (optional)</label><input name="mapLink" defaultValue={room?.mapLink} placeholder="https://maps.google.com/..." className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1" /></div>
+    </>
+  );
+}
