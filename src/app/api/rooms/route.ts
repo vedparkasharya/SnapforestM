@@ -3,6 +3,8 @@ import connectDB from "@/lib/db";
 import Room from "@/models/Room";
 import { successResponse, errorResponse } from "@/lib/api-response";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();

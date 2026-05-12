@@ -5,6 +5,8 @@ import Booking from "@/models/Booking";
 import User from "@/models/User";
 import { successResponse, errorResponse, unauthorizedError, forbiddenError } from "@/lib/api-response";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();

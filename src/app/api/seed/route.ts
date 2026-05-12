@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Room from "@/models/Room";
 
+export const dynamic = 'force-dynamic';
+
 const demoRooms = [
   {
     name: "Patna Podcast Hub",

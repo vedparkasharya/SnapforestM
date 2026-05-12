@@ -8,6 +8,8 @@ import User from "@/models/User";
 import { successResponse, errorResponse, unauthorizedError, validationError } from "@/lib/api-response";
 import { BookingSchema } from "@/types";
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Create booking + Razorpay order
  * 

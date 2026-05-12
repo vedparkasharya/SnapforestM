@@ -7,6 +7,8 @@ import User from "@/models/User";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { sendBookingConfirmationEmail } from "@/lib/email";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();

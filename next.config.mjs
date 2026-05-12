@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Explicit output directory - CRITICAL for Vercel builds
+  distDir: ".next",
+
   images: {
     domains: [
       "lh3.googleusercontent.com",

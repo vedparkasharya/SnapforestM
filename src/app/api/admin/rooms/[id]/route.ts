@@ -5,6 +5,8 @@ import Room from "@/models/Room";
 import User from "@/models/User";
 import { successResponse, errorResponse, unauthorizedError, forbiddenError, notFoundError } from "@/lib/api-response";
 
+export const dynamic = 'force-dynamic';
+
 // Update room
 export async function PUT(
   request: NextRequest,

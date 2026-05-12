@@ -2,10 +2,10 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
 /**
- * Middleware for protecting routes with NextAuth
- * 
- * IMPORTANT: /api/auth/* routes are automatically excluded
- * by NextAuth and should NEVER be included in the matcher
+ * Middleware for protecting admin and dashboard routes
+ *
+ * CRITICAL: /api/auth/* routes are automatically excluded by NextAuth
+ * DO NOT include /api/auth/* in the matcher
  */
 export default withAuth(
   function middleware(req) {
@@ -36,8 +36,7 @@ export default withAuth(
   {
     callbacks: {
       authorized({ token }) {
-        // Always return true to let the middleware function handle auth logic
-        // This prevents redirect loops while still allowing token inspection
+        // Let middleware function handle the actual auth logic
         return true;
       },
     },
@@ -45,12 +44,12 @@ export default withAuth(
       signIn: "/",
       error: "/",
     },
-    // Note: secret is automatically read from NEXTAUTH_SECRET env var
+    // Explicitly pass the secret - ensures consistency
+    secret: process.env.NEXTAUTH_SECRET,
   }
 );
 
 // CRITICAL: Only match protected routes, EXCLUDE /api/auth/*
-// DO NOT include /api/auth/* in the matcher - it will break authentication
 export const config = {
   matcher: [
     "/dashboard/:path*",
