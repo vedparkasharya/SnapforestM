@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { ToastProvider } from "@/providers/ToastProvider";
 import AppInstallPopup from "@/components/ui/AppInstallPopup";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -58,12 +59,14 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <AuthProvider>
-          <ThemeProvider>
-            <Navbar />
-            <div className="min-h-screen">{children}</div>
-            <Footer />
-            <AppInstallPopup />
-          </ThemeProvider>
+          <ToastProvider>
+            <ThemeProvider>
+              <Navbar />
+              <div className="min-h-screen">{children}</div>
+              <Footer />
+              <AppInstallPopup />
+            </ThemeProvider>
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

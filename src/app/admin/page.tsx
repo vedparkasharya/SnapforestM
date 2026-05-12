@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/providers/AuthProvider";
+import { useToast } from "@/providers/ToastProvider";
 import { formatPrice, formatDate } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────
@@ -253,6 +254,7 @@ function WelcomeBanner({ name, onDismiss }: { name: string; onDismiss: () => voi
 export default function AdminPage() {
   const router = useRouter();
   const { user, isAdmin, isLoading: authLoading, logout } = useAuth();
+  const { showToast } = useToast();
 
   // Keyboard shortcuts
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -372,8 +374,10 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
           completionRate: parseFloat((Math.random() * 10 + 85).toFixed(1)),
         });
       }
-    } catch (error) { console.error("Error:", error); }
-    finally { setLoading(false); }
+    } catch (error) {
+      console.error("Error:", error);
+      showToast("Failed to load dashboard data", "error");
+    } finally { setLoading(false); }
   };
 
   const handleLogout = () => {
@@ -390,16 +394,20 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
     a.href = url;
     a.download = `bookings-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
+    showToast("CSV exported successfully!", "success");
   };
 
-  const handlePrint = () => window.print();
+  const handlePrint = () => {
+    window.print();
+    showToast("Print dialog opened", "info");
+  };
 
   const startVoiceSearch = () => {
-    if (!("webkitSpeechRecognition" in window)) { alert("Voice search not supported"); return; }
+    if (!("webkitSpeechRecognition" in window)) { showToast("Voice search not supported in this browser", "warning"); return; }
     setIsListening(true);
     const recognition = new (window as any).webkitSpeechRecognition();
     recognition.lang = "en-US";
-    recognition.onresult = (event: any) => { setSearchQuery(event.results[0][0].transcript); setIsListening(false); setShowVoiceSearch(false); };
+    recognition.onresult = (event: any) => { setSearchQuery(event.results[0][0].transcript); setIsListening(false); setShowVoiceSearch(false); showToast(`Searching: "${event.results[0][0].transcript}"`, "success"); };
     recognition.onerror = () => setIsListening(false);
     recognition.onend = () => setIsListening(false);
     recognition.start();
@@ -423,9 +431,9 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
     try {
       const res = await fetch("/api/admin/rooms", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       const result = await res.json();
-      if (result.success) { setShowRoomForm(false); fetchAllData(); }
-      else alert(result.message || "Failed");
-    } catch (error) { console.error(error); }
+      if (result.success) { setShowRoomForm(false); fetchAllData(); showToast("Room created successfully!", "success"); }
+      else { showToast(result.message || "Failed to create room", "error"); }
+    } catch (error) { console.error(error); showToast("Network error", "error"); }
     setSubmitting(false);
   };
 
@@ -448,9 +456,9 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
     try {
       const res = await fetch(`/api/admin/rooms/${editingRoom._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       const result = await res.json();
-      if (result.success) { setEditingRoom(null); fetchAllData(); }
-      else alert(result.message || "Failed");
-    } catch (error) { console.error(error); }
+      if (result.success) { setEditingRoom(null); fetchAllData(); showToast("Room updated successfully!", "success"); }
+      else { showToast(result.message || "Failed to update room", "error"); }
+    } catch (error) { console.error(error); showToast("Network error", "error"); }
     setSubmitting(false);
   };
 
@@ -459,9 +467,9 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
     try {
       const res = await fetch(`/api/admin/rooms/${roomId}`, { method: "DELETE" });
       const data = await res.json();
-      if (data.success) { setDeleteConfirm(null); fetchAllData(); }
-      else alert(data.message || "Failed");
-    } catch (error) { console.error(error); }
+      if (data.success) { setDeleteConfirm(null); fetchAllData(); showToast("Room deleted!", "success"); }
+      else { showToast(data.message || "Failed to delete room", "error"); }
+    } catch (error) { console.error(error); showToast("Network error", "error"); }
     setDeleteLoading(false);
   };
 
@@ -470,8 +478,8 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
     try {
       const res = await fetch("/api/admin/bookings/refund", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ bookingId }) });
       const data = await res.json();
-      if (data.success) fetchAllData();
-    } catch (error) { console.error(error); }
+      if (data.success) { fetchAllData(); showToast("Refund processed successfully!", "success"); }
+    } catch (error) { console.error(error); showToast("Refund failed", "error"); }
   };
 
   const markRead = (id: string) => setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
@@ -1006,7 +1014,4 @@ function RoomFormFields({ room }: { room?: Room }) {
         <div><label className="text-sm font-medium">Capacity</label><input name="capacity" type="number" required defaultValue={room?.capacity} className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1" /></div>
       </div>
       <div className="flex items-center gap-2"><input type="checkbox" name="featured" id="featured" defaultChecked={room?.featured} className="w-4 h-4 rounded" /><label htmlFor="featured" className="text-sm">Featured room</label></div>
-      <div><label className="text-sm font-medium">Map Link (optional)</label><input name="mapLink" defaultValue={room?.mapLink} placeholder="https://maps.google.com/..." className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1" /></div>
-    </>
-  );
-}
+      <div><label className="text-sm font-medium">Map Link (optional)</label><input name="mapLink" defaultValue={room?.mapLink} placeholder="https://maps.google.com/..." className="w-full h-10 rounded-lg border border-input bg-
