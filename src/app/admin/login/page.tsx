@@ -1,20 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, LogIn, Eye, EyeOff, Sparkles } from "lucide-react";
+import { Shield, LogIn, Eye, EyeOff, Sparkles, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-const ADMIN_CREDENTIALS = {
-  email: "admin@snapforest.com",
-  password: "Admin@123",
-  user: {
-    id: "admin-001",
-    name: "Snapforest Admin",
-    email: "admin@snapforest.com",
-    role: "admin" as const,
-  },
-};
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -23,28 +13,42 @@ export default function AdminLoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { adminLogin, isAdmin, isLoading } = useAuth();
+
+  // Redirect if already logged in as admin
+  useEffect(() => {
+    if (!isLoading && isAdmin) {
+      router.push("/admin");
+    }
+  }, [isAdmin, isLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsSubmitting(true);
 
-    await new Promise((r) => setTimeout(r, 800));
+    const result = await adminLogin(email, password);
 
-    if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-      localStorage.setItem("snapforest_admin", JSON.stringify(ADMIN_CREDENTIALS.user));
+    if (result.success) {
       window.location.href = "/admin";
-      return;
+    } else {
+      setError(result.message);
+      setIsSubmitting(false);
     }
-
-    setError("Invalid email or password");
-    setIsSubmitting(false);
   };
 
   const fillDemo = () => {
     setEmail("admin@snapforest.com");
     setPassword("Admin@123");
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-neon-cyan" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
@@ -127,7 +131,7 @@ export default function AdminLoginPage() {
               className="w-full h-11 rounded-lg bg-gradient-to-r from-neon-cyan to-neon-purple text-white font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
                   <LogIn className="w-5 h-5" />

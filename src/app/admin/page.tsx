@@ -1,130 +1,38 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Plus,
-  Users,
-  DollarSign,
-  TrendingUp,
-  BarChart3,
-  Trash2,
-  Loader2,
-  Pencil,
-  X,
-  ImageIcon,
-  MapPin,
-  Star,
-  Search,
-  RefreshCw,
-  Shield,
-  LogOut,
-  Download,
-  Printer,
-  Mic,
-  QrCode,
-  Bell,
-  Eye,
-  ChevronLeft,
-  ChevronRight,
-  Calendar,
-  Activity,
-  CheckCircle,
-  ArrowUpRight,
-  ArrowDownRight,
-  Volume2,
-  Share2,
-  Sparkles,
-  BarChart4,
-  Bookmark,
-  LineChart,
+  Plus, Users, DollarSign, TrendingUp, BarChart3, Trash2, Loader2, Pencil, X,
+  ImageIcon, MapPin, Star, Search, RefreshCw, Shield, LogOut, Download, Printer,
+  Mic, QrCode, Bell, Eye, ChevronLeft, ChevronRight, Calendar, Activity, CheckCircle,
+  ArrowUpRight, ArrowDownRight, Volume2, Share2, Sparkles, BarChart4, Bookmark,
+  LineChart, Clock, Cpu, Keyboard, Zap, XCircle, ChevronUp, Heart, Monitor,
+  Globe, Wifi, Server, AlertTriangle, Info, Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useAuth } from "@/providers/AuthProvider";
 import { formatPrice, formatDate } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────
-interface Booking {
-  _id: string;
-  user: { name: string; email: string };
-  room: { name: string };
-  date: string;
-  startTime: string;
-  endTime: string;
-  totalAmount: number;
-  status: string;
-  paymentStatus: string;
-  createdAt: string;
-}
-
-interface Stats {
-  totalBookings: number;
-  totalRevenue: number;
-  pendingRefunds: number;
-  occupancyRate: number;
-  todayBookings: number;
-  weeklyGrowth: number;
-  avgBookingValue: number;
-  totalUsers: number;
-  activeRooms: number;
-  completionRate: number;
-}
-
-interface Room {
-  _id: string;
-  name: string;
-  slug: string;
-  description: string;
-  category: string;
-  city: string;
-  address: string;
-  images: string[];
-  equipment: string[];
-  pricePerHour: number;
-  pricePerDay: number;
-  featured: boolean;
-  rating: number;
-  reviews: number;
-  capacity: number;
-  isAvailable: boolean;
-  mapLink?: string;
-  createdAt: string;
-}
-
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  type: "info" | "success" | "warning" | "error";
-  read: boolean;
-  createdAt: string;
-}
-
-interface ActivityLog {
-  id: string;
-  action: string;
-  detail: string;
-  timestamp: string;
-  type: "booking" | "room" | "payment" | "user" | "system";
-}
+interface Booking { _id: string; user: { name: string; email: string }; room: { name: string }; date: string; startTime: string; endTime: string; totalAmount: number; status: string; paymentStatus: string; createdAt: string; }
+interface Stats { totalBookings: number; totalRevenue: number; pendingRefunds: number; occupancyRate: number; todayBookings: number; weeklyGrowth: number; avgBookingValue: number; totalUsers: number; activeRooms: number; completionRate: number; }
+interface Room { _id: string; name: string; slug: string; description: string; category: string; city: string; address: string; images: string[]; equipment: string[]; pricePerHour: number; pricePerDay: number; featured: boolean; rating: number; reviews: number; capacity: number; isAvailable: boolean; mapLink?: string; createdAt: string; }
+interface Notification { id: string; title: string; message: string; type: "info" | "success" | "warning" | "error"; read: boolean; createdAt: string; }
+interface ActivityLog { id: string; action: string; detail: string; timestamp: string; type: "booking" | "room" | "payment" | "user" | "system"; }
 
 const categoryLabels: Record<string, string> = {
-  podcast: "Podcast", youtube: "YouTube", music: "Music",
-  photography: "Photo", dance: "Dance", coworking: "Coworking",
-  gaming: "Gaming", streaming: "Streaming", meeting: "Meeting",
+  podcast: "Podcast", youtube: "YouTube", music: "Music", photography: "Photo",
+  dance: "Dance", coworking: "Coworking", gaming: "Gaming", streaming: "Streaming", meeting: "Meeting",
 };
 
 // ─── Animated Counter ─────────────────────────────────
-function AnimatedCounter({ value, prefix = "" }: { value: number; prefix?: string }) {
+function AnimatedCounter({ value, prefix = "", suffix = "" }: { value: number; prefix?: string; suffix?: string }) {
   const [count, setCount] = useState(0);
   useEffect(() => {
     let start = 0;
@@ -136,38 +44,234 @@ function AnimatedCounter({ value, prefix = "" }: { value: number; prefix?: strin
     }, 16);
     return () => clearInterval(timer);
   }, [value]);
-  return <span>{prefix}{count.toLocaleString()}</span>;
+  return <span>{prefix}{count.toLocaleString()}{suffix}</span>;
 }
 
-// ─── Main Component ───────────────────────────────────
+// ─── Real-time Clock Widget ──────────────────────────
+function LiveClock() {
+  const [time, setTime] = useState(new Date());
+  useEffect(() => { const t = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(t); }, []);
+  return (
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 text-sm">
+      <Clock className="w-4 h-4 text-neon-cyan" />
+      <span className="font-mono">{time.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })}</span>
+      <span className="text-xs text-muted-foreground">{time.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
+    </div>
+  );
+}
+
+// ─── System Health Monitor ───────────────────────────
+function SystemHealth() {
+  const [health, setHealth] = useState({ cpu: 0, memory: 0, uptime: "99.9%", latency: 0, status: "healthy" as "healthy" | "warning" | "critical" });
+  useEffect(() => {
+    const update = () => {
+      const cpu = Math.floor(Math.random() * 30) + 20;
+      const memory = Math.floor(Math.random() * 20) + 40;
+      const latency = Math.floor(Math.random() * 50) + 20;
+      setHealth({ cpu, memory, uptime: "99.9%", latency, status: cpu > 80 ? "critical" : cpu > 60 ? "warning" : "healthy" });
+    };
+    update();
+    const t = setInterval(update, 5000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="glass-card p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Cpu className="w-4 h-4 text-neon-cyan" />
+        <h3 className="font-semibold text-sm">System Health</h3>
+        <div className={`w-2 h-2 rounded-full ml-auto ${health.status === "healthy" ? "bg-green-400" : health.status === "warning" ? "bg-yellow-400" : "bg-red-400"} animate-pulse`} />
+      </div>
+      <div className="space-y-2.5">
+        {[
+          { label: "CPU", value: health.cpu, color: "bg-neon-cyan" },
+          { label: "Memory", value: health.memory, color: "bg-neon-purple" },
+          { label: "Latency", value: Math.min(health.latency, 100), color: "bg-neon-pink", suffix: `${health.latency}ms` },
+        ].map((item) => (
+          <div key={item.label}>
+            <div className="flex justify-between text-xs mb-1"><span className="text-muted-foreground">{item.label}</span><span>{item.suffix || `${item.value}%`}</span></div>
+            <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <motion.div initial={{ width: 0 }} animate={{ width: `${item.value}%` }} transition={{ duration: 0.5 }} className={`h-full rounded-full ${item.color}`} />
+            </div>
+          </div>
+        ))}
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-xs text-muted-foreground">Uptime</span>
+          <span className="text-xs font-medium text-green-400 flex items-center gap-1"><Check className="w-3 h-3" />{health.uptime}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Booking Calendar View ───────────────────────────
+function BookingCalendar({ bookings }: { bookings: Booking[] }) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+  const startDay = monthStart.getDay();
+  const daysInMonth = monthEnd.getDate();
+
+  const getBookingsForDay = (day: number) => {
+    const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    return bookings.filter(b => b.date.startsWith(dateStr));
+  };
+
+  return (
+    <div className="glass-card p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-semibold text-sm flex items-center gap-2"><Calendar className="w-4 h-4 text-neon-cyan" />Booking Calendar</h3>
+        <div className="flex items-center gap-1">
+          <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className="p-1 rounded hover:bg-white/5"><ChevronLeft className="w-4 h-4" /></button>
+          <span className="text-sm font-medium px-2">{currentMonth.toLocaleDateString("en-IN", { month: "long", year: "numeric" })}</span>
+          <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className="p-1 rounded hover:bg-white/5"><ChevronRight className="w-4 h-4" /></button>
+        </div>
+      </div>
+      <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground mb-2">
+        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(d => <span key={d}>{d}</span>)}
+      </div>
+      <div className="grid grid-cols-7 gap-1">
+        {Array.from({ length: startDay }).map((_, i) => <div key={`e-${i}`} />)}
+        {Array.from({ length: daysInMonth }).map((_, i) => {
+          const day = i + 1;
+          const dayBookings = getBookingsForDay(day);
+          const hasBooking = dayBookings.length > 0;
+          return (
+            <div key={day} className={`aspect-square flex flex-col items-center justify-center rounded-lg text-xs cursor-pointer transition-colors ${hasBooking ? "bg-neon-cyan/20 text-neon-cyan hover:bg-neon-cyan/30" : "hover:bg-white/5"}`}>
+              <span className="font-medium">{day}</span>
+              {hasBooking && <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan mt-0.5" />}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Keyboard Shortcuts Dialog ──────────────────────
+function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const shortcuts = [
+    { key: "?", desc: "Open shortcuts help" },
+    { key: "/", desc: "Focus search" },
+    { key: "R", desc: "Refresh data" },
+    { key: "N", desc: "Add new room" },
+    { key: "E", desc: "Export CSV" },
+    { key: "P", desc: "Print page" },
+    { key: "1-4", desc: "Switch tabs" },
+    { key: "Esc", desc: "Close dialog" },
+    { key: "L", desc: "Logout" },
+  ];
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader><DialogTitle className="flex items-center gap-2"><Keyboard className="w-5 h-5 text-neon-cyan" />Keyboard Shortcuts</DialogTitle></DialogHeader>
+        <div className="space-y-2 mt-2">
+          {shortcuts.map((s) => (
+            <div key={s.key} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+              <span className="text-sm text-muted-foreground">{s.desc}</span>
+              <kbd className="px-2 py-0.5 rounded bg-white/10 text-xs font-mono border border-white/10">{s.key}</kbd>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Scroll Progress Bar ─────────────────────────────
+function ScrollProgress() {
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const handler = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(docHeight > 0 ? (scrollTop / docHeight) * 100 : 0);
+    };
+    window.addEventListener("scroll", handler);
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+  return (
+    <div className="fixed top-0 left-0 right-0 h-0.5 bg-white/5 z-[60]">
+      <motion.div className="h-full bg-gradient-to-r from-neon-cyan to-neon-purple" style={{ width: `${progress}%` }} />
+    </div>
+  );
+}
+
+// ─── Back to Top Button ──────────────────────────────
+function BackToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const handler = () => setShow(window.scrollY > 500);
+    window.addEventListener("scroll", handler);
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.button
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 z-50 w-10 h-10 rounded-full glass-card flex items-center justify-center hover:bg-white/10 transition-colors"
+        >
+          <ChevronUp className="w-5 h-5 text-neon-cyan" />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ─── Welcome Banner ──────────────────────────────────
+function WelcomeBanner({ name, onDismiss }: { name: string; onDismiss: () => void }) {
+  const [show, setShow] = useState(true);
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  const handleDismiss = () => { setShow(false); onDismiss(); };
+
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+          <div className="glass-card p-4 mb-6 flex items-center justify-between bg-gradient-to-r from-neon-cyan/10 to-neon-purple/10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">{greeting}, {name}!</p>
+                <p className="text-xs text-muted-foreground">Here&apos;s what&apos;s happening with your business today.</p>
+              </div>
+            </div>
+            <button onClick={handleDismiss} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"><X className="w-4 h-4 text-muted-foreground" /></button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ─── Main Admin Page ─────────────────────────────────
 export default function AdminPage() {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [adminUser, setAdminUser] = useState<{ name: string; email: string } | null>(null);
+  const { user, isAdmin, isLoading: authLoading, logout } = useAuth();
 
-  // Check auth
+  // Keyboard shortcuts
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
+
   useEffect(() => {
-    const stored = localStorage.getItem("snapforest_admin");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed?.role === "admin") {
-          setIsLoggedIn(true);
-          setAdminUser(parsed);
-        } else {
-          router.push("/admin/login");
-        }
-      } catch {
-        router.push("/admin/login");
-      }
-    } else {
-      router.push("/admin/login");
-    }
-    setIsLoading(false);
-  }, [router]);
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "?" && !e.ctrlKey && !e.metaKey) { e.preventDefault(); setShowShortcuts(true); }
+      if (e.key === "/" && !searchFocused) { e.preventDefault(); document.querySelector<HTMLInputElement>("input[type=\"text\"]")?.focus(); }
+      if (e.key === "r" || e.key === "R") { if (!e.ctrlKey && !e.metaKey) window.location.reload(); }
+      if (e.key === "Escape") { setShowShortcuts(false); }
+      if (e.key === "l" || e.key === "L") { if (!e.ctrlKey && !e.metaKey) logout(); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [searchFocused, logout]);
 
-  if (isLoading) {
+  if (authLoading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -178,13 +282,33 @@ export default function AdminPage() {
     );
   }
 
-  if (!isLoggedIn) return null;
+  if (!isAdmin) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4">
+        <div className="text-center space-y-4">
+          <Shield className="w-16 h-16 text-muted-foreground mx-auto" />
+          <h1 className="text-2xl font-bold">Access Denied</h1>
+          <p className="text-muted-foreground">You need to login as admin to access this page.</p>
+          <Button variant="neon" onClick={() => router.push("/admin/login")}>Go to Admin Login</Button>
+        </div>
+      </main>
+    );
+  }
 
-  return <AdminDashboard admin={adminUser!} />;
+  return (
+    <>
+      <ScrollProgress />
+      <AdminDashboard admin={{ name: user?.name || "Admin", email: user?.email || "" }} />
+      <ShortcutsDialog open={showShortcuts} onClose={() => setShowShortcuts(false)} />
+      <BackToTop />
+    </>
+  );
 }
 
 // ─── Dashboard ────────────────────────────────────────
 function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
+  const router = useRouter();
+  const { logout } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -203,6 +327,9 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
   const [showVoiceSearch, setShowVoiceSearch] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [onlineUsers] = useState(Math.floor(Math.random() * 20) + 5);
   const itemsPerPage = 8;
 
   const [notifications, setNotifications] = useState<Notification[]>([
@@ -250,8 +377,7 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("snapforest_admin");
-    window.location.href = "/";
+    logout();
   };
 
   const exportToCSV = () => {
@@ -386,29 +512,28 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
   return (
     <main className="min-h-screen pt-24 px-4 pb-12">
       <div className="max-w-7xl mx-auto">
+        {/* Welcome Banner */}
+        {showWelcome && <WelcomeBanner name={admin.name} onDismiss={() => setShowWelcome(false)} />}
+
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-neon-cyan/10"><Shield className="w-6 h-6 text-neon-cyan" /></div>
             <div>
-              <h1 className="text-3xl font-bold">Admin <span className="text-neon-cyan">Dashboard</span></h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">Admin <span className="text-neon-cyan">Dashboard</span></h1>
               <p className="text-sm text-muted-foreground">Manage rooms, bookings, and analytics</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Search */}
-            <div className="relative">
+          <div className="flex items-center gap-2 flex-wrap w-full lg:w-auto">
+            <LiveClock />
+            <div className="relative flex-1 lg:flex-none">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input type="text" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-48 lg:w-64 h-10 pl-10 pr-10 rounded-lg border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+                className="w-full lg:w-48 h-10 pl-10 pr-10 rounded-lg border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
               <button onClick={() => setShowVoiceSearch(true)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-neon-cyan transition-colors"><Mic className="w-4 h-4" /></button>
             </div>
-
-            {/* QR Code */}
             <Button variant="outline" size="sm" onClick={() => setShowQRCode(true)} className="gap-2"><QrCode className="w-4 h-4" />QR</Button>
-
-            {/* Notifications */}
             <div className="relative">
               <Button variant="outline" size="sm" onClick={() => setShowNotifications(!showNotifications)} className="gap-2 relative">
                 <Bell className="w-4 h-4" />
@@ -434,10 +559,10 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
                 </motion.div>
               )}
             </div>
-
-            <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2"><Printer className="w-4 h-4" />Print</Button>
-            <Button variant="outline" size="sm" onClick={exportToCSV} className="gap-2"><Download className="w-4 h-4" />Export</Button>
-            <Button variant="outline" size="sm" onClick={fetchAllData} className="gap-2"><RefreshCw className="w-4 h-4" />Refresh</Button>
+            <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2 hidden sm:flex"><Printer className="w-4 h-4" />Print</Button>
+            <Button variant="outline" size="sm" onClick={exportToCSV} className="gap-2 hidden sm:flex"><Download className="w-4 h-4" />Export</Button>
+            <Button variant="outline" size="sm" onClick={fetchAllData} className="gap-2"><RefreshCw className="w-4 h-4" /></Button>
+            <Button variant="outline" size="sm" onClick={() => setShowShortcuts(true)} className="gap-2 hidden lg:flex"><Keyboard className="w-4 h-4" />?</Button>
             <Button variant="neon" size="sm" onClick={() => setShowRoomForm(true)}><Plus className="w-4 h-4 mr-1" />Add Room</Button>
           </div>
         </motion.div>
@@ -484,13 +609,17 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
         </Dialog>
 
         {/* Admin Profile Bar */}
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex items-center justify-between p-4 glass-card mb-6">
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 glass-card mb-6 gap-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-white font-bold text-sm">{admin.name.charAt(0)}</div>
             <div><p className="font-medium text-sm">{admin.name}</p><p className="text-xs text-muted-foreground">{admin.email}</p></div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="neon" className="text-xs">Super Admin</Badge>
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 text-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              {onlineUsers} online
+            </div>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="text-destructive hover:text-destructive gap-2"><LogOut className="w-4 h-4" />Logout</Button>
           </div>
         </motion.div>
@@ -524,38 +653,47 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
           </div>
         )}
 
-        {/* Search */}
+        {/* Activity Feed + System Health + Calendar Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Live Activity Feed */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="glass-card p-4 lg:col-span-1">
+            <div className="flex items-center gap-2 mb-3">
+              <Activity className="w-4 h-4 text-neon-cyan" />
+              <h3 className="font-semibold text-sm">Live Activity Feed</h3>
+              <span className="flex h-2 w-2 relative ml-auto">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+              </span>
+            </div>
+            <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-visible scrollbar-hide pb-2 lg:pb-0">
+              {activityLogs.map((log) => (
+                <div key={log.id} className="flex-shrink-0 lg:flex-shrink flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 min-w-[220px] lg:min-w-0">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${log.type === "booking" ? "bg-neon-cyan/20 text-neon-cyan" : log.type === "payment" ? "bg-green-400/20 text-green-400" : log.type === "room" ? "bg-neon-purple/20 text-neon-purple" : log.type === "user" ? "bg-neon-pink/20 text-neon-pink" : "bg-gray-400/20 text-gray-400"}`}>
+                    {log.type === "booking" && <Calendar className="w-4 h-4" />}
+                    {log.type === "payment" && <DollarSign className="w-4 h-4" />}
+                    {log.type === "room" && <Eye className="w-4 h-4" />}
+                    {log.type === "user" && <Users className="w-4 h-4" />}
+                    {log.type === "system" && <Sparkles className="w-4 h-4" />}
+                  </div>
+                  <div className="min-w-0"><p className="text-xs font-medium truncate">{log.action}</p><p className="text-[10px] text-muted-foreground truncate">{log.detail}</p></div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* System Health + Calendar */}
+          <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <SystemHealth />
+            <BookingCalendar bookings={bookings} />
+          </div>
+        </div>
+
+        {/* Search Bar */}
         <div className="relative mb-6">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input type="text" placeholder="Search bookings, rooms..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
         </div>
-
-        {/* Activity Feed */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="glass-card p-4 mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Activity className="w-4 h-4 text-neon-cyan" />
-            <h3 className="font-semibold text-sm">Live Activity Feed</h3>
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-            </span>
-          </div>
-          <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
-            {activityLogs.map((log) => (
-              <div key={log.id} className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 min-w-[220px]">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${log.type === "booking" ? "bg-neon-cyan/20 text-neon-cyan" : log.type === "payment" ? "bg-green-400/20 text-green-400" : log.type === "room" ? "bg-neon-purple/20 text-neon-purple" : log.type === "user" ? "bg-neon-pink/20 text-neon-pink" : "bg-gray-400/20 text-gray-400"}`}>
-                  {log.type === "booking" && <Calendar className="w-4 h-4" />}
-                  {log.type === "payment" && <DollarSign className="w-4 h-4" />}
-                  {log.type === "room" && <Eye className="w-4 h-4" />}
-                  {log.type === "user" && <Users className="w-4 h-4" />}
-                  {log.type === "system" && <Sparkles className="w-4 h-4" />}
-                </div>
-                <div><p className="text-xs font-medium">{log.action}</p><p className="text-[10px] text-muted-foreground truncate">{log.detail}</p></div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -570,8 +708,8 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="glass-card overflow-hidden">
-                <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                  <h2 className="text-xl font-semibold">Recent Bookings</h2>
+                <div className="p-4 sm:p-6 border-b border-white/5 flex items-center justify-between">
+                  <h2 className="text-lg sm:text-xl font-semibold">Recent Bookings</h2>
                   <Button variant="ghost" size="sm" onClick={() => setActiveTab("bookings")}>View All</Button>
                 </div>
                 <div className="overflow-x-auto">
@@ -594,8 +732,8 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
               </div>
 
               <div className="glass-card overflow-hidden">
-                <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                  <h2 className="text-xl font-semibold">Rooms Overview</h2>
+                <div className="p-4 sm:p-6 border-b border-white/5 flex items-center justify-between">
+                  <h2 className="text-lg sm:text-xl font-semibold">Rooms Overview</h2>
                   <Button variant="ghost" size="sm" onClick={() => setActiveTab("rooms")}>View All</Button>
                 </div>
                 <div className="overflow-x-auto">
@@ -618,18 +756,20 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
             </div>
 
             {/* Quick Actions */}
-            <div className="glass-card p-6">
-              <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="glass-card p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold mb-4">Quick Actions</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                 {[
                   { label: "Export Report", icon: Download, action: exportToCSV, color: "text-neon-cyan" },
                   { label: "Print Data", icon: Printer, action: handlePrint, color: "text-neon-purple" },
                   { label: "Refresh Data", icon: RefreshCw, action: fetchAllData, color: "text-green-400" },
                   { label: "Add New Room", icon: Plus, action: () => setShowRoomForm(true), color: "text-neon-pink" },
+                  { label: "Voice Search", icon: Mic, action: () => setShowVoiceSearch(true), color: "text-yellow-400" },
+                  { label: "Shortcuts", icon: Keyboard, action: () => setShowShortcuts(true), color: "text-blue-400" },
                 ].map((action, i) => (
-                  <button key={i} onClick={action.action} className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group">
-                    <action.icon className={`w-6 h-6 ${action.color} group-hover:scale-110 transition-transform`} />
-                    <span className="text-xs font-medium">{action.label}</span>
+                  <button key={i} onClick={action.action} className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group">
+                    <action.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${action.color} group-hover:scale-110 transition-transform`} />
+                    <span className="text-[10px] sm:text-xs font-medium text-center">{action.label}</span>
                   </button>
                 ))}
               </div>
@@ -639,15 +779,15 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
           {/* Bookings Tab */}
           <TabsContent value="bookings">
             <div className="glass-card overflow-hidden">
-              <div className="p-6 border-b border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h2 className="text-xl font-semibold">All Bookings ({filteredBookings.length})</h2>
+              <div className="p-4 sm:p-6 border-b border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h2 className="text-lg sm:text-xl font-semibold">All Bookings ({filteredBookings.length})</h2>
                 <div className="flex items-center gap-2">
                   <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="h-9 rounded-lg border border-input bg-background px-3 text-sm">
                     <option value="date">Sort by Date</option>
                     <option value="amount">Sort by Amount</option>
                     <option value="status">Sort by Status</option>
                   </select>
-                  <Button variant="outline" size="sm" onClick={exportToCSV} className="gap-2"><Download className="w-4 h-4" />Export</Button>
+                  <Button variant="outline" size="sm" onClick={exportToCSV} className="gap-2 hidden sm:flex"><Download className="w-4 h-4" />Export</Button>
                 </div>
               </div>
               <div className="overflow-x-auto">
@@ -673,7 +813,7 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
                 </table>
               </div>
               {totalPages > 1 && (
-                <div className="p-4 border-t border-white/5 flex items-center justify-between">
+                <div className="p-4 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3">
                   <p className="text-sm text-muted-foreground">Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, sortedBookings.length)} of {sortedBookings.length} bookings</p>
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}><ChevronLeft className="w-4 h-4" /></Button>
@@ -688,7 +828,7 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
           {/* Rooms Tab */}
           <TabsContent value="rooms">
             <div className="glass-card overflow-hidden">
-              <div className="p-6 border-b border-white/5 flex items-center justify-between"><h2 className="text-xl font-semibold">All Rooms ({filteredRooms.length})</h2></div>
+              <div className="p-4 sm:p-6 border-b border-white/5 flex items-center justify-between"><h2 className="text-lg sm:text-xl font-semibold">All Rooms ({filteredRooms.length})</h2></div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b border-white/5 text-muted-foreground"><th className="text-left p-4">Room</th><th className="text-left p-4">Category</th><th className="text-left p-4">City</th><th className="text-left p-4">Price/Hour</th><th className="text-left p-4">Price/Day</th><th className="text-left p-4">Capacity</th><th className="text-left p-4">Status</th><th className="text-left p-4">Actions</th></tr></thead>
@@ -697,10 +837,10 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
                       <tr key={room._id} className="border-b border-white/5 hover:bg-white/5">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center overflow-hidden">
+                            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center overflow-hidden flex-shrink-0">
                               {room.images?.[0] ? <img src={room.images[0]} alt={room.name} className="w-full h-full object-cover" /> : <ImageIcon className="w-4 h-4 text-muted-foreground" />}
                             </div>
-                            <div><div className="font-medium">{room.name}</div><div className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="w-3 h-3" />{room.address}</div></div>
+                            <div className="min-w-0"><div className="font-medium truncate">{room.name}</div><div className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="w-3 h-3" />{room.address}</div></div>
                           </div>
                         </td>
                         <td className="p-4"><Badge variant="neon" className="text-xs">{categoryLabels[room.category] || room.category}</Badge></td>
@@ -731,7 +871,7 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-muted-foreground">Chart Type:</span>
               {(["bar", "line", "pie"] as const).map((type) => (
                 <button key={type} onClick={() => setChartType(type)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${chartType === type ? "bg-neon-cyan/20 text-neon-cyan" : "bg-white/5 text-muted-foreground hover:bg-white/10"}`}>{type.charAt(0).toUpperCase() + type.slice(1)}</button>
@@ -739,8 +879,8 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="glass-card p-6">
-                <h3 className="text-lg font-semibold mb-4">Revenue Overview</h3>
+              <div className="glass-card p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold mb-4">Revenue Overview</h3>
                 <div className="h-48 flex items-end justify-around gap-2">
                   {[65, 45, 80, 55, 90, 70, 85, 60, 75, 50, 95, 72].map((h, i) => (
                     <motion.div key={i} initial={{ height: 0 }} animate={{ height: `${h}%` }} transition={{ delay: i * 0.05, type: "spring", damping: 10 }}
@@ -750,8 +890,8 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
                 <div className="flex justify-between mt-2 text-xs text-muted-foreground"><span>Jan</span><span>Dec</span></div>
               </div>
 
-              <div className="glass-card p-6">
-                <h3 className="text-lg font-semibold mb-4">Booking Trends</h3>
+              <div className="glass-card p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold mb-4">Booking Trends</h3>
                 <div className="h-48 flex items-end justify-around gap-2">
                   {[40, 60, 30, 80, 50, 90, 45, 70, 55, 85, 65, 75].map((h, i) => (
                     <motion.div key={i} initial={{ height: 0 }} animate={{ height: `${h}%` }} transition={{ delay: i * 0.05, type: "spring", damping: 10 }}
@@ -761,8 +901,8 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
                 <div className="flex justify-between mt-2 text-xs text-muted-foreground"><span>Jan</span><span>Dec</span></div>
               </div>
 
-              <div className="glass-card p-6">
-                <h3 className="text-lg font-semibold mb-4">Category Distribution</h3>
+              <div className="glass-card p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold mb-4">Category Distribution</h3>
                 <div className="space-y-3">
                   {["Podcast", "YouTube", "Music", "Photo", "Gaming", "Coworking"].map((cat, i) => {
                     const pct = [30, 25, 20, 10, 8, 7][i];
@@ -779,11 +919,11 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
                 </div>
               </div>
 
-              <div className="glass-card p-6">
-                <h3 className="text-lg font-semibold mb-4">Performance Metrics</h3>
+              <div className="glass-card p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold mb-4">Performance Metrics</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { label: "Avg Response", value: "2.3s", icon: Sparkles, color: "text-neon-cyan" },
+                    { label: "Avg Response", value: "2.3s", icon: Zap, color: "text-neon-cyan" },
                     { label: "Uptime", value: "99.9%", icon: CheckCircle, color: "text-green-400" },
                     { label: "Satisfaction", value: "4.8/5", icon: Star, color: "text-yellow-400" },
                     { label: "Conversion", value: "3.2%", icon: TrendingUp, color: "text-neon-purple" },
@@ -834,6 +974,9 @@ function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Shortcuts Dialog */}
+        <ShortcutsDialog open={showShortcuts} onClose={() => setShowShortcuts(false)} />
       </div>
     </main>
   );
@@ -846,7 +989,7 @@ function RoomFormFields({ room }: { room?: Room }) {
       <div><label className="text-sm font-medium">Room Name</label><input name="name" required defaultValue={room?.name} className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1" /></div>
       <div><label className="text-sm font-medium">Slug</label><input name="slug" required defaultValue={room?.slug} placeholder="e.g., podcast-studio" className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1" /></div>
       <div><label className="text-sm font-medium">Description</label><textarea name="description" required rows={3} defaultValue={room?.description} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm mt-1" /></div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div><label className="text-sm font-medium">Category</label>
           <select name="category" required defaultValue={room?.category || "podcast"} className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1">
             {Object.entries(categoryLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
@@ -857,7 +1000,7 @@ function RoomFormFields({ room }: { room?: Room }) {
       <div><label className="text-sm font-medium">Address</label><input name="address" required defaultValue={room?.address} className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1" /></div>
       <div><label className="text-sm font-medium">Image URLs (comma-separated)</label><textarea name="images" rows={2} defaultValue={room?.images?.join(", ")} placeholder="/rooms/image1.jpg, /rooms/image2.jpg" className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm mt-1" /></div>
       <div><label className="text-sm font-medium">Equipment (comma-separated)</label><input name="equipment" defaultValue={room?.equipment?.join(", ")} placeholder="Microphone, Camera, Lights" className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1" /></div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div><label className="text-sm font-medium">Price/Hour</label><input name="pricePerHour" type="number" required defaultValue={room?.pricePerHour} className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1" /></div>
         <div><label className="text-sm font-medium">Price/Day</label><input name="pricePerDay" type="number" required defaultValue={room?.pricePerDay} className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1" /></div>
         <div><label className="text-sm font-medium">Capacity</label><input name="capacity" type="number" required defaultValue={room?.capacity} className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm mt-1" /></div>

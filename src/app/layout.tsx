@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { AuthProvider } from "@/providers/AuthProvider";
 import AppInstallPopup from "@/components/ui/AppInstallPopup";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -56,12 +57,14 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <ThemeProvider>
-          <Navbar />
-          <div className="min-h-screen">{children}</div>
-          <Footer />
-          <AppInstallPopup />
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <Navbar />
+            <div className="min-h-screen">{children}</div>
+            <Footer />
+            <AppInstallPopup />
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

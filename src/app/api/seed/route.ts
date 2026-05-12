@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Room from "@/models/Room";
+import User from "@/models/User";
+import bcryptjs from "bcryptjs";
 
 export const dynamic = 'force-dynamic';
 
@@ -218,14 +220,30 @@ export async function GET() {
   try {
     await connectDB();
 
+    // Seed admin user
+    const hashedPassword = await bcryptjs.hash("Admin@123", 12);
+    await User.findOneAndUpdate(
+      { email: "admin@snapforest.com" },
+      {
+        $setOnInsert: {
+          name: "Snapforest Admin",
+          email: "admin@snapforest.com",
+          password: hashedPassword,
+          role: "admin",
+        },
+      },
+      { upsert: true, new: true }
+    );
+
     // Clear existing rooms and insert demo data
     await Room.deleteMany({});
     await Room.insertMany(demoRooms);
 
     return NextResponse.json({
       success: true,
-      message: "Demo rooms seeded successfully",
+      message: "Database seeded successfully",
       count: demoRooms.length,
+      adminSeeded: true,
     });
   } catch (error) {
     console.error("Seed error:", error);
