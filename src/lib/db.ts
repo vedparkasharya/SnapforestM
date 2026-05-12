@@ -47,6 +47,10 @@ async function connectDB(): Promise<typeof mongoose> {
     throw e;
   }
 
+  // Ensure all models are registered before returning connection
+  // This prevents "Schema hasn't been registered" errors in production
+  await import("@/models");
+
   return cached!.conn;
 }
 

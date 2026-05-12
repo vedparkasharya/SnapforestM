@@ -102,6 +102,7 @@ export async function POST(request: NextRequest) {
             amount: body.totalAmount * 100, // paise
             currency: "INR",
           },
+          razorpayKeyId: null,
           demoMode: true,
         },
         "Demo booking created. Add Razorpay keys to enable real payments.",
@@ -137,6 +138,7 @@ export async function POST(request: NextRequest) {
           amount: order.amount,
           currency: order.currency,
         },
+        razorpayKeyId: razorpayKeyId,
         demoMode: false,
       },
       "Booking created. Complete payment to confirm.",

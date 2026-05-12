@@ -75,6 +75,7 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
       if (data.success) {
         const razorpayOrder = data.data?.razorpayOrder;
         const isDemo = data.data?.demoMode === true;
+        const razorpayKeyId = data.data?.razorpayKeyId;
 
         if (isDemo) {
           // Demo mode: skip Razorpay, directly verify
@@ -101,15 +102,14 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
 
         // Real Razorpay payment flow
         if (razorpayOrder && typeof window !== "undefined" && (window as any).Razorpay) {
-          const rzpKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-          if (!rzpKey) {
+          if (!razorpayKeyId) {
             alert("Payment gateway key not configured. Please contact support.");
             setLoading(false);
             return;
           }
 
           const rzp = new (window as any).Razorpay({
-            key: rzpKey,
+            key: razorpayKeyId,
             amount: razorpayOrder.amount,
             currency: razorpayOrder.currency,
             name: "SnapforestX",
@@ -310,10 +310,8 @@ export default function BookingWidget({ room }: BookingWidgetProps) {
         </div>
       )}
 
-      {/* Razorpay Script - only load if keys are configured */}
-      {process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID && (
-        <script src="https://checkout.razorpay.com/v1/checkout.js" async />
-      )}
+      {/* Razorpay Script - always load, key comes from API response */}
+      <script src="https://checkout.razorpay.com/v1/checkout.js" async />
     </div>
   );
 }

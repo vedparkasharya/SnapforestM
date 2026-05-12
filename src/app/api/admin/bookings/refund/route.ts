@@ -10,6 +10,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { bookingId } = body;
 
+    await connectDB();
+
     const booking = await Booking.findByIdAndUpdate(
       bookingId,
       { paymentStatus: "refunded" },

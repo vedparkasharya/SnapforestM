@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IBooking extends Document {
+  bookingId: string;
   user: mongoose.Types.ObjectId;
   room: mongoose.Types.ObjectId;
   date: Date;
@@ -17,8 +18,20 @@ export interface IBooking extends Document {
   updatedAt: Date;
 }
 
+function generateBookingId(): string {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `BK${timestamp}${random}`;
+}
+
 const BookingSchema = new Schema<IBooking>(
   {
+    bookingId: {
+      type: String,
+      unique: true,
+      index: true,
+      default: generateBookingId,
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -65,6 +78,7 @@ const BookingSchema = new Schema<IBooking>(
     razorpayOrderId: {
       type: String,
       default: null,
+      index: true,
     },
     razorpayPaymentId: {
       type: String,
