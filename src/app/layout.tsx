@@ -6,7 +6,7 @@ import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { ToastProvider } from "@/providers/ToastProvider";
-import AppInstallPopup from "@/components/ui/AppInstallPopup";
+
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -64,7 +64,6 @@ export default function RootLayout({
               <Navbar />
               <div className="min-h-screen">{children}</div>
               <Footer />
-              <AppInstallPopup />
             </ThemeProvider>
           </ToastProvider>
         </AuthProvider>

@@ -2,10 +2,13 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
+  username?: string;
   email: string;
   password?: string;
   image?: string;
   role: "user" | "admin";
+  loginAttempts: number;
+  lockUntil: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,6 +19,13 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: [true, "Name is required"],
       trim: true,
+    },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      lowercase: true,
     },
     email: {
       type: String,
@@ -36,6 +46,14 @@ const UserSchema = new Schema<IUser>(
       type: String,
       enum: ["user", "admin"],
       default: "user",
+    },
+    loginAttempts: {
+      type: Number,
+      default: 0,
+    },
+    lockUntil: {
+      type: Number,
+      default: 0,
     },
   },
   {

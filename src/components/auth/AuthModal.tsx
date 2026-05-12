@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, LogIn, UserPlus, Eye, EyeOff, Sparkles, Loader2 } from "lucide-react";
+import { X, LogIn, UserPlus, Eye, EyeOff, ShieldCheck, Loader2 } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 
 interface AuthModalProps {
@@ -65,6 +65,11 @@ export default function AuthModal({ isOpen, onClose, defaultMode = "login" }: Au
     }
 
     setIsSubmitting(false);
+  };
+
+  const goToAdminLogin = () => {
+    handleClose();
+    window.location.href = "/admin/login";
   };
 
   return (
@@ -216,14 +221,18 @@ export default function AuthModal({ isOpen, onClose, defaultMode = "login" }: Au
                 </button>
               </div>
 
-              {/* Demo hint */}
-              <div className="relative mt-4 p-3 rounded-lg bg-neon-cyan/5 border border-neon-cyan/20">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Sparkles className="w-3.5 h-3.5 text-neon-cyan" />
-                  <span>
-                    Admin: <strong className="text-neon-cyan">admin@snapforest.com</strong> / <strong className="text-neon-cyan">Admin@123</strong>
-                  </span>
-                </div>
+              {/* Sign in as Admin - NEW */}
+              <div className="relative mt-4 pt-4 border-t border-white/10">
+                <button
+                  onClick={goToAdminLogin}
+                  className="w-full py-2.5 rounded-lg border border-dashed border-neon-cyan/40 text-neon-cyan text-sm hover:bg-neon-cyan/10 transition-colors flex items-center justify-center gap-2"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  Sign in as Admin
+                </button>
+                <p className="text-center text-xs text-muted-foreground mt-2">
+                  Admin access only. Redirects to secure admin login.
+                </p>
               </div>
             </div>
           </motion.div>

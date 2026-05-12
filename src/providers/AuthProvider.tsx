@@ -33,27 +33,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAuth = () => {
       try {
+        // Check admin auth first (takes precedence)
+        const adminData = localStorage.getItem("snapforest_admin");
+        if (adminData) {
+          const parsed = JSON.parse(adminData);
+          if (parsed?.token && parsed?.email && parsed?.role === "admin") {
+            // Validate token format (basic check)
+            if (typeof parsed.token === "string" && parsed.token.includes(".")) {
+              setUser(parsed);
+              setIsLoading(false);
+              return;
+            }
+          }
+          // Invalid admin data
+          localStorage.removeItem("snapforest_admin");
+        }
+
         // Check user auth
         const userData = localStorage.getItem("snapforest_user");
         if (userData) {
           const parsed = JSON.parse(userData);
           if (parsed?.token && parsed?.email) {
-            setUser(parsed);
+            // Validate token format (basic check)
+            if (typeof parsed.token === "string" && parsed.token.includes(".")) {
+              setUser(parsed);
+              setIsLoading(false);
+              return;
+            }
           }
-          setIsLoading(false);
-          return;
-        }
-
-        // Check admin auth
-        const adminData = localStorage.getItem("snapforest_admin");
-        if (adminData) {
-          const parsed = JSON.parse(adminData);
-          if (parsed?.role === "admin" && parsed?.email) {
-            setUser(parsed);
-          }
+          // Invalid user data
+          localStorage.removeItem("snapforest_user");
         }
       } catch {
-        // Invalid stored data
+        // Invalid stored data - clear everything
         localStorage.removeItem("snapforest_user");
         localStorage.removeItem("snapforest_admin");
       }
@@ -67,7 +79,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
@@ -79,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return { success: false, message: data.message || "Login failed" };
     } catch {
-      return { success: false, message: "Network error" };
+      return { success: false, message: "Network error. Please check your connection." };
     }
   }, []);
 
@@ -87,7 +102,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
         body: JSON.stringify({ name, email, password }),
       });
       const data = await res.json();
@@ -99,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return { success: false, message: data.message || "Registration failed" };
     } catch {
-      return { success: false, message: "Network error" };
+      return { success: false, message: "Network error. Please check your connection." };
     }
   }, []);
 
@@ -107,7 +125,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await fetch("/api/auth/admin-login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
@@ -117,9 +138,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data.data);
         return { success: true, message: "Admin login successful" };
       }
+      
+      // Handle specific status codes
+      if (res.status === 429) {
+        const minutes = data.retryAfter ? Math.ceil(data.retryAfter / 60) : 15;
+        return { success: false, message: `Too many attempts. Please try again in ${minutes} minutes.` };
+      }
+      if (res.status === 423) {
+        const minutes = data.lockDuration ? Math.ceil(data.lockDuration / 60000) : 15;
+        return { success: false, message: `Account locked. Please try again in ${minutes} minutes.` };
+      }
+      
       return { success: false, message: data.message || "Admin login failed" };
     } catch {
-      return { success: false, message: "Network error" };
+      return { success: false, message: "Network error. Please check your connection." };
     }
   }, []);
 

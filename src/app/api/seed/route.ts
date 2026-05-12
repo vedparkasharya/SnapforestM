@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Room from "@/models/Room";
 import User from "@/models/User";
-import bcryptjs from "bcryptjs";
+import { hashPassword } from "@/lib/security";
 
 export const dynamic = 'force-dynamic';
 
@@ -220,16 +220,36 @@ export async function GET() {
   try {
     await connectDB();
 
-    // Seed admin user
-    const hashedPassword = await bcryptjs.hash("Admin@123", 12);
+    // Seed primary admin user - Ved Parkash Arya
+    const adminPasswordHash = await hashPassword("Ved@203068");
+    const adminUser = await User.findOneAndUpdate(
+      { email: "vedprakasharya9973@gmail.com" },
+      {
+        $setOnInsert: {
+          name: "Ved Parkash Arya",
+          username: "Ved@203068",
+          email: "vedprakasharya9973@gmail.com",
+          password: adminPasswordHash,
+          role: "admin",
+          loginAttempts: 0,
+          lockUntil: 0,
+        },
+      },
+      { upsert: true, new: true }
+    );
+
+    // Seed legacy admin user (for backward compatibility)
+    const legacyPasswordHash = await hashPassword("Admin@123");
     await User.findOneAndUpdate(
       { email: "admin@snapforest.com" },
       {
         $setOnInsert: {
           name: "Snapforest Admin",
           email: "admin@snapforest.com",
-          password: hashedPassword,
+          password: legacyPasswordHash,
           role: "admin",
+          loginAttempts: 0,
+          lockUntil: 0,
         },
       },
       { upsert: true, new: true }
@@ -244,6 +264,8 @@ export async function GET() {
       message: "Database seeded successfully",
       count: demoRooms.length,
       adminSeeded: true,
+      adminName: adminUser.name,
+      adminEmail: adminUser.email,
     });
   } catch (error) {
     console.error("Seed error:", error);
