@@ -75,7 +75,7 @@ const handler = NextAuth({
         }
       }
 
-      // Handle session update trigger from client
+      // Handle session update trigger from 
       if (trigger === "update" && session) {
         console.log("[Auth] jwt update trigger");
         token = { ...token, ...session };
