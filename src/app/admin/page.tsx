@@ -634,6 +634,7 @@ export default function AdminPage() {
 function AdminDashboard({ admin }: { admin: { name: string; email: string } }) {
   const router = useRouter();
   const { logout } = useAuth();
+  const { showToast } = useToast();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
