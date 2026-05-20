@@ -157,10 +157,16 @@ export async function POST(request: NextRequest) {
       },
       { status: 200, headers }
     );
-  } catch (error) {
-    console.error("Admin login error:", error);
+  } catch (error: any) {
+    console.error("[Admin Login] Detailed error:", error);
+    console.error("[Admin Login] Error stack:", error?.stack);
+    console.error("[Admin Login] Error message:", error?.message);
     return NextResponse.json(
-      { success: false, message: "Authentication failed. Please try again." },
+      {
+        success: false,
+        message: "Authentication failed: " + (error?.message || "Unknown error"),
+        error: error?.message || "Unknown",
+      },
       { status: 500, headers }
     );
   }
