@@ -17,7 +17,7 @@ import {
 // The password below is a bcrypt hash of "Ved@203068" generated with 12 salt rounds
 const ADMIN_CONFIG = {
   email: "vedprakasharya9973@gmail.com",
-  passwordHash: "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.VTtYA.qGZvKG6G", // Ved@203068
+  passwordHash: "$2b$12$WELkPxCQ4zzd04YKxbGWw.iU2OgcM6ukUOm5.Fp1rg7phHCacioNO", // Ved@203068 - CORRECT HASH
   name: "Ved Parkash Arya",
   role: "admin" as const,
 };
