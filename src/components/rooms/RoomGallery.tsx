@@ -253,7 +253,7 @@ export default function RoomGallery({ images, roomName }: RoomGalleryProps) {
                 <button
                   key={i}
                   onClick={() => goTo(i)}
-                  className={`relative w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ${
+                  className={`relative w-32 h-20 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ${
                     selected === i
                       ? "border-neon-cyan ring-2 ring-neon-cyan/30"
                       : "border-transparent hover:border-white/20 opacity-70 hover:opacity-100"

@@ -60,9 +60,16 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-3">
+              <motion.img
+                src="/logo.png"
+                alt="Snapforest"
+                className="h-10 w-auto object-contain"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
+              />
               <motion.span
-                className="text-lg tracking-[-0.02em] font-medium text-white"
+                className="text-lg tracking-[-0.02em] font-medium text-white hidden sm:block"
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >

@@ -17,7 +17,7 @@ export default function LocationShowcase() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-3 relative aspect-[16/10] rounded-lg overflow-hidden"
+            className="lg:col-span-3 relative aspect-[4/3] rounded-xl overflow-hidden"
           >
             <Image
               src="/rooms/exterior-main.jpg"

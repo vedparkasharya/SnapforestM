@@ -64,7 +64,7 @@ export default function RoomCard({ room, index = 0 }: RoomCardProps) {
       <Link href={`/rooms/${room.slug}`} className="block h-full">
         <article className="group relative h-full bg-[#1a1a1a] rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_24px_64px_rgba(0,0,0,0.4)] border border-white/[0.04] hover:border-white/[0.08]">
           {/* Image Container - Full Frame Edge-to-Edge */}
-          <div className="relative w-full aspect-[16/9] overflow-hidden">
+          <div className="relative w-full aspect-[4/3] overflow-hidden">
             {/* Full-bleed background image using div background for perfect coverage */}
             <div className="absolute inset-0 w-full h-full">
               <Image
