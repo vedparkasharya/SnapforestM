@@ -8,6 +8,7 @@ import { AuthProvider } from "@/providers/AuthProvider";
 import { ToastProvider } from "@/providers/ToastProvider";
 import ChatBot from "@/components/chatbot/ChatBot";
 import PWAInstallPrompt from "@/components/pwa/PWAInstallPrompt";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -34,23 +35,96 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Snapforest - Creator Studio Booking Platform",
+  metadataBase: new URL("https://snapforestx.com"),
+  title: {
+    default: "Snapforest - Creator Studio Booking | Podcast, YouTube, Gaming Rooms in Patna & Gaya",
+    template: "%s | Snapforest - Creator Studio Booking",
+  },
   description:
-    "Book premium podcast studios, YouTube setups, music rooms, photo studios, and creator spaces in Patna. Hourly and daily bookings with instant confirmation.",
+    "Snapforest by Ved Prakash Arya - Book premium podcast studios, YouTube setups, music rooms, photo studios, gaming rooms, interview rooms, and reel studios in Patna and Gaya, Bihar. Hourly and daily bookings with instant confirmation.",
   keywords: [
+    // Brand & Founder
+    "Snapforest",
+    "Snapforest studio",
+    "Ved Prakash Arya",
+    "Ved Prakash Arya founder of Snapforest",
+    "Ved Prakash Arya founder snapforest",
+    "Snapforest founder",
+    // Location-based Patna
+    "creator studio Patna",
+    "podcast studio Patna",
+    "YouTube studio Patna",
+    "music room Patna",
+    "photo studio Patna",
+    "gaming room Patna",
+    "interview room Patna",
+    "reel studio Patna",
+    "studio booking Patna",
+    "content creator studio Patna",
+    // Location-based Gaya
+    "creator studio Gaya",
+    "podcast room in Gaya",
+    "podcast studio Gaya Bihar",
+    "interview room in Gaya",
+    "reel studio Gaya",
+    "reel studio Gaya Bihar",
+    "gaming room in Gaya",
+    "YouTube studio Gaya Bihar",
+    "content creator studio Gaya",
+    "studio booking Gaya",
+    // Location-based Bihar
+    "creator studio Bihar",
+    "podcast studio Bihar",
+    "YouTube studio Bihar",
+    "studio booking Bihar",
+    // Generic
     "creator studio",
     "podcast studio",
     "YouTube studio",
     "music room",
     "photo studio",
+    "gaming room",
+    "interview room",
+    "reel studio",
+    "recording studio",
+    "live streaming studio",
+    "coworking space",
+    "content creation space",
+    "creator space rental",
+    "studio rental",
+    "hourly studio booking",
     "booking",
     "Patna",
+    "Gaya",
     "Bihar",
   ],
+  authors: [{ name: "Ved Prakash Arya" }],
+  creator: "Ved Prakash Arya",
+  publisher: "Snapforest",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "Snapforest - Creator Studio Booking",
-    description: "Book creator studios in Patna - Podcast, YouTube, Music, Photo & more",
+    title: "Snapforest - Creator Studio Booking | Podcast, YouTube, Gaming Rooms in Patna & Gaya",
+    description: "Snapforest by Ved Prakash Arya - Book creator studios in Patna & Gaya - Podcast, YouTube, Music, Photo, Gaming, Interview & Reel Studios. Hourly and daily bookings.",
+    url: "https://snapforestx.com",
+    siteName: "Snapforest",
+    locale: "en_IN",
     type: "website",
+    images: [
+      {
+        url: "/icon-512x512.png",
+        width: 512,
+        height: 512,
+        alt: "Snapforest - Creator Studio Booking Platform by Ved Prakash Arya",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Snapforest - Creator Studio Booking by Ved Prakash Arya",
+    description: "Book premium podcast, YouTube, gaming, interview & reel studios in Patna & Gaya, Bihar. Hourly and daily bookings.",
+    images: ["/icon-512x512.png"],
   },
   manifest: "/manifest.json",
   appleWebApp: {
@@ -74,6 +148,9 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
+  },
+  verification: {
+    google: "your-google-verification-code",
   },
   icons: {
     icon: [
@@ -131,6 +208,7 @@ export default function RootLayout({
           }}
         />
         
+        <JsonLd />
         <AuthProvider>
           <ToastProvider>
             <ThemeProvider>

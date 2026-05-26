@@ -101,7 +101,7 @@ export default function Hero() {
         className="relative z-10 mt-12 text-center text-lg sm:text-xl md:text-2xl text-white/80 max-w-xl px-4"
         style={{ fontFamily: "var(--font-primary)" }}
       >
-        Book professional creator studios in Patna — by the hour
+        Book professional creator studios in Patna &amp; Gaya, Bihar — by the hour
       </motion.p>
 
       {/* CTA Row */}

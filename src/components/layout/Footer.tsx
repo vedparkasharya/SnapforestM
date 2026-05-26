@@ -51,9 +51,19 @@ export default function Footer() {
               Snapforest
             </Link>
             <p className="mt-3 text-sm text-[#888888] leading-relaxed">
-              Creator Studio Rentals in Patna. Premium spaces for podcasters,
-              YouTubers, musicians, photographers, and all types of creators.
+              Creator Studio Rentals in Patna and Gaya, Bihar. Premium spaces
+              for podcasters, YouTubers, musicians, photographers, gamers, and
+              all types of creators. Founded by Ved Prakash Arya.
             </p>
+            {/* SEO-rich founder mention */}
+            <div className="mt-4 pt-4 border-t border-white/[0.06]">
+              <p className="text-xs text-[#666666]">
+                Founded by{" "}
+                <span className="text-[#888888]">Ved Prakash Arya</span>
+                <span className="mx-2 text-[#444444]">|</span>
+                <span>Patna &middot; Gaya &middot; Bihar</span>
+              </p>
+            </div>
           </div>
 
           {/* Navigation */}
