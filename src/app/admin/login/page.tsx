@@ -1,60 +1,51 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Shield, Loader2, Zap } from "lucide-react";
+import { Shield, Loader2, Eye, EyeOff } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
-  const [message, setMessage] = useState("Logging in as admin...");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const autoLogin = async () => {
-      try {
-        // Auto-login with hardcoded admin credentials
-        const res = await fetch("/api/auth/admin-login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Requested-With": "XMLHttpRequest",
-          },
-          body: JSON.stringify({
-            email: "vedprakasharya9973@gmail.com",
-            password: "Ved@203068",
-          }),
-        });
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-        const data = await res.json();
+    try {
+      const res = await fetch("/api/auth/admin-login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password,
+        }),
+      });
 
-        if (data.success) {
-          // Store admin data in localStorage
-          localStorage.setItem("snapforest_admin", JSON.stringify(data.data));
-          setStatus("success");
-          setMessage("Login successful! Redirecting...");
-          // Redirect to admin dashboard after a brief delay
-          setTimeout(() => {
-            router.push("/admin");
-          }, 1000);
-        } else {
-          setStatus("error");
-          setMessage(data.message || "Login failed. Please try again.");
-        }
-      } catch (error) {
-        console.error("Auto-login error:", error);
-        setStatus("error");
-        setMessage("Network error. Please check your connection.");
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem("snapforest_admin", JSON.stringify(data.data));
+        router.push("/admin");
+      } else {
+        setError(data.message || "Invalid email or password");
       }
-    };
-
-    // Small delay to show the loading animation
-    const timer = setTimeout(() => {
-      autoLogin();
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [router]);
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("Network error. Please check your connection.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
@@ -67,69 +58,135 @@ export default function AdminLoginPage() {
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="relative z-10 text-center"
+        className="relative z-10 w-full max-w-md"
       >
-        {/* Logo */}
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", damping: 10, delay: 0.1 }}
-          className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-neon-cyan via-neon-purple to-neon-pink flex items-center justify-center mb-6"
-        >
-          {status === "loading" ? (
-            <Shield className="w-10 h-10 text-white" />
-          ) : status === "success" ? (
-            <Zap className="w-10 h-10 text-white" />
-          ) : (
-            <Shield className="w-10 h-10 text-white" />
-          )}
-        </motion.div>
-
-        {/* Title */}
-        <motion.h1
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="text-2xl font-bold mb-2"
-        >
-          Admin Access
-        </motion.h1>
-
-        {/* Status */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="flex flex-col items-center gap-3"
-        >
-          {status === "loading" && (
-            <Loader2 className="w-6 h-6 animate-spin text-neon-cyan" />
-          )}
-          <p
-            className={`text-sm ${
-              status === "error"
-                ? "text-red-400"
-                : status === "success"
-                ? "text-green-400"
-                : "text-muted-foreground"
-            }`}
+        {/* Card */}
+        <div className="bg-card/80 backdrop-blur-xl border border-border rounded-2xl p-8 shadow-2xl">
+          {/* Logo */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", damping: 10, delay: 0.1 }}
+            className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-neon-cyan via-neon-purple to-neon-pink flex items-center justify-center mb-6"
           >
-            {message}
-          </p>
-        </motion.div>
+            <Shield className="w-10 h-10 text-white" />
+          </motion.div>
 
-        {/* Error retry button */}
-        {status === "error" && (
-          <motion.button
+          {/* Title */}
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            onClick={() => window.location.reload()}
-            className="mt-4 px-6 py-2 rounded-lg bg-gradient-to-r from-neon-cyan to-neon-purple text-white text-sm font-medium hover:opacity-90 transition-opacity"
+            transition={{ delay: 0.2 }}
+            className="text-center mb-8"
           >
-            Try Again
-          </motion.button>
-        )}
+            <h1 className="text-2xl font-bold mb-1">Admin Login</h1>
+            <p className="text-muted-foreground text-sm">
+              Enter your credentials to access the dashboard
+            </p>
+          </motion.div>
+
+          {/* Form */}
+          <motion.form
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            onSubmit={handleLogin}
+            className="space-y-5"
+          >
+            {/* Email Field */}
+            <div className="space-y-2">
+              <label
+                htmlFor="email"
+                className="text-sm font-medium text-foreground"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@example.com"
+                required
+                className="w-full px-4 py-3 rounded-lg bg-background border border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-neon-cyan/50 focus:border-transparent transition-all"
+              />
+            </div>
+
+            {/* Password Field */}
+            <div className="space-y-2">
+              <label
+                htmlFor="password"
+                className="text-sm font-medium text-foreground"
+              >
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                  className="w-full px-4 py-3 pr-12 rounded-lg bg-background border border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-neon-cyan/50 focus:border-transparent transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-400 text-sm text-center"
+              >
+                {error}
+              </motion.p>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 rounded-lg bg-gradient-to-r from-neon-cyan to-neon-purple text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Logging in...
+                </>
+              ) : (
+                "Login"
+              )}
+            </button>
+          </motion.form>
+        </div>
+
+        {/* Back to home */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="text-center mt-6 text-sm text-muted-foreground"
+        >
+          <a
+            href="/"
+            className="hover:text-foreground transition-colors underline underline-offset-4"
+          >
+            Back to website
+          </a>
+        </motion.p>
       </motion.div>
     </main>
   );
