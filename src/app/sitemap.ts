@@ -7,7 +7,7 @@ import type { MetadataRoute } from "next";
  * Locations: Patna, Gaya, Bihar
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://snapforestx.com";
+  const baseUrl = "https://snapforest.in";
 
   // Core pages
   const routes = [

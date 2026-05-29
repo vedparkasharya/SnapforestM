@@ -5,7 +5,7 @@ import type { MetadataRoute } from "next";
  * Controls search engine crawler access
  */
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = "https://snapforestx.com";
+  const baseUrl = "https://snapforest.in";
 
   return {
     rules: [

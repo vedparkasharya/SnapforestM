@@ -93,7 +93,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-[#1a472a]" />
-                hello@snapforestx.com
+                hello@snapforest.in
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-[#1a472a]" />

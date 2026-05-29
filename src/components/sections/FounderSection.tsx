@@ -127,7 +127,7 @@ export default function FounderSection() {
               {[
                 { icon: Linkedin, label: "LinkedIn", href: "#" },
                 { icon: Twitter, label: "Twitter", href: "#" },
-                { icon: Mail, label: "Email", href: "mailto:ved@snapforestx.com" },
+                { icon: Mail, label: "Email", href: "mailto:ved@snapforest.in" },
               ].map((social) => (
                 <a
                   key={social.label}

@@ -819,7 +819,13 @@ function AdminDashboard({
     { id: "5", action: "System Backup", detail: "Daily database backup completed successfully", timestamp: "2026-05-13T04:00:00", type: "system" },
   ]);
 
-  useEffect(() => { fetchAllData(); }, []);
+  useEffect(() => {
+    fetchAllData();
+    // Health check on mount - auto-enable demo mode if services not configured
+    const timeoutId = setTimeout(() => checkHealth(), 1000);
+    return () => clearTimeout(timeoutId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Reset image slots when form opens/closes
   useEffect(() => {
@@ -847,6 +853,25 @@ function AdminDashboard({
     }
   }, [demoRooms, demoMode]);
 
+  // ─── Health Check ────────────────────────────────────
+  const checkHealth = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/health", { cache: "no-store" });
+      const data = await res.json();
+      if (data.success && data.demoModeRecommended && !demoMode) {
+        console.log("[Health Check] Services not configured. Auto-enabling demo mode.", data.services);
+        onDemoModeChange(true);
+        showToast("Demo Mode auto-enabled - Cloudinary/MongoDB not configured. Perfect for teacher presentation!", "info");
+      }
+    } catch (err) {
+      console.log("[Health Check] Failed - likely in static/GH Pages environment", err);
+      if (!demoMode) {
+        onDemoModeChange(true);
+        showToast("Demo Mode auto-enabled - running in static environment.", "info");
+      }
+    }
+  }, [demoMode, onDemoModeChange, showToast]);
+
   const fetchAllData = async () => {
     setLoading(true);
     try {
@@ -861,7 +886,7 @@ function AdminDashboard({
           weeklyGrowth: parseFloat((Math.random() * 20 + 5).toFixed(1)),
           avgBookingValue: Math.floor(Math.random() * 1000) + 1500,
           totalUsers: Math.floor(Math.random() * 500) + 200,
-          activeRooms: demoRooms.length || 6,
+          activeRooms: (demoRooms.length || 0) + 6,
           completionRate: parseFloat((Math.random() * 10 + 85).toFixed(1)),
         };
         setStats(demoStats);
@@ -1006,11 +1031,34 @@ function AdminDashboard({
         if (uploadData.success && uploadData.data?.urls) {
           imageUrls = uploadData.data.urls;
         } else {
-          // If Cloudinary fails, suggest demo mode
+          // If Cloudinary fails, auto-switch to demo mode and create room locally
+          const isCloudinaryMissing = uploadData.message?.includes("not configured");
           showToast(
-            uploadData.message || "Image upload failed. Enable Demo Mode to preview without Cloudinary.",
-            "error"
+            isCloudinaryMissing
+              ? "Cloudinary not configured! Switching to Demo Mode for you..."
+              : (uploadData.message || "Image upload failed."),
+            isCloudinaryMissing ? "info" : "error"
           );
+          if (isCloudinaryMissing) {
+            // Auto-enable demo mode and retry
+            onDemoModeChange(true);
+            setTimeout(() => {
+              // Trigger the form submit again in demo mode
+              const newRoom = generateDemoRoom(formData, imageSlots);
+              setDemoRooms((prev) => [newRoom, ...prev]);
+              setRooms((prev) => [newRoom, ...prev]);
+              setShowRoomForm(false);
+              setImageSlots(defaultImageSlots.map(s => ({ ...s, image: null, file: null })));
+              setStats((prev) =>
+                prev
+                  ? { ...prev, activeRooms: prev.activeRooms + 1 }
+                  : null
+              );
+              showToast("Demo room created! (Auto-switched to Demo Mode)", "success");
+              setSubmitting(false);
+            }, 500);
+            return;
+          }
           setSubmitting(false);
           return;
         }
@@ -1119,7 +1167,16 @@ function AdminDashboard({
         if (uploadData.success && uploadData.data?.urls) {
           imageUrls = [...imageUrls, ...uploadData.data.urls];
         } else {
-          showToast(uploadData.message || "Image upload failed. Enable Demo Mode to preview.", "error");
+          const isCloudinaryMissing = uploadData.message?.includes("not configured");
+          showToast(
+            isCloudinaryMissing
+              ? "Cloudinary not configured! Switching to Demo Mode..."
+              : (uploadData.message || "Image upload failed."),
+            isCloudinaryMissing ? "info" : "error"
+          );
+          if (isCloudinaryMissing) {
+            onDemoModeChange(true);
+          }
           setSubmitting(false);
           return;
         }

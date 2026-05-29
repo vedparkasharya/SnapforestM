@@ -35,7 +35,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://snapforestx.com"),
+  metadataBase: new URL("https://snapforest.in"),
   title: {
     default: "Snapforest - Creator Studio Booking | Podcast, YouTube, Gaming Rooms in Patna & Gaya",
     template: "%s | Snapforest - Creator Studio Booking",
@@ -107,7 +107,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Snapforest - Creator Studio Booking | Podcast, YouTube, Gaming Rooms in Patna & Gaya",
     description: "Snapforest by Ved Prakash Arya - Book creator studios in Patna & Gaya - Podcast, YouTube, Music, Photo, Gaming, Interview & Reel Studios. Hourly and daily bookings.",
-    url: "https://snapforestx.com",
+    url: "https://snapforest.in",
     siteName: "Snapforest",
     locale: "en_IN",
     type: "website",
@@ -154,13 +154,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "48x48", type: "image/x-icon" },
       { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
       { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
       { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
     ],
-    shortcut: ["/icon-192x192.png"],
+    shortcut: ["/favicon.ico"],
   },
   other: {
     "msapplication-TileImage": "/icon-192x192.png",
@@ -190,6 +191,8 @@ export default function RootLayout({
       className={`${inter.variable} ${instrumentSerif.variable} ${ibmPlexMono.variable}`}
     >
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon-192x192.png" type="image/png" sizes="192x192" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

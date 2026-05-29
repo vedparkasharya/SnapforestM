@@ -14,13 +14,13 @@ export function JsonLd() {
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://snapforestx.com/#organization",
+        "@id": "https://snapforest.in/#organization",
         name: "Snapforest",
         alternateName: "Snapforest Creator Studios",
-        url: "https://snapforestx.com",
+        url: "https://snapforest.in",
         logo: {
           "@type": "ImageObject",
-          url: "https://snapforestx.com/icon-512x512.png",
+          url: "https://snapforest.in/icon-512x512.png",
           width: 512,
           height: 512,
         },
@@ -31,7 +31,7 @@ export function JsonLd() {
             "Founder of Snapforest - Creator studio booking platform in Bihar",
           jobTitle: "Founder & CEO",
           worksFor: {
-            "@id": "https://snapforestx.com/#organization",
+            "@id": "https://snapforest.in/#organization",
           },
         },
         sameAs: [
@@ -49,32 +49,32 @@ export function JsonLd() {
       },
       {
         "@type": "WebSite",
-        "@id": "https://snapforestx.com/#website",
-        url: "https://snapforestx.com",
+        "@id": "https://snapforest.in/#website",
+        url: "https://snapforest.in",
         name: "Snapforest - Creator Studio Booking",
         description:
           "Book premium podcast studios, YouTube setups, music rooms, photo studios, gaming rooms, interview rooms, and reel studios in Patna and Gaya, Bihar.",
         publisher: {
-          "@id": "https://snapforestx.com/#organization",
+          "@id": "https://snapforest.in/#organization",
         },
         potentialAction: {
           "@type": "SearchAction",
           target: {
             "@type": "EntryPoint",
-            urlTemplate: "https://snapforestx.com/rooms?q={search_term_string}",
+            urlTemplate: "https://snapforest.in/rooms?q={search_term_string}",
           },
           "query-input": "required name=search_term_string",
         },
       },
       {
         "@type": "LocalBusiness",
-        "@id": "https://snapforestx.com/#localbusiness-patna",
+        "@id": "https://snapforest.in/#localbusiness-patna",
         name: "Snapforest - Patna",
         description:
           "Premium creator studio rentals in Patna. Podcast studios, YouTube studios, music rooms, photo studios, gaming rooms, interview rooms, and reel studios available for hourly and daily booking.",
-        url: "https://snapforestx.com",
+        url: "https://snapforest.in",
         telephone: "+91-98765-43210",
-        email: "hello@snapforestx.com",
+        email: "hello@snapforest.in",
         address: {
           "@type": "PostalAddress",
           streetAddress: "Boring Road",
