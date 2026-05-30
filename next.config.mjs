@@ -55,7 +55,7 @@ const nextConfig = {
         ],
       },
       {
-        // Manifest.json headers
+        // Manifest.json headers - short cache to allow updates
         source: "/manifest.json",
         headers: [
           {
@@ -69,12 +69,42 @@ const nextConfig = {
         ],
       },
       {
-        // PWA icons headers
+        // Favicon - aggressive no-cache for immediate updates
+        source: "/favicon.ico",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, must-revalidate",
+          },
+        ],
+      },
+      {
+        // Apple touch icon
+        source: "/apple-touch-icon.png",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, must-revalidate",
+          },
+        ],
+      },
+      {
+        // PWA icons - cache for 24 hours with revalidation
         source: "/icon-:size*.png",
         headers: [
           {
             key: "Cache-Control",
             value: "public, max-age=86400, immutable",
+          },
+        ],
+      },
+      {
+        // Favicon PNG
+        source: "/favicon.png",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, must-revalidate",
           },
         ],
       },

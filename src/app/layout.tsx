@@ -34,6 +34,9 @@ const ibmPlexMono = IBM_Plex_Mono({
   preload: true,
 });
 
+// Cache-busting version for icons - increment to force browser refresh
+const ICON_VERSION = "v3";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://snapforest.in"),
   title: {
@@ -113,7 +116,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/icon-512x512.png",
+        url: `/icon-512.png?${ICON_VERSION}`,
         width: 512,
         height: 512,
         alt: "Snapforest - Creator Studio Booking Platform by Ved Prakash Arya",
@@ -124,16 +127,16 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Snapforest - Creator Studio Booking by Ved Prakash Arya",
     description: "Book premium podcast, YouTube, gaming, interview & reel studios in Patna & Gaya, Bihar. Hourly and daily bookings.",
-    images: ["/icon-512x512.png"],
+    images: [`/icon-512.png?${ICON_VERSION}`],
   },
-  manifest: "/manifest.json",
+  manifest: `/manifest.json?${ICON_VERSION}`,
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Snapforest",
     startupImage: [
       {
-        url: "/icon-512x512.png",
+        url: `/icon-512.png?${ICON_VERSION}`,
         media: "(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)",
       },
     ],
@@ -154,25 +157,26 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "48x48", type: "image/x-icon" },
-      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+      { url: `/favicon.ico?${ICON_VERSION}`, sizes: "48x48", type: "image/x-icon" },
+      { url: `/favicon.png?${ICON_VERSION}`, sizes: "32x32", type: "image/png" },
+      { url: `/icon-192.png?${ICON_VERSION}`, sizes: "192x192", type: "image/png" },
+      { url: `/icon-512.png?${ICON_VERSION}`, sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: `/apple-touch-icon.png?${ICON_VERSION}`, sizes: "180x180", type: "image/png" },
     ],
-    shortcut: ["/favicon.ico"],
+    shortcut: [`/favicon.ico?${ICON_VERSION}`],
   },
   other: {
-    "msapplication-TileImage": "/icon-192x192.png",
-    "msapplication-TileColor": "#0f0f0f",
+    "msapplication-TileImage": `/icon-192.png?${ICON_VERSION}`,
+    "msapplication-TileColor": "#000000",
   },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0f0f0f" },
-    { media: "(prefers-color-scheme: light)", color: "#0f0f0f" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#000000" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -191,13 +195,25 @@ export default function RootLayout({
       className={`${inter.variable} ${instrumentSerif.variable} ${ibmPlexMono.variable}`}
     >
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/icon-192x192.png" type="image/png" sizes="192x192" />
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        {/* Primary favicon with cache busting */}
+        <link rel="icon" href={`/favicon.ico?${ICON_VERSION}`} sizes="any" />
+        <link rel="icon" href={`/favicon.png?${ICON_VERSION}`} type="image/png" sizes="32x32" />
+        <link rel="icon" href={`/icon-192.png?${ICON_VERSION}`} type="image/png" sizes="192x192" />
+        {/* Apple touch icon */}
+        <link rel="apple-touch-icon" href={`/apple-touch-icon.png?${ICON_VERSION}`} sizes="180x180" />
+        {/* PWA manifest */}
+        <link rel="manifest" href={`/manifest.json?${ICON_VERSION}`} />
+        {/* Apple mobile web app */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="format-detection" content="telephone=no" />
+        <meta name="apple-mobile-web-app-title" content="Snapforest" />
+        {/* Mobile web app */}
         <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="application-name" content="Snapforest" />
+        <meta name="format-detection" content="telephone=no" />
+        {/* MS Tile */}
+        <meta name="msapplication-TileImage" content={`/icon-192.png?${ICON_VERSION}`} />
+        <meta name="msapplication-TileColor" content="#000000" />
       </head>
       <body className="font-sans antialiased bg-[#0f0f0f] text-white min-h-screen">
         {/* Global Background Grid */}
@@ -226,16 +242,30 @@ export default function RootLayout({
           </ToastProvider>
         </AuthProvider>
 
-        {/* Service Worker Registration Script */}
+        {/* Service Worker Registration Script - v3 */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 if ('serviceWorker' in navigator) {
                   window.addEventListener('load', function() {
-                    navigator.serviceWorker.register('/sw.js')
+                    navigator.serviceWorker.register('/sw.js?v=3')
                       .then(function(registration) {
-                        console.log('[PWA] Service Worker registered:', registration.scope);
+                        console.log('[PWA] Service Worker v3 registered:', registration.scope);
+                        
+                        // Force update check on every load for v3 rollout
+                        registration.update();
+                        
+                        // Listen for updates
+                        registration.addEventListener('updatefound', function() {
+                          var newWorker = registration.installing;
+                          newWorker.addEventListener('statechange', function() {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                              console.log('[PWA] New version available - reloading...');
+                              window.location.reload();
+                            }
+                          });
+                        });
                         
                         // Check for updates periodically
                         setInterval(function() {

@@ -8,28 +8,31 @@
  * - Image caching
  * - Push notification support
  *
- * Version: 2.0 - Enhanced for production
+ * Version: 3.0 - Brand Refresh with Cache Busting
  */
 
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 const STATIC_CACHE = `snapforest-static-${CACHE_VERSION}`;
 const API_CACHE = `snapforest-api-${CACHE_VERSION}`;
 const IMAGE_CACHE = `snapforest-images-${CACHE_VERSION}`;
 const OFFLINE_PAGE = "/";
 
-// Assets to cache on install - core app shell
+// Assets to cache on install - core app shell (using v3 cache-busted URLs)
 const STATIC_ASSETS = [
   "/",
   "/rooms",
   "/dashboard",
-  "/manifest.json",
-  "/icon-192x192.png",
-  "/icon-512x512.png",
+  "/manifest.json?v=3",
+  "/icon-192.png?v=3",
+  "/icon-512.png?v=3",
+  "/favicon.ico?v=3",
+  "/favicon.png?v=3",
+  "/apple-touch-icon.png?v=3",
 ];
 
 // Install event - cache static assets
 self.addEventListener("install", (event) => {
-  console.log("[SW] Installing Snapforest Service Worker v2...");
+  console.log("[SW] Installing Snapforest Service Worker v3...");
 
   event.waitUntil(
     caches
@@ -50,7 +53,7 @@ self.addEventListener("install", (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener("activate", (event) => {
-  console.log("[SW] Activating Snapforest Service Worker...");
+  console.log("[SW] Activating Snapforest Service Worker v3...");
 
   event.waitUntil(
     caches
@@ -59,7 +62,7 @@ self.addEventListener("activate", (event) => {
         return Promise.all(
           cacheNames
             .filter((name) => {
-              // Delete old snapforest caches that don't match current version
+              // Delete ALL old snapforest caches that don't match current v3 version
               return (
                 name.startsWith("snapforest-") &&
                 name !== STATIC_CACHE &&
@@ -74,7 +77,7 @@ self.addEventListener("activate", (event) => {
         );
       })
       .then(() => {
-        console.log("[SW] Service Worker activated, claiming clients...");
+        console.log("[SW] Service Worker v3 activated, claiming clients...");
         return self.clients.claim();
       })
   );
@@ -86,11 +89,14 @@ const isApiRequest = (url) => {
 };
 
 const isImageRequest = (url) => {
-  return /\.(jpg|jpeg|png|gif|webp|svg|ico)$/i.test(url.pathname);
+  return /\.(jpg|jpeg|png|gif|webp|svg|ico)(\?.*)?$/i.test(url.pathname);
 };
 
 const isStaticAsset = (url) => {
-  return STATIC_ASSETS.includes(url.pathname) || url.pathname.startsWith("/_next/");
+  return STATIC_ASSETS.some(asset => {
+    const assetPath = asset.split("?")[0];
+    return url.pathname === assetPath;
+  }) || url.pathname.startsWith("/_next/");
 };
 
 /**
@@ -272,8 +278,8 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: data.body || "New notification from Snapforest",
-    icon: "/icon-192x192.png",
-    badge: "/icon-192x192.png",
+    icon: "/icon-192.png?v=3",
+    badge: "/icon-192.png?v=3",
     tag: data.tag || "snapforest-notification",
     requireInteraction: false,
     data: data.data || {},
@@ -337,4 +343,4 @@ self.addEventListener("message", (event) => {
   }
 });
 
-console.log("[SW] Snapforest Service Worker v2 loaded");
+console.log("[SW] Snapforest Service Worker v3 loaded");
