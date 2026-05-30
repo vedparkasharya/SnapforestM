@@ -369,10 +369,16 @@ export async function GET() {
       adminName: adminUser.name,
       adminEmail: adminUser.email,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Seed error:", error);
     return NextResponse.json(
-      { success: false, message: "Seed failed" },
+      {
+        success: false,
+        message: "Seed failed",
+        error: error?.message || String(error),
+        stack: error?.stack || null,
+        mongoUri: process.env.MONGODB_URI ? "Set (hidden)" : "NOT SET",
+      },
       { status: 500 }
     );
   }
