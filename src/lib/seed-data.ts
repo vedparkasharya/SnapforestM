@@ -1,11 +1,4 @@
-import { NextResponse } from "next/server";
-import connectDB from "@/lib/db";
-import Room from "@/models/Room";
-import User from "@/models/User";
-import { hashPassword } from "@/lib/security";
-import { demoRooms } from "@/lib/seed-data";
-
-export const dynamic = 'force-dynamic';
+export const demoRooms = [
   {
     name: "Patna Podcast Hub",
     slug: "patna-podcast-hub-boring-road",
@@ -316,67 +309,3 @@ export const dynamic = 'force-dynamic';
     mapLink: "https://maps.google.com/?q=Saguna+More+Patna",
   },
 ];
-
-export async function GET() {
-  try {
-    await connectDB();
-
-    // Seed primary admin user - Ved Parkash Arya
-    const adminPasswordHash = await hashPassword("Ved@203068");
-    const adminUser = await User.findOneAndUpdate(
-      { email: "vedprakasharya9973@gmail.com" },
-      {
-        $setOnInsert: {
-          name: "Ved Parkash Arya",
-          username: "Ved@203068",
-          email: "vedprakasharya9973@gmail.com",
-          password: adminPasswordHash,
-          role: "admin",
-          loginAttempts: 0,
-          lockUntil: 0,
-        },
-      },
-      { upsert: true, new: true }
-    );
-
-    // Seed legacy admin user (for backward compatibility)
-    const legacyPasswordHash = await hashPassword("Admin@123");
-    await User.findOneAndUpdate(
-      { email: "admin@snapforest.com" },
-      {
-        $setOnInsert: {
-          name: "Snapforest Admin",
-          email: "admin@snapforest.com",
-          password: legacyPasswordHash,
-          role: "admin",
-          loginAttempts: 0,
-          lockUntil: 0,
-        },
-      },
-      { upsert: true, new: true }
-    );
-
-    // Clear existing rooms and insert demo data
-    await Room.deleteMany({});
-    await Room.insertMany(demoRooms);
-
-    return NextResponse.json({
-      success: true,
-      message: "Database seeded successfully",
-      count: demoRooms.length,
-      adminSeeded: true,
-      adminName: adminUser.name,
-      adminEmail: adminUser.email,
-    });
-  } catch (error: any) {
-    console.error("Seed error (DB not available, returning local seed data):", error);
-    // Return seed data for localStorage fallback
-    return NextResponse.json({
-      success: true,
-      message: "Returning local seed data (DB not connected - storing in localStorage)",
-      count: demoRooms.length,
-      localMode: true,
-      rooms: demoRooms,
-    });
-  }
-}
