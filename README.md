@@ -4,7 +4,7 @@
 
 ## What is this project?
 
-SnapforestX is an **OYO-style creator studio booking platform** designed for Patna, Bihar. It allows creators (podcasters, YouTubers, musicians, photographers, dancers, gamers, streamers) to discover, search, filter, and book professional studio rooms by the hour or for a full day — with instant payment via Razorpay and email confirmations.
+SnapforestX is an *studio booking platform** designed for Patna, Bihar. It allows creators (podcasters, YouTubers, musicians, photographers, dancers, gamers, streamers) to discover, search, filter, and book professional studio rooms by the hour or for a full day — with instant payment via Razorpay and email confirmations.
 
 ---
 
