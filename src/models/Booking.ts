@@ -2,19 +2,19 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IBooking extends Document {
   bookingId: string;
-  user: mongoose.Types.ObjectId;
+  user?: mongoose.Types.ObjectId | null;
   room: mongoose.Types.ObjectId;
   date: Date;
   startTime: string;
   endTime: string;
+  slotKeys: string[];
   totalAmount: number;
   bookingType: "hourly" | "daily";
   status: "pending" | "confirmed" | "cancelled" | "completed";
-  paymentStatus: "pending" | "paid" | "failed" | "refunded";
+  paymentStatus: "pending" | "paid" | "failed" | "cancelled" | "refunded";
   razorpayOrderId?: string;
   razorpayPaymentId?: string;
-  expiresAt?: Date;
-  // Guest information (for non-authenticated users or additional details)
+  expiresAt?: Date | null;
   guestName: string;
   guestEmail: string;
   guestPhone: string;
@@ -61,6 +61,11 @@ const BookingSchema = new Schema<IBooking>(
       type: String,
       required: [true, "End time is required"],
     },
+    slotKeys: {
+      type: [String],
+      required: [true, "Booking slots are required"],
+      default: [],
+    },
     totalAmount: {
       type: Number,
       required: [true, "Total amount is required"],
@@ -78,7 +83,7 @@ const BookingSchema = new Schema<IBooking>(
     },
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "failed", "refunded"],
+      enum: ["pending", "paid", "failed", "cancelled", "refunded"],
       default: "pending",
     },
     razorpayOrderId: {
@@ -94,7 +99,6 @@ const BookingSchema = new Schema<IBooking>(
       type: Date,
       default: null,
     },
-    // Guest information fields
     guestName: {
       type: String,
       required: [true, "Guest name is required"],
@@ -129,7 +133,22 @@ const BookingSchema = new Schema<IBooking>(
 
 BookingSchema.index({ user: 1, status: 1 });
 BookingSchema.index({ room: 1, date: 1, status: 1 });
-BookingSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+BookingSchema.index({ expiresAt: 1 });
+
+// A 30-minute slot key makes overlapping bookings impossible even when two
+// requests arrive at the same time. Cancelled/completed bookings are excluded
+// so their slots can be booked again.
+BookingSchema.index(
+  { room: 1, date: 1, slotKeys: 1 },
+  {
+    unique: true,
+    name: "unique_active_booking_slots",
+    partialFilterExpression: {
+      slotKeys: { $exists: true },
+      status: { $in: ["pending", "confirmed"] },
+    },
+  }
+);
 
 const Booking =
   mongoose.models.Booking || mongoose.model<IBooking>("Booking", BookingSchema);
