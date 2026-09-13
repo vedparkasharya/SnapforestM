@@ -25,70 +25,77 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function clearStoredAuth() {
+  localStorage.removeItem("snapforest_user");
+  localStorage.removeItem("snapforest_admin");
+}
+
+function persistUser(user: AuthUser) {
+  const key = user.role === "admin" ? "snapforest_admin" : "snapforest_user";
+  localStorage.setItem(key, JSON.stringify(user));
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check for stored auth on mount
   useEffect(() => {
-    const checkAuth = () => {
-      try {
-        // Check admin auth first (takes precedence)
-        const adminData = localStorage.getItem("snapforest_admin");
-        if (adminData) {
-          const parsed = JSON.parse(adminData);
-          if (parsed?.token && parsed?.email && parsed?.role === "admin") {
-            // Validate token format (basic check)
-            if (typeof parsed.token === "string" && parsed.token.includes(".")) {
-              setUser(parsed);
-              setIsLoading(false);
-              return;
-            }
-          }
-          // Invalid admin data
-          localStorage.removeItem("snapforest_admin");
-        }
+    let cancelled = false;
 
-        // Check user auth
-        const userData = localStorage.getItem("snapforest_user");
-        if (userData) {
-          const parsed = JSON.parse(userData);
-          if (parsed?.token && parsed?.email) {
-            // Validate token format (basic check)
-            if (typeof parsed.token === "string" && parsed.token.includes(".")) {
-              setUser(parsed);
-              setIsLoading(false);
+    const validateStoredSession = async () => {
+      try {
+        const adminRaw = localStorage.getItem("snapforest_admin");
+        const userRaw = localStorage.getItem("snapforest_user");
+        const candidates = [adminRaw, userRaw].filter(Boolean) as string[];
+
+        for (const raw of candidates) {
+          try {
+            const parsed = JSON.parse(raw) as AuthUser;
+            if (!parsed?.token) continue;
+
+            const res = await fetch("/api/auth/me", {
+              headers: { Authorization: `Bearer ${parsed.token}`, Accept: "application/json" },
+              cache: "no-store",
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success && data.data?.id) {
+              const restored: AuthUser = { ...parsed, ...data.data, token: parsed.token };
+              if (!cancelled) {
+                persistUser(restored);
+                setUser(restored);
+              }
               return;
             }
+          } catch {
+            // Try the next stored session; malformed entries are cleared below.
           }
-          // Invalid user data
-          localStorage.removeItem("snapforest_user");
         }
-      } catch {
-        // Invalid stored data - clear everything
-        localStorage.removeItem("snapforest_user");
-        localStorage.removeItem("snapforest_admin");
+      } finally {
+        if (!cancelled) {
+          if (!user) setUser(null);
+          setIsLoading(false);
+        }
       }
-      setIsLoading(false);
     };
 
-    checkAuth();
+    void validateStoredSession();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
+        headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
 
-      if (data.success) {
-        localStorage.setItem("snapforest_user", JSON.stringify(data.data));
+      if (data.success && data.data?.token) {
+        persistUser(data.data);
         setUser(data.data);
         return { success: true, message: "Login successful" };
       }
@@ -102,16 +109,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
+        headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" },
         body: JSON.stringify({ name, email, password }),
       });
       const data = await res.json();
 
-      if (data.success) {
-        localStorage.setItem("snapforest_user", JSON.stringify(data.data));
+      if (data.success && data.data?.token) {
+        persistUser(data.data);
         setUser(data.data);
         return { success: true, message: "Registration successful" };
       }
@@ -125,21 +129,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await fetch("/api/auth/admin-login", {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
+        headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
 
-      if (data.success) {
-        localStorage.setItem("snapforest_admin", JSON.stringify(data.data));
+      if (data.success && data.data?.token) {
+        persistUser(data.data);
         setUser(data.data);
         return { success: true, message: "Admin login successful" };
       }
-      
-      // Handle specific status codes
+
       if (res.status === 429) {
         const minutes = data.retryAfter ? Math.ceil(data.retryAfter / 60) : 15;
         return { success: false, message: `Too many attempts. Please try again in ${minutes} minutes.` };
@@ -148,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const minutes = data.lockDuration ? Math.ceil(data.lockDuration / 60000) : 15;
         return { success: false, message: `Account locked. Please try again in ${minutes} minutes.` };
       }
-      
+
       return { success: false, message: data.message || "Admin login failed" };
     } catch {
       return { success: false, message: "Network error. Please check your connection." };
@@ -156,34 +156,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem("snapforest_user");
-    localStorage.removeItem("snapforest_admin");
+    clearStoredAuth();
     setUser(null);
-    window.location.href = "/";
+    window.location.assign("/");
   }, []);
 
   const updateUser = useCallback((updates: Partial<AuthUser>) => {
     setUser((prev) => {
       if (!prev) return null;
       const updated = { ...prev, ...updates };
-      if (updated.role === "admin") {
-        localStorage.setItem("snapforest_admin", JSON.stringify(updated));
-      } else {
-        localStorage.setItem("snapforest_user", JSON.stringify(updated));
-      }
+      persistUser(updated);
       return updated;
     });
   }, []);
-
-  const isLoggedIn = !!user;
-  const isAdmin = user?.role === "admin";
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isLoggedIn,
-        isAdmin,
+        isLoggedIn: !!user,
+        isAdmin: user?.role === "admin",
         isLoading,
         login,
         register,
@@ -199,8 +191,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (context === undefined) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 }
