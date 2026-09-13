@@ -23,11 +23,11 @@ export const paymentStatusEnum = z.enum([
   "pending",
   "paid",
   "failed",
+  "cancelled",
   "refunded",
 ]);
 
 export const bookingTypeEnum = z.enum(["hourly", "daily"]);
-
 export const userRoleEnum = z.enum(["user", "admin"]);
 
 export const RoomSchema = z.object({
@@ -47,20 +47,18 @@ export const RoomSchema = z.object({
   mapLink: z.string().optional(),
 });
 
-// Updated BookingSchema with guest information fields
 export const BookingSchema = z.object({
   roomId: z.string().min(1, "Room ID is required"),
-  date: z.string().min(1, "Date is required"),
-  startTime: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
-  endTime: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format"),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+  startTime: z.string().regex(/^$|^([01]\d|2[0-3]):(00|30)$/, "Invalid time format"),
+  endTime: z.string().regex(/^$|^([01]\d|2[0-3]):(00|30)$/, "Invalid time format"),
   bookingType: bookingTypeEnum,
   totalAmount: z.number().min(0),
-  // Guest information fields
-  guestName: z.string().min(1, "Your name is required"),
-  guestEmail: z.string().email("Please enter a valid email address"),
-  guestPhone: z.string().min(10, "Phone number must be at least 10 digits").max(15, "Phone number is too long"),
-  purpose: z.string().optional(),
-  notes: z.string().optional(),
+  guestName: z.string().trim().min(2, "Your name is required").max(100, "Name is too long"),
+  guestEmail: z.string().trim().email("Please enter a valid email address").max(254, "Email is too long"),
+  guestPhone: z.string().regex(/^[6-9]\d{9}$/, "Please enter a valid 10-digit Indian mobile number"),
+  purpose: z.string().trim().max(200, "Purpose is too long").optional(),
+  notes: z.string().trim().max(1000, "Notes are too long").optional(),
 });
 
 export const BookingQuerySchema = z.object({

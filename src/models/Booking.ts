@@ -2,19 +2,19 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IBooking extends Document {
   bookingId: string;
-  user: mongoose.Types.ObjectId;
+  user?: mongoose.Types.ObjectId | null;
   room: mongoose.Types.ObjectId;
   date: Date;
   startTime: string;
   endTime: string;
+  slotKeys: string[];
   totalAmount: number;
   bookingType: "hourly" | "daily";
   status: "pending" | "confirmed" | "cancelled" | "completed";
-  paymentStatus: "pending" | "paid" | "failed" | "refunded";
-  razorpayOrderId?: string;
-  razorpayPaymentId?: string;
-  expiresAt?: Date;
-  // Guest information (for non-authenticated users or additional details)
+  paymentStatus: "pending" | "paid" | "failed" | "cancelled" | "refunded";
+  razorpayOrderId?: string | null;
+  razorpayPaymentId?: string | null;
+  expiresAt?: Date | null;
   guestName: string;
   guestEmail: string;
   guestPhone: string;
@@ -32,104 +32,62 @@ function generateBookingId(): string {
 
 const BookingSchema = new Schema<IBooking>(
   {
-    bookingId: {
-      type: String,
-      unique: true,
-      index: true,
-      default: generateBookingId,
-    },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: false,
-      default: null,
-    },
-    room: {
-      type: Schema.Types.ObjectId,
-      ref: "Room",
-      required: [true, "Room is required"],
-    },
-    date: {
-      type: Date,
-      required: [true, "Date is required"],
-    },
-    startTime: {
-      type: String,
-      required: [true, "Start time is required"],
-    },
-    endTime: {
-      type: String,
-      required: [true, "End time is required"],
-    },
-    totalAmount: {
-      type: Number,
-      required: [true, "Total amount is required"],
-      min: 0,
-    },
-    bookingType: {
-      type: String,
-      enum: ["hourly", "daily"],
-      required: [true, "Booking type is required"],
-    },
-    status: {
-      type: String,
-      enum: ["pending", "confirmed", "cancelled", "completed"],
-      default: "pending",
-    },
-    paymentStatus: {
-      type: String,
-      enum: ["pending", "paid", "failed", "refunded"],
-      default: "pending",
-    },
-    razorpayOrderId: {
-      type: String,
-      default: null,
-      index: true,
-    },
-    razorpayPaymentId: {
-      type: String,
-      default: null,
-    },
-    expiresAt: {
-      type: Date,
-      default: null,
-    },
-    // Guest information fields
-    guestName: {
-      type: String,
-      required: [true, "Guest name is required"],
-      trim: true,
-    },
-    guestEmail: {
-      type: String,
-      required: [true, "Guest email is required"],
-      trim: true,
-      lowercase: true,
-    },
-    guestPhone: {
-      type: String,
-      required: [true, "Guest phone number is required"],
-      trim: true,
-    },
-    purpose: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-    notes: {
-      type: String,
-      default: "",
-      trim: true,
-    },
+    bookingId: { type: String, unique: true, index: true, default: generateBookingId },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: false, default: null },
+    room: { type: Schema.Types.ObjectId, ref: "Room", required: [true, "Room is required"] },
+    date: { type: Date, required: [true, "Date is required"] },
+    startTime: { type: String, required: [true, "Start time is required"] },
+    endTime: { type: String, required: [true, "End time is required"] },
+    slotKeys: { type: [String], required: [true, "Booking slots are required"], default: [] },
+    totalAmount: { type: Number, required: [true, "Total amount is required"], min: 0 },
+    bookingType: { type: String, enum: ["hourly", "daily"], required: [true, "Booking type is required"] },
+    status: { type: String, enum: ["pending", "confirmed", "cancelled", "completed"], default: "pending" },
+    paymentStatus: { type: String, enum: ["pending", "paid", "failed", "cancelled", "refunded"], default: "pending" },
+    razorpayOrderId: { type: String, default: null },
+    razorpayPaymentId: { type: String, default: null },
+    expiresAt: { type: Date, default: null },
+    guestName: { type: String, required: [true, "Guest name is required"], trim: true },
+    guestEmail: { type: String, required: [true, "Guest email is required"], trim: true, lowercase: true },
+    guestPhone: { type: String, required: [true, "Guest phone number is required"], trim: true },
+    purpose: { type: String, default: "", trim: true },
+    notes: { type: String, default: "", trim: true },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 BookingSchema.index({ user: 1, status: 1 });
 BookingSchema.index({ room: 1, date: 1, status: 1 });
-BookingSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+BookingSchema.index({ expiresAt: 1 });
+
+BookingSchema.index(
+  { room: 1, date: 1, slotKeys: 1 },
+  {
+    unique: true,
+    name: "unique_active_booking_slots",
+    partialFilterExpression: {
+      slotKeys: { $exists: true },
+      status: { $in: ["pending", "confirmed"] },
+    },
+  }
+);
+
+BookingSchema.index(
+  { razorpayOrderId: 1 },
+  {
+    unique: true,
+    name: "unique_razorpay_order_id",
+    partialFilterExpression: { razorpayOrderId: { $type: "string" } },
+  }
+);
+
+BookingSchema.index(
+  { razorpayPaymentId: 1 },
+  {
+    unique: true,
+    name: "unique_razorpay_payment_id",
+    partialFilterExpression: { razorpayPaymentId: { $type: "string" } },
+  }
+);
 
 const Booking =
   mongoose.models.Booking || mongoose.model<IBooking>("Booking", BookingSchema);

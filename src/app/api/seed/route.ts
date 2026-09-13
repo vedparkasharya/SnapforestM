@@ -39,13 +39,13 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Seeded ${seeded} rooms. Admin credentials are never created by this endpoint.`,
+      message: `Seeded ${seeded} development rooms. No user or admin credentials are created.`,
       rooms: seeded,
     });
   } catch (error: any) {
     console.error("Seed error:", error);
     return NextResponse.json(
-      { success: false, message: error.message || "Seed failed" },
+      { success: false, message: "Seed failed. Check server logs for details." },
       { status: 500 }
     );
   }

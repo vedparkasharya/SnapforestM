@@ -1,346 +1,134 @@
-/**
- * Snapforest PWA Service Worker
- *
- * Provides:
- * - Offline page caching
- * - Static asset caching
- * - API response caching with stale-while-revalidate
- * - Image caching
- * - Push notification support
- *
- * Version: 3.0 - Brand Refresh with Cache Busting
- */
-
-const CACHE_VERSION = "v3";
+/** Snapforest service worker. Never cache API responses because some GET APIs are authenticated. */
+const CACHE_VERSION = "v4";
 const STATIC_CACHE = `snapforest-static-${CACHE_VERSION}`;
-const API_CACHE = `snapforest-api-${CACHE_VERSION}`;
 const IMAGE_CACHE = `snapforest-images-${CACHE_VERSION}`;
-const OFFLINE_PAGE = "/";
 
-// Assets to cache on install - core app shell (using v3 cache-busted URLs)
 const STATIC_ASSETS = [
   "/",
   "/rooms",
   "/dashboard",
-  "/manifest.json?v=3",
-  "/icon-192.png?v=3",
-  "/icon-512.png?v=3",
-  "/favicon.ico?v=3",
-  "/favicon.png?v=3",
-  "/apple-touch-icon.png?v=3",
+  "/manifest.json?v=4",
+  "/icon-192.png?v=4",
+  "/icon-512.png?v=4",
+  "/favicon.ico?v=4",
+  "/favicon.png?v=4",
+  "/apple-touch-icon.png?v=4",
 ];
 
-// Install event - cache static assets
 self.addEventListener("install", (event) => {
-  console.log("[SW] Installing Snapforest Service Worker v3...");
-
   event.waitUntil(
-    caches
-      .open(STATIC_CACHE)
-      .then((cache) => {
-        console.log("[SW] Caching static assets...");
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => {
-        console.log("[SW] Static assets cached successfully");
-        return self.skipWaiting();
-      })
-      .catch((err) => {
-        console.error("[SW] Cache install failed:", err);
-      })
+    caches.open(STATIC_CACHE)
+      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate event - clean up old caches
 self.addEventListener("activate", (event) => {
-  console.log("[SW] Activating Snapforest Service Worker v3...");
-
   event.waitUntil(
-    caches
-      .keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames
-            .filter((name) => {
-              // Delete ALL old snapforest caches that don't match current v3 version
-              return (
-                name.startsWith("snapforest-") &&
-                name !== STATIC_CACHE &&
-                name !== API_CACHE &&
-                name !== IMAGE_CACHE
-              );
-            })
-            .map((name) => {
-              console.log("[SW] Deleting old cache:", name);
-              return caches.delete(name);
-            })
-        );
-      })
-      .then(() => {
-        console.log("[SW] Service Worker v3 activated, claiming clients...");
-        return self.clients.claim();
-      })
+    caches.keys()
+      .then((names) => Promise.all(
+        names
+          .filter((name) => name.startsWith("snapforest-") && name !== STATIC_CACHE && name !== IMAGE_CACHE)
+          .map((name) => caches.delete(name))
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
-// Helper functions
-const isApiRequest = (url) => {
-  return url.pathname.startsWith("/api/");
-};
+const isImageRequest = (url) => /\.(jpg|jpeg|png|gif|webp|svg|ico)(\?.*)?$/i.test(url.pathname);
+const isStaticAsset = (url) => url.pathname.startsWith("/_next/") || STATIC_ASSETS.some((asset) => url.pathname === asset.split("?")[0]);
 
-const isImageRequest = (url) => {
-  return /\.(jpg|jpeg|png|gif|webp|svg|ico)(\?.*)?$/i.test(url.pathname);
-};
-
-const isStaticAsset = (url) => {
-  return STATIC_ASSETS.some(asset => {
-    const assetPath = asset.split("?")[0];
-    return url.pathname === assetPath;
-  }) || url.pathname.startsWith("/_next/");
-};
-
-/**
- * Fetch event - serve from cache or network
- * Strategy:
- * - API requests: Network first, cache fallback (stale-while-revalidate)
- * - Images: Cache first, network fallback
- * - Static assets: Cache first, network fallback
- * - Navigation: Network first, cache fallback
- */
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests (POST, PUT, DELETE go directly to network)
-  if (request.method !== "GET") {
-    return;
-  }
+  if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
-  // Skip cross-origin requests (except for essential third-party APIs)
-  if (url.origin !== self.location.origin) {
-    // Allow Razorpay checkout requests to pass through
-    if (url.hostname.includes("razorpay.com")) {
-      return;
-    }
-    return;
-  }
+  // API responses are intentionally network-only. Caching them can leak one
+  // user's authenticated data to another browser session through Cache Storage.
+  if (url.pathname.startsWith("/api/")) return;
 
-  // API requests - Network first with cache fallback
-  if (isApiRequest(url)) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Only cache successful responses
-          if (response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(API_CACHE).then((cache) => {
-              cache.put(request, responseClone);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          // Return cached response if available
-          return caches.match(request).then((cached) => {
-            if (cached) {
-              console.log("[SW] Serving cached API response for:", url.pathname);
-              return cached;
-            }
-            // Return offline JSON response for API calls
-            return new Response(
-              JSON.stringify({
-                success: false,
-                message: "You are offline. Please check your internet connection.",
-                offline: true,
-              }),
-              {
-                status: 503,
-                headers: {
-                  "Content-Type": "application/json",
-                  "Cache-Control": "no-cache",
-                },
-              }
-            );
-          });
-        })
-    );
-    return;
-  }
-
-  // Image requests - Stale-while-revalidate
   if (isImageRequest(url)) {
     event.respondWith(
       caches.match(request).then((cached) => {
-        const fetchPromise = fetch(request)
-          .then((response) => {
-            if (response.status === 200) {
-              const responseClone = response.clone();
-              caches.open(IMAGE_CACHE).then((cache) => {
-                cache.put(request, responseClone);
-              });
-            }
-            return response;
-          })
-          .catch(() => {
-            console.log("[SW] Image fetch failed, serving from cache:", url.pathname);
-            return cached;
-          });
-
-        return cached || fetchPromise;
+        const network = fetch(request).then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(IMAGE_CACHE).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        }).catch(() => cached || Response.error());
+        return cached || network;
       })
     );
     return;
   }
 
-  // Static assets - Cache first, network fallback
   if (isStaticAsset(url)) {
     event.respondWith(
       caches.match(request).then((cached) => {
-        if (cached) {
-          // Update cache in background (stale-while-revalidate)
-          fetch(request)
-            .then((response) => {
-              if (response.status === 200) {
-                caches.open(STATIC_CACHE).then((cache) => {
-                  cache.put(request, response);
-                });
-              }
-            })
-            .catch(() => {});
-          return cached;
-        }
-
-        return fetch(request)
-          .then((response) => {
-            if (response.status === 200) {
-              const responseClone = response.clone();
-              caches.open(STATIC_CACHE).then((cache) => {
-                cache.put(request, responseClone);
-              });
-            }
-            return response;
-          })
-          .catch(() => {
-            // Return offline page for navigation requests
-            if (request.mode === "navigate") {
-              return caches.match("/");
-            }
-            throw new Error("Network error");
-          });
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        });
       })
     );
     return;
   }
 
-  // Default: Network first, cache fallback for navigation
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(STATIC_CACHE).then((cache) => {
-            cache.put(request, responseClone);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        return caches.match(request).then((cached) => {
-          if (cached) {
-            return cached;
-          }
-          // Return home page as fallback for navigation
-          if (request.mode === "navigate") {
-            return caches.match("/");
-          }
-          throw new Error("Network error");
-        });
-      })
-  );
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request).catch(() => caches.match("/").then((cached) => cached || Response.error()))
+    );
+  }
 });
 
-/**
- * Push notification support
- * Handles incoming push messages from the server
- */
 self.addEventListener("push", (event) => {
-  console.log("[SW] Push notification received:", event);
-
   let data = {};
   try {
     data = event.data ? event.data.json() : {};
-  } catch (e) {
-    data = {
-      title: "Snapforest",
-      body: event.data?.text() || "You have a new notification",
-    };
+  } catch {
+    data = { title: "Snapforest", body: event.data?.text() || "You have a new notification" };
   }
 
-  const options = {
-    body: data.body || "New notification from Snapforest",
-    icon: "/icon-192.png?v=3",
-    badge: "/icon-192.png?v=3",
-    tag: data.tag || "snapforest-notification",
-    requireInteraction: false,
-    data: data.data || {},
-    actions: data.actions || [
-      { action: "open", title: "Open App" },
-      { action: "dismiss", title: "Dismiss" },
-    ],
-    vibrate: [200, 100, 200],
-  };
-
   event.waitUntil(
-    self.registration.showNotification(
-      data.title || "Snapforest",
-      options
-    )
+    self.registration.showNotification(data.title || "Snapforest", {
+      body: data.body || "New notification from Snapforest",
+      icon: "/icon-192.png?v=4",
+      badge: "/icon-192.png?v=4",
+      tag: data.tag || "snapforest-notification",
+      data: data.data || {},
+      actions: data.actions || [{ action: "open", title: "Open App" }, { action: "dismiss", title: "Dismiss" }],
+    })
   );
 });
 
-/**
- * Notification click handler
- * Opens the app when user clicks on a notification
- */
 self.addEventListener("notificationclick", (event) => {
-  console.log("[SW] Notification clicked:", event);
-
   event.notification.close();
+  if (event.action === "dismiss") return;
 
-  const notificationData = event.notification.data || {};
-  const urlToOpen = notificationData.url || "/";
-
-  if (event.action === "dismiss") {
-    return;
+  const requestedUrl = event.notification.data?.url || "/";
+  let urlToOpen = "/";
+  try {
+    const parsed = new URL(requestedUrl, self.location.origin);
+    if (parsed.origin === self.location.origin) urlToOpen = parsed.href;
+  } catch {
+    urlToOpen = "/";
   }
 
   event.waitUntil(
-    self.clients
-      .matchAll({ type: "window", includeUncontrolled: true })
-      .then((clientList) => {
-        // Focus existing window if open
-        for (const client of clientList) {
-          if (client.url === urlToOpen && "focus" in client) {
-            return client.focus();
-          }
-        }
-        // Open new window
-        if (self.clients.openWindow) {
-          return self.clients.openWindow(urlToOpen);
-        }
-      })
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      const existing = clients.find((client) => client.url === urlToOpen);
+      if (existing && "focus" in existing) return existing.focus();
+      return self.clients.openWindow ? self.clients.openWindow(urlToOpen) : undefined;
+    })
   );
 });
 
-/**
- * Message handler for skipWaiting
- * Allows the page to trigger service worker updates
- */
 self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
-    console.log("[SW] Skip waiting triggered from page");
-    self.skipWaiting();
-  }
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
-
-console.log("[SW] Snapforest Service Worker v3 loaded");

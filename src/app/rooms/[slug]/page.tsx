@@ -22,10 +22,8 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
-  Shield,
   Headphones,
   Keyboard,
-  Mouse,
 } from "lucide-react";
 import Link from "next/link";
 import BookingWidget from "@/components/booking/BookingWidget";
@@ -64,15 +62,15 @@ const equipmentIcons: Record<string, React.ReactNode> = {
 };
 
 const categoryColors: Record<string, string> = {
-  podcast: "from-cyan-500 to-blue-500",
-  youtube: "from-red-500 to-pink-500",
-  music: "from-purple-500 to-violet-500",
-  photography: "from-amber-500 to-orange-500",
-  dance: "from-pink-500 to-rose-500",
-  coworking: "from-emerald-500 to-teal-500",
-  gaming: "from-green-500 to-emerald-500",
-  streaming: "from-indigo-500 to-purple-500",
-  meeting: "from-blue-500 to-indigo-500",
+  podcast: "from-[#1a472a] to-[#2d6a43]",
+  youtube: "from-[#1a472a] to-[#3b7a57]",
+  music: "from-[#1a472a] to-[#356b48]",
+  photography: "from-[#8b6b23] to-[#b18a2b]",
+  dance: "from-[#1a472a] to-[#4b7d5b]",
+  coworking: "from-[#1a472a] to-[#3f7955]",
+  gaming: "from-[#1a472a] to-[#2b7a45]",
+  streaming: "from-[#1a472a] to-[#4f7e5e]",
+  meeting: "from-[#1a472a] to-[#477957]",
 };
 
 interface Room {
@@ -99,20 +97,30 @@ export default function RoomDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchRoom() {
       try {
-        const res = await fetch(`/api/rooms?slug=${params.slug}`);
+        const slug = String(params.slug || "");
+        const res = await fetch(`/api/rooms?slug=${encodeURIComponent(slug)}`, {
+          signal: controller.signal,
+          cache: "no-store",
+        });
         const data = await res.json();
-        if (data.success && data.data.length > 0) {
+        if (res.ok && data.success && Array.isArray(data.data) && data.data.length > 0) {
           setRoom(data.data[0]);
         }
       } catch (error) {
-        console.error("Error fetching room:", error);
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          console.error("Error fetching room:", error);
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     }
-    fetchRoom();
+
+    void fetchRoom();
+    return () => controller.abort();
   }, [params.slug]);
 
   if (loading) {
@@ -138,11 +146,12 @@ export default function RoomDetailPage() {
 
   if (!room) {
     return (
-      <main className="min-h-screen pt-20 flex items-center justify-center">
+      <main className="min-h-screen pt-20 flex items-center justify-center px-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Room Not Found</h1>
-          <Link href="/rooms" className="text-neon-cyan hover:underline">
-            Browse all rooms
+          <h1 className="text-2xl font-semibold mb-2">Studio not found</h1>
+          <p className="text-sm text-muted-foreground mb-5">This listing may have been removed or is currently unavailable.</p>
+          <Link href="/rooms" className="btn-primary">
+            Browse studios
           </Link>
         </div>
       </main>
@@ -152,27 +161,20 @@ export default function RoomDetailPage() {
   return (
     <main className="min-h-screen pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back Link */}
         <Link
           href="/rooms"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Rooms
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+          Back to studios
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Images & Details */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Room Image Gallery */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <RoomGallery images={room.images} roomName={room.name} />
             </motion.div>
 
-            {/* Room Info */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -185,61 +187,45 @@ export default function RoomDetailPage() {
                     <Badge
                       variant="neon"
                       className={`bg-gradient-to-r ${
-                        categoryColors[room.category] || "from-neon-cyan to-neon-purple"
+                        categoryColors[room.category] || "from-[#1a472a] to-[#2d6a43]"
                       } text-white border-0`}
                     >
-                      {room.category.charAt(0).toUpperCase() +
-                        room.category.slice(1)}
+                      {room.category.charAt(0).toUpperCase() + room.category.slice(1)}
                     </Badge>
-                    {room.rating >= 4.7 && (
+                    {room.reviews > 0 && room.rating >= 4.7 && (
                       <Badge variant="success" className="text-xs">
-                        <Star className="w-3 h-3 mr-1 fill-current" />
-                        Top Rated
+                        <Star className="w-3 h-3 mr-1 fill-current" aria-hidden="true" />
+                        Highly rated
                       </Badge>
                     )}
                   </div>
-                  <h1 className="text-2xl sm:text-3xl font-bold">
-                    {room.name}
-                  </h1>
+                  <h1 className="text-2xl sm:text-3xl font-semibold">{room.name}</h1>
                   <div className="flex items-center gap-2 text-muted-foreground mt-2">
-                    <MapPin className="w-4 h-4 text-neon-cyan" />
-                    <span>
-                      {room.address}, {room.city}
-                    </span>
+                    <MapPin className="w-4 h-4 text-[#c8e6c9]" aria-hidden="true" />
+                    <span>{room.address}, {room.city}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl">
-                  <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  <Star className="w-5 h-5 text-[#f9a825] fill-[#f9a825]" aria-hidden="true" />
                   <span className="font-semibold text-lg">{room.rating}</span>
-                  <span className="text-muted-foreground">
-                    ({room.reviews} reviews)
-                  </span>
+                  {room.reviews > 0 && <span className="text-muted-foreground">({room.reviews})</span>}
                 </div>
               </div>
 
-              <p className="text-muted-foreground leading-relaxed">
-                {room.description}
-              </p>
+              <p className="text-muted-foreground leading-relaxed">{room.description}</p>
 
-              {/* Quick Info Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
                 {[
                   { icon: Users, label: "Capacity", value: `${room.capacity} people` },
-                  { icon: Clock, label: "Min Booking", value: "1 Hour" },
-                  { icon: Calendar, label: "Available", value: "7 Days" },
-                  { icon: Shield, label: "Insurance", value: "Included" },
-                ].map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-white/5"
-                  >
-                    <div className="p-2 rounded-lg bg-neon-cyan/10">
-                      <item.icon className="w-4 h-4 text-neon-cyan" />
+                  { icon: Clock, label: "Booking", value: "Hourly or full day" },
+                  { icon: Calendar, label: "Availability", value: "Choose a live slot" },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
+                    <div className="p-2 rounded-lg bg-[#1a472a]/20">
+                      <item.icon className="w-4 h-4 text-[#c8e6c9]" aria-hidden="true" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">
-                        {item.label}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{item.label}</p>
                       <p className="text-sm font-medium">{item.value}</p>
                     </div>
                   </div>
@@ -247,7 +233,6 @@ export default function RoomDetailPage() {
               </div>
             </motion.div>
 
-            {/* Equipment */}
             {room.equipment && room.equipment.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -255,23 +240,20 @@ export default function RoomDetailPage() {
                 transition={{ delay: 0.2 }}
                 className="glass-card p-6"
               >
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-neon-cyan" />
-                  Equipment & Amenities
-                </h3>
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-[#c8e6c9]" aria-hidden="true" />
+                  What&apos;s in the room
+                </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {room.equipment.map((item, i) => (
+                  {room.equipment.map((item) => (
                     <motion.span
-                      key={i}
+                      key={item}
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.05 }}
                       className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/5 text-sm hover:bg-white/10 transition-colors"
                     >
-                      <span className="p-1.5 rounded-lg bg-neon-cyan/10 text-neon-cyan">
-                        {equipmentIcons[item] || (
-                          <Monitor className="w-4 h-4" />
-                        )}
+                      <span className="p-1.5 rounded-lg bg-[#1a472a]/20 text-[#c8e6c9]">
+                        {equipmentIcons[item] || <Monitor className="w-4 h-4" />}
                       </span>
                       {item}
                     </motion.span>
@@ -280,7 +262,6 @@ export default function RoomDetailPage() {
               </motion.div>
             )}
 
-            {/* Map Link */}
             {room.mapLink && (
               <motion.a
                 href={room.mapLink}
@@ -289,28 +270,20 @@ export default function RoomDetailPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-neon-cyan/10 to-neon-purple/10 border border-neon-cyan/20 hover:border-neon-cyan/40 transition-colors"
+                className="flex items-center gap-3 p-4 rounded-xl bg-[#1a472a]/10 border border-[#c8e6c9]/10 hover:border-[#c8e6c9]/20 transition-colors"
               >
-                <div className="p-2 rounded-lg bg-neon-cyan/10">
-                  <MapPin className="w-5 h-5 text-neon-cyan" />
+                <div className="p-2 rounded-lg bg-[#1a472a]/20">
+                  <MapPin className="w-5 h-5 text-[#c8e6c9]" aria-hidden="true" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium">View Location on Google Maps</p>
-                  <p className="text-xs text-muted-foreground">
-                    {room.address}, {room.city}
-                  </p>
+                  <p className="font-medium">Open location</p>
+                  <p className="text-xs text-muted-foreground">{room.address}, {room.city}</p>
                 </div>
-                <ArrowLeft className="w-4 h-4 rotate-180 text-neon-cyan" />
               </motion.a>
             )}
           </div>
 
-          {/* Right Column - Booking Widget */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
             <BookingWidget room={room} />
           </motion.div>
         </div>

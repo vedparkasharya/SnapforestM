@@ -38,12 +38,28 @@ export async function POST(request: NextRequest) {
     if (!payment?.id || !payment?.order_id) return errorResponse("Invalid payment payload", 400);
 
     await connectDB();
-    const existingPayment = await Booking.findOne({ razorpayPaymentId: payment.id });
+    const existingPayment = await Booking.findOne({ razorpayPaymentId: payment.id }).select("_id").lean();
     if (existingPayment) return successResponse({}, "Payment already processed");
 
-    const booking = await Booking.findOneAndUpdate(
+    const booking = await Booking.findOne({
+      razorpayOrderId: payment.order_id,
+      status: "pending",
+      paymentStatus: "pending",
+    });
+
+    if (!booking) return successResponse({}, "Booking already handled or not found");
+
+    if (Number(payment.amount) !== Math.round(booking.totalAmount * 100) || payment.currency !== "INR") {
+      return errorResponse("Payment amount does not match booking", 400);
+    }
+
+    if (booking.expiresAt && booking.expiresAt <= new Date()) {
+      return errorResponse("Booking payment session has expired", 409);
+    }
+
+    const confirmedBooking = await Booking.findOneAndUpdate(
       {
-        razorpayOrderId: payment.order_id,
+        _id: booking._id,
         status: "pending",
         paymentStatus: "pending",
       },
@@ -58,26 +74,26 @@ export async function POST(request: NextRequest) {
       { new: true }
     ).populate("room");
 
-    if (!booking) return successResponse({}, "Booking already handled or not found");
+    if (!confirmedBooking) return successResponse({}, "Booking already handled");
 
-    if (booking.guestEmail) {
+    if (confirmedBooking.guestEmail) {
       try {
         await sendBookingConfirmationEmail({
-          userName: booking.guestName || "Guest",
-          userEmail: booking.guestEmail,
-          roomName: booking.room?.name || "Studio",
-          roomAddress: booking.room ? `${booking.room.address}, ${booking.room.city}` : "",
-          date: new Date(booking.date).toLocaleDateString("en-IN"),
-          startTime: booking.startTime,
-          endTime: booking.endTime,
-          totalAmount: booking.totalAmount,
-          bookingType: booking.bookingType,
-          mapLink: booking.room?.mapLink,
+          userName: confirmedBooking.guestName || "Guest",
+          userEmail: confirmedBooking.guestEmail,
+          roomName: confirmedBooking.room?.name || "Studio",
+          roomAddress: confirmedBooking.room ? `${confirmedBooking.room.address}, ${confirmedBooking.room.city}` : "",
+          date: new Date(confirmedBooking.date).toLocaleDateString("en-IN"),
+          startTime: confirmedBooking.startTime,
+          endTime: confirmedBooking.endTime,
+          totalAmount: confirmedBooking.totalAmount,
+          bookingType: confirmedBooking.bookingType,
+          mapLink: confirmedBooking.room?.mapLink,
           status: "Confirmed",
-          bookingId: booking.bookingId,
-          guestPhone: booking.guestPhone,
-          purpose: booking.purpose,
-          notes: booking.notes,
+          bookingId: confirmedBooking.bookingId,
+          guestPhone: confirmedBooking.guestPhone,
+          purpose: confirmedBooking.purpose,
+          notes: confirmedBooking.notes,
         });
       } catch (emailError) {
         console.error("[Webhook] Email send failed (non-critical):", emailError);

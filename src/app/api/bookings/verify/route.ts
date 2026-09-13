@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import crypto from "crypto";
+import Razorpay from "razorpay";
+import mongoose from "mongoose";
 import connectDB from "@/lib/db";
 import Booking from "@/models/Booking";
 import { successResponse, errorResponse } from "@/lib/api-response";
@@ -17,15 +19,27 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { bookingId, razorpayPaymentId, razorpayOrderId, razorpaySignature } = body;
-    if (!bookingId || typeof bookingId !== "string") return errorResponse("Booking ID is required", 400);
+    if (!bookingId || typeof bookingId !== "string" || !mongoose.isValidObjectId(bookingId)) {
+      return errorResponse("Valid booking ID is required", 400);
+    }
 
     await connectDB();
     const existing = await Booking.findById(bookingId);
     if (!existing) return errorResponse("Booking not found", 404);
 
-    // A cancelled/completed booking must never be resurrected by a payment callback.
     if (["cancelled", "completed"].includes(existing.status)) {
       return errorResponse("This booking can no longer be confirmed", 409);
+    }
+
+    if (existing.status !== "pending" || existing.paymentStatus !== "pending") {
+      if (existing.status === "confirmed" && existing.paymentStatus === "paid") {
+        return successResponse(existing, "Payment already processed");
+      }
+      return errorResponse("This booking is not awaiting payment", 409);
+    }
+
+    if (existing.expiresAt && existing.expiresAt <= new Date()) {
+      return errorResponse("This payment session has expired. Please create a new booking.", 409);
     }
 
     const isDemoMode = existing.razorpayOrderId?.startsWith("demo_") === true;
@@ -33,8 +47,11 @@ export async function POST(request: NextRequest) {
 
     if (isDemoMode) {
       if (!demoAllowed) return errorResponse("Demo payments are disabled", 403);
-      if (razorpayOrderId && razorpayOrderId !== existing.razorpayOrderId) {
+      if (razorpayOrderId !== existing.razorpayOrderId) {
         return errorResponse("Order does not match booking", 400);
+      }
+      if (typeof razorpayPaymentId !== "string" || !razorpayPaymentId.startsWith("demo_payment_")) {
+        return errorResponse("Invalid demo payment", 400);
       }
     } else {
       if (!razorpayPaymentId || !razorpayOrderId || !razorpaySignature) {
@@ -44,8 +61,9 @@ export async function POST(request: NextRequest) {
         return errorResponse("Order does not match booking", 400);
       }
 
+      const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
       const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
-      if (!razorpayKeySecret) return errorResponse("Payment gateway not configured", 500);
+      if (!razorpayKeyId || !razorpayKeySecret) return errorResponse("Payment gateway not configured", 500);
 
       const expected = crypto
         .createHmac("sha256", razorpayKeySecret)
@@ -55,20 +73,21 @@ export async function POST(request: NextRequest) {
       if (!timingSafeEqual(expected, String(razorpaySignature))) {
         return errorResponse("Invalid payment signature", 400);
       }
+
+      const razorpay = new Razorpay({ key_id: razorpayKeyId, key_secret: razorpayKeySecret });
+      const order = await razorpay.orders.fetch(razorpayOrderId);
+      if (Number(order.amount) !== Math.round(existing.totalAmount * 100) || order.currency !== "INR") {
+        return errorResponse("Payment amount does not match booking", 400);
+      }
     }
 
-    // Confirm only once. A repeated browser callback/webhook returns the existing booking without re-sending email.
-    if (existing.status === "confirmed" && existing.paymentStatus === "paid") {
-      return successResponse(existing, "Payment already processed");
-    }
-
-    const paymentId = isDemoMode ? `demo_payment_${existing._id}` : String(razorpayPaymentId);
+    const paymentId = isDemoMode ? String(razorpayPaymentId) : String(razorpayPaymentId);
     const booking = await Booking.findOneAndUpdate(
       {
         _id: bookingId,
         status: "pending",
         paymentStatus: "pending",
-        ...(isDemoMode ? {} : { razorpayOrderId, razorpayPaymentId: { $in: [null, paymentId] } }),
+        razorpayOrderId: existing.razorpayOrderId,
       },
       {
         $set: {

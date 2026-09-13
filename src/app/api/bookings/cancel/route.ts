@@ -9,7 +9,8 @@ export const dynamic = "force-dynamic";
 function getAuth(request: NextRequest) {
   const header = request.headers.get("authorization");
   if (!header?.startsWith("Bearer ")) return null;
-  return verifySecureToken(header.slice(7).trim());
+  const token = header.slice(7).trim();
+  return token ? verifySecureToken(token) : null;
 }
 
 export async function POST(request: NextRequest) {
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     const bookingDate = new Date(booking.date);
     const [hours, minutes] = booking.startTime.split(":").map(Number);
-    if (!Number.isInteger(hours) || !Number.isInteger(minutes)) {
+    if (!Number.isInteger(hours) || !Number.isInteger(minutes) || hours < 0 || hours > 23 || ![0, 30].includes(minutes)) {
       return errorResponse("Booking has an invalid start time", 400);
     }
     bookingDate.setUTCHours(hours, minutes, 0, 0);
@@ -50,7 +51,9 @@ export async function POST(request: NextRequest) {
     }
 
     booking.status = "cancelled";
-    // Cancellation is not the same as a refund. Refunds must be performed through Razorpay/admin tooling.
+    booking.expiresAt = null;
+    // Cancellation is not the same as a refund. A paid booking stays paid until
+    // an actual Razorpay refund is completed by the refund workflow.
     if (booking.paymentStatus !== "paid") booking.paymentStatus = "cancelled";
     await booking.save();
 
