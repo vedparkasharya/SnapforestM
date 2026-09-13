@@ -2,98 +2,85 @@ import { NextRequest } from "next/server";
 import crypto from "crypto";
 import connectDB from "@/lib/db";
 import Booking from "@/models/Booking";
-import Room from "@/models/Room";
-import User from "@/models/User";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { sendBookingConfirmationEmail } from "@/lib/email";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-/**
- * POST /api/webhook
- * Razorpay webhook handler for payment events
- *
- * This handles:
- * - payment.captured: Update booking status and send confirmation email
- */
+function timingSafeEqual(a: string, b: string) {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
     const signature = request.headers.get("x-razorpay-signature");
-
-    // Check if webhook secret is configured
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
-    if (!webhookSecret) {
-      console.log("[Webhook] RAZORPAY_WEBHOOK_SECRET not configured - skipping webhook processing");
-      return successResponse({}, "Webhook not configured - ignored");
+
+    if (!webhookSecret) return successResponse({}, "Webhook not configured - ignored");
+    if (!signature) return errorResponse("Missing webhook signature", 400);
+
+    const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(body).digest("hex");
+    if (!timingSafeEqual(signature, expectedSignature)) return errorResponse("Invalid webhook signature", 400);
+
+    let event: any;
+    try {
+      event = JSON.parse(body);
+    } catch {
+      return errorResponse("Invalid webhook payload", 400);
     }
 
-    // Verify webhook signature
-    const expectedSignature = crypto
-      .createHmac("sha256", webhookSecret)
-      .update(body)
-      .digest("hex");
+    if (event.event !== "payment.captured") return successResponse({}, "Webhook event ignored");
 
-    if (signature !== expectedSignature) {
-      return errorResponse("Invalid webhook signature", 400);
-    }
+    const payment = event?.payload?.payment?.entity;
+    if (!payment?.id || !payment?.order_id) return errorResponse("Invalid payment payload", 400);
 
-    const event = JSON.parse(body);
+    await connectDB();
+    const existingPayment = await Booking.findOne({ razorpayPaymentId: payment.id });
+    if (existingPayment) return successResponse({}, "Payment already processed");
 
-    // Handle payment captured event
-    if (event.event === "payment.captured") {
-      const payment = event.payload.payment.entity;
-      const orderId = payment.order_id;
-
-      await connectDB();
-
-      // Check if already processed
-      const existing = await Booking.findOne({
-        razorpayPaymentId: payment.id,
-        status: "confirmed",
-      });
-
-      if (existing) {
-        return successResponse({}, "Payment already processed");
-      }
-
-      const booking = await Booking.findOneAndUpdate(
-        { razorpayOrderId: orderId },
-        {
+    const booking = await Booking.findOneAndUpdate(
+      {
+        razorpayOrderId: payment.order_id,
+        status: "pending",
+        paymentStatus: "pending",
+      },
+      {
+        $set: {
           razorpayPaymentId: payment.id,
           paymentStatus: "paid",
           status: "confirmed",
           expiresAt: null,
         },
-        { new: true }
-      )
-        .populate("room")
-        .populate("user");
+      },
+      { new: true }
+    ).populate("room");
 
-      // Send confirmation email to guest email (always present now)
-      if (booking?.guestEmail) {
-        try {
-          await sendBookingConfirmationEmail({
-            userName: booking.guestName || booking.user?.name || "Guest",
-            userEmail: booking.guestEmail,
-            roomName: booking.room?.name || "Studio",
-            roomAddress: booking.room ? `${booking.room.address}, ${booking.room.city}` : "",
-            date: new Date(booking.date).toLocaleDateString("en-IN"),
-            startTime: booking.startTime,
-            endTime: booking.endTime,
-            totalAmount: booking.totalAmount,
-            bookingType: booking.bookingType,
-            mapLink: booking.room?.mapLink,
-            status: "Confirmed",
-            bookingId: booking.bookingId,
-            guestPhone: booking.guestPhone,
-            purpose: booking.purpose,
-            notes: booking.notes,
-          });
-          console.log(`[Webhook] Confirmation email sent to ${booking.guestEmail}`);
-        } catch (emailError) {
-          console.error("[Webhook] Email send failed (non-critical):", emailError);
-        }
+    if (!booking) return successResponse({}, "Booking already handled or not found");
+
+    if (booking.guestEmail) {
+      try {
+        await sendBookingConfirmationEmail({
+          userName: booking.guestName || "Guest",
+          userEmail: booking.guestEmail,
+          roomName: booking.room?.name || "Studio",
+          roomAddress: booking.room ? `${booking.room.address}, ${booking.room.city}` : "",
+          date: new Date(booking.date).toLocaleDateString("en-IN"),
+          startTime: booking.startTime,
+          endTime: booking.endTime,
+          totalAmount: booking.totalAmount,
+          bookingType: booking.bookingType,
+          mapLink: booking.room?.mapLink,
+          status: "Confirmed",
+          bookingId: booking.bookingId,
+          guestPhone: booking.guestPhone,
+          purpose: booking.purpose,
+          notes: booking.notes,
+        });
+      } catch (emailError) {
+        console.error("[Webhook] Email send failed (non-critical):", emailError);
       }
     }
 
