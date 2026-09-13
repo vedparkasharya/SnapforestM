@@ -31,6 +31,13 @@ export async function POST(request: NextRequest) {
       return errorResponse("This booking can no longer be confirmed", 409);
     }
 
+    if (existing.status !== "pending" || existing.paymentStatus !== "pending") {
+      if (existing.status === "confirmed" && existing.paymentStatus === "paid") {
+        return successResponse(existing, "Payment already processed");
+      }
+      return errorResponse("This booking is not awaiting payment", 409);
+    }
+
     if (existing.expiresAt && existing.expiresAt <= new Date()) {
       return errorResponse("This payment session has expired. Please create a new booking.", 409);
     }
@@ -42,6 +49,9 @@ export async function POST(request: NextRequest) {
       if (!demoAllowed) return errorResponse("Demo payments are disabled", 403);
       if (razorpayOrderId !== existing.razorpayOrderId) {
         return errorResponse("Order does not match booking", 400);
+      }
+      if (typeof razorpayPaymentId !== "string" || !razorpayPaymentId.startsWith("demo_payment_")) {
+        return errorResponse("Invalid demo payment", 400);
       }
     } else {
       if (!razorpayPaymentId || !razorpayOrderId || !razorpaySignature) {
@@ -64,8 +74,6 @@ export async function POST(request: NextRequest) {
         return errorResponse("Invalid payment signature", 400);
       }
 
-      // The signature proves the callback came from Razorpay, while fetching the
-      // order confirms that the paid order amount is the amount we created.
       const razorpay = new Razorpay({ key_id: razorpayKeyId, key_secret: razorpayKeySecret });
       const order = await razorpay.orders.fetch(razorpayOrderId);
       if (Number(order.amount) !== Math.round(existing.totalAmount * 100) || order.currency !== "INR") {
@@ -73,17 +81,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (existing.status === "confirmed" && existing.paymentStatus === "paid") {
-      return successResponse(existing, "Payment already processed");
-    }
-
-    const paymentId = isDemoMode ? `demo_payment_${existing._id}` : String(razorpayPaymentId);
+    const paymentId = isDemoMode ? String(razorpayPaymentId) : String(razorpayPaymentId);
     const booking = await Booking.findOneAndUpdate(
       {
         _id: bookingId,
         status: "pending",
         paymentStatus: "pending",
-        ...(isDemoMode ? {} : { razorpayOrderId, razorpayPaymentId: { $in: [null, paymentId] } }),
+        razorpayOrderId: existing.razorpayOrderId,
       },
       {
         $set: {
