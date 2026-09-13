@@ -1,99 +1,70 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { Camera, CheckCircle2, Clock3, CreditCard } from "lucide-react";
 
-const TESTIMONIALS = [
+const POINTS = [
   {
-    quote:
-      "The podcast studio is absolutely world-class. Sound quality is insane and the equipment is top-notch. Best investment for my show.",
-    name: "Rahul Kumar",
-    role: "Podcaster",
-    avatar: "R",
-    rating: 5,
+    icon: Camera,
+    title: "Choose a space that fits",
+    description: "Compare photos, equipment, capacity and location before you book.",
   },
   {
-    quote:
-      "I film all my YouTube videos here now. The lighting setup saves me hours of post-production. Highly recommend the YouTube studio!",
-    name: "Priya Singh",
-    role: "YouTuber",
-    avatar: "P",
-    rating: 5,
+    icon: Clock3,
+    title: "Book only the time you need",
+    description: "Pick an available slot instead of committing to a long-term studio plan.",
   },
   {
-    quote:
-      "Booked the music room for a weekend recording session. The acoustics are perfect and the staff is super helpful. Coming back for sure.",
-    name: "Amit Sharma",
-    role: "Musician",
-    avatar: "A",
-    rating: 5,
+    icon: CreditCard,
+    title: "Pay securely",
+    description: "Complete checkout through the payment flow and keep your booking details in one place.",
+  },
+  {
+    icon: CheckCircle2,
+    title: "Get clear confirmation",
+    description: "Your booking status and studio details are shown together after checkout.",
   },
 ];
 
 export default function Testimonials() {
   return (
     <section className="bg-[#e8f5e9] section-padding">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
+      <div className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-16"
+          className="mx-auto mb-12 max-w-2xl text-center"
         >
+          <p className="sf-label mb-4">A simpler way to create</p>
           <h2
             className="text-heading-lg text-[#111111]"
             style={{ fontFamily: "var(--font-primary)" }}
           >
-            What Creators Say
+            Everything important, without the studio-hunting headache.
           </h2>
+          <p className="mt-4 text-base leading-7 text-[#4c5a4f]">
+            Snapforest is designed around the moments that matter: finding the right room, choosing a time, paying securely and knowing what you booked.
+          </p>
         </motion.div>
 
-        {/* Testimonial Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((t, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {POINTS.map(({ icon: Icon, title, description }, i) => (
+            <motion.article
+              key={title}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{
-                duration: 0.6,
-                delay: i * 0.15,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              className="bg-white rounded-lg p-8"
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+              className="rounded-2xl border border-[#cfe3d1] bg-white p-6 shadow-[0_12px_30px_rgba(26,71,42,0.06)]"
             >
-              {/* Stars */}
-              <div className="flex gap-1 mb-4">
-                {Array.from({ length: t.rating }).map((_, j) => (
-                  <Star
-                    key={j}
-                    className="w-4 h-4 text-[#f9a825] fill-[#f9a825]"
-                  />
-                ))}
+              <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8f5e9]">
+                <Icon className="h-5 w-5 text-[#1a472a]" aria-hidden="true" />
               </div>
-
-              {/* Quote */}
-              <p
-                className="text-[#111111] text-lg leading-relaxed mb-6 italic"
-                style={{ fontFamily: "var(--font-primary)" }}
-              >
-                &ldquo;{t.quote}&rdquo;
-              </p>
-
-              {/* Author */}
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#1a472a] flex items-center justify-center text-white text-sm font-medium">
-                  {t.avatar}
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-[#111111]">{t.name}</p>
-                  <p className="font-mono text-xs text-[#888888]">{t.role}</p>
-                </div>
-              </div>
-            </motion.div>
+              <h3 className="mb-2 text-lg font-medium text-[#111111]">{title}</h3>
+              <p className="text-sm leading-6 text-[#5f6d62]">{description}</p>
+            </motion.article>
           ))}
         </div>
       </div>
