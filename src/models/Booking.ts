@@ -12,8 +12,8 @@ export interface IBooking extends Document {
   bookingType: "hourly" | "daily";
   status: "pending" | "confirmed" | "cancelled" | "completed";
   paymentStatus: "pending" | "paid" | "failed" | "cancelled" | "refunded";
-  razorpayOrderId?: string;
-  razorpayPaymentId?: string;
+  razorpayOrderId?: string | null;
+  razorpayPaymentId?: string | null;
   expiresAt?: Date | null;
   guestName: string;
   guestEmail: string;
@@ -32,112 +32,33 @@ function generateBookingId(): string {
 
 const BookingSchema = new Schema<IBooking>(
   {
-    bookingId: {
-      type: String,
-      unique: true,
-      index: true,
-      default: generateBookingId,
-    },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: false,
-      default: null,
-    },
-    room: {
-      type: Schema.Types.ObjectId,
-      ref: "Room",
-      required: [true, "Room is required"],
-    },
-    date: {
-      type: Date,
-      required: [true, "Date is required"],
-    },
-    startTime: {
-      type: String,
-      required: [true, "Start time is required"],
-    },
-    endTime: {
-      type: String,
-      required: [true, "End time is required"],
-    },
-    slotKeys: {
-      type: [String],
-      required: [true, "Booking slots are required"],
-      default: [],
-    },
-    totalAmount: {
-      type: Number,
-      required: [true, "Total amount is required"],
-      min: 0,
-    },
-    bookingType: {
-      type: String,
-      enum: ["hourly", "daily"],
-      required: [true, "Booking type is required"],
-    },
-    status: {
-      type: String,
-      enum: ["pending", "confirmed", "cancelled", "completed"],
-      default: "pending",
-    },
-    paymentStatus: {
-      type: String,
-      enum: ["pending", "paid", "failed", "cancelled", "refunded"],
-      default: "pending",
-    },
-    razorpayOrderId: {
-      type: String,
-      default: null,
-      index: true,
-    },
-    razorpayPaymentId: {
-      type: String,
-      default: null,
-    },
-    expiresAt: {
-      type: Date,
-      default: null,
-    },
-    guestName: {
-      type: String,
-      required: [true, "Guest name is required"],
-      trim: true,
-    },
-    guestEmail: {
-      type: String,
-      required: [true, "Guest email is required"],
-      trim: true,
-      lowercase: true,
-    },
-    guestPhone: {
-      type: String,
-      required: [true, "Guest phone number is required"],
-      trim: true,
-    },
-    purpose: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-    notes: {
-      type: String,
-      default: "",
-      trim: true,
-    },
+    bookingId: { type: String, unique: true, index: true, default: generateBookingId },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: false, default: null },
+    room: { type: Schema.Types.ObjectId, ref: "Room", required: [true, "Room is required"] },
+    date: { type: Date, required: [true, "Date is required"] },
+    startTime: { type: String, required: [true, "Start time is required"] },
+    endTime: { type: String, required: [true, "End time is required"] },
+    slotKeys: { type: [String], required: [true, "Booking slots are required"], default: [] },
+    totalAmount: { type: Number, required: [true, "Total amount is required"], min: 0 },
+    bookingType: { type: String, enum: ["hourly", "daily"], required: [true, "Booking type is required"] },
+    status: { type: String, enum: ["pending", "confirmed", "cancelled", "completed"], default: "pending" },
+    paymentStatus: { type: String, enum: ["pending", "paid", "failed", "cancelled", "refunded"], default: "pending" },
+    razorpayOrderId: { type: String, default: null },
+    razorpayPaymentId: { type: String, default: null },
+    expiresAt: { type: Date, default: null },
+    guestName: { type: String, required: [true, "Guest name is required"], trim: true },
+    guestEmail: { type: String, required: [true, "Guest email is required"], trim: true, lowercase: true },
+    guestPhone: { type: String, required: [true, "Guest phone number is required"], trim: true },
+    purpose: { type: String, default: "", trim: true },
+    notes: { type: String, default: "", trim: true },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 BookingSchema.index({ user: 1, status: 1 });
 BookingSchema.index({ room: 1, date: 1, status: 1 });
 BookingSchema.index({ expiresAt: 1 });
 
-// A 30-minute slot key makes overlapping bookings impossible even when two
-// requests arrive at the same time. Cancelled/completed bookings are excluded
-// so their slots can be booked again.
 BookingSchema.index(
   { room: 1, date: 1, slotKeys: 1 },
   {
@@ -147,6 +68,24 @@ BookingSchema.index(
       slotKeys: { $exists: true },
       status: { $in: ["pending", "confirmed"] },
     },
+  }
+);
+
+BookingSchema.index(
+  { razorpayOrderId: 1 },
+  {
+    unique: true,
+    name: "unique_razorpay_order_id",
+    partialFilterExpression: { razorpayOrderId: { $type: "string" } },
+  }
+);
+
+BookingSchema.index(
+  { razorpayPaymentId: 1 },
+  {
+    unique: true,
+    name: "unique_razorpay_payment_id",
+    partialFilterExpression: { razorpayPaymentId: { $type: "string" } },
   }
 );
 
