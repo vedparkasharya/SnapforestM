@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, Clock, IndianRupee, Loader2, LogIn, MapPin, RefreshCw, XCircle } from "lucide-react";
+import { CalendarDays, Clock, Loader2, MapPin, RefreshCw, XCircle } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import { formatPrice } from "@/lib/utils";
 
@@ -104,9 +104,7 @@ export default function DashboardClient() {
             <h1 className="mt-2 text-3xl font-semibold text-white">Your bookings</h1>
             <p className="mt-2 text-sm text-white/50">Manage upcoming sessions and keep your booking details in one place.</p>
           </div>
-          <button type="button" onClick={() => void fetchBookings()} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-sm text-white/70 hover:bg-white/[0.05] hover:text-white">
-            <RefreshCw className="h-4 w-4" /> Refresh
-          </button>
+          <button type="button" onClick={() => void fetchBookings()} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-sm text-white/70 hover:bg-white/[0.05] hover:text-white"><RefreshCw className="h-4 w-4" /> Refresh</button>
         </div>
 
         {error && <div role="alert" className="mb-5 rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">{error}</div>}
@@ -146,8 +144,7 @@ export default function DashboardClient() {
                   {cancellable && (
                     <div className="mt-5 flex justify-end">
                       <button type="button" disabled={cancelling === booking._id} onClick={() => void cancelBooking(booking._id)} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-red-400/20 px-4 text-sm text-red-300 hover:bg-red-400/10 disabled:opacity-50">
-                        {cancelling === booking._id ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
-                        Cancel booking
+                        {cancelling === booking._id ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />} Cancel booking
                       </button>
                     </div>
                   )}
