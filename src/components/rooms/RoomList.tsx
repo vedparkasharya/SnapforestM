@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import RoomCard from "./RoomCard";
 import FilterBar from "./FilterBar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SearchX } from "lucide-react";
 
 interface Room {
   _id: string;
@@ -23,6 +24,7 @@ interface Room {
 export default function RoomList() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     city: "All Cities",
     category: "All Categories",
@@ -30,89 +32,85 @@ export default function RoomList() {
     search: "",
   });
 
-  const fetchRooms = useCallback(async () => {
+  const fetchRooms = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
+    setError(null);
+
     try {
       const params = new URLSearchParams();
       if (filters.city !== "All Cities") params.append("city", filters.city);
-      if (filters.category !== "All Categories")
-        params.append("category", filters.category);
+      if (filters.category !== "All Categories") params.append("category", filters.category);
       if (filters.search) params.append("search", filters.search);
       if (filters.priceRange !== "All Prices") {
         const [min, max] = filters.priceRange.includes("Under")
           ? ["0", "500"]
           : filters.priceRange.includes("Above")
-          ? ["2000", "100000"]
-          : filters.priceRange.match(/\d+/g) || ["0", "100000"];
-        if (min) params.append("minPrice", min);
-        if (max) params.append("maxPrice", max);
+            ? ["2000", "100000"]
+            : filters.priceRange.match(/\d+/g) || ["0", "100000"];
+        params.append("minPrice", min);
+        params.append("maxPrice", max);
       }
 
-      const res = await fetch(`/api/rooms?${params.toString()}`);
+      const res = await fetch(`/api/rooms?${params.toString()}`, {
+        signal,
+        headers: { Accept: "application/json" },
+      });
       const data = await res.json();
-      if (data.success) {
-        setRooms(data.data);
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "We could not load the studios right now.");
       }
-    } catch (error) {
-      console.error("Failed to fetch rooms:", error);
+
+      setRooms(Array.isArray(data.data) ? data.data : []);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
+      console.error("Failed to fetch rooms:", err);
+      setRooms([]);
+      setError("We could not load the studios right now. Please try again.");
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, [filters]);
 
   useEffect(() => {
-    fetchRooms();
+    const controller = new AbortController();
+    fetchRooms(controller.signal);
+    return () => controller.abort();
   }, [fetchRooms]);
 
   return (
-    <section className="relative bg-[#0f0f0f] section-padding overflow-hidden" id="studios">
-      {/* Background Grid Pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px',
-        }}
-      />
-      
-      {/* Subtle Radial Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#1a472a]/5 rounded-full blur-[150px] pointer-events-none" />
+    <section className="relative overflow-hidden bg-[#0f0f0f] section-padding" id="studios">
+      <div className="pointer-events-none absolute inset-0 opacity-[0.025] [background-image:linear-gradient(rgba(255,255,255,0.28)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.28)_1px,transparent_1px)] [background-size:60px_60px]" />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[360px] w-[720px] -translate-x-1/2 rounded-full bg-[#1a472a]/5 blur-[140px]" />
 
-      <div className="relative max-w-7xl mx-auto">
-        {/* Section Header */}
+      <div className="relative mx-auto max-w-7xl">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-14"
+          className="mb-12 text-center"
         >
-          <div className="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full bg-[#1a472a]/10 border border-[#1a472a]/20">
-            <span className="w-2 h-2 rounded-full bg-[#1a472a] animate-pulse" />
-            <p className="sf-label-forest text-[11px] tracking-[0.15em]">OUR STUDIOS</p>
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#1a472a]/20 bg-[#1a472a]/10 px-4 py-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#c8e6c9]" aria-hidden="true" />
+            <p className="sf-label-forest text-[11px] tracking-[0.15em]">AVAILABLE SPACES</p>
           </div>
-          <h2
-            className="text-heading-lg text-white mb-4"
-            style={{ fontFamily: "var(--font-primary)" }}
-          >
-            Spaces Built for Creators
+          <h2 className="mb-4 text-heading-lg text-white" style={{ fontFamily: "var(--font-primary)" }}>
+            Spaces built for creators.
           </h2>
-          <p className="text-[#888888] max-w-lg mx-auto text-base leading-relaxed">
-            Browse and book premium creator spaces in Patna — designed for professionals, priced for everyone.
+          <p className="mx-auto max-w-xl text-base leading-relaxed text-[#888888]">
+            Browse rooms in Patna, compare the details and choose the setup that fits your session.
           </p>
         </motion.div>
 
         <FilterBar onFilter={setFilters} />
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 mt-10">
+          <div className="mt-10 grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Loading studios">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden bg-[#1a1a1a] border border-white/[0.04]">
+              <div key={i} className="overflow-hidden rounded-2xl border border-white/[0.04] bg-[#1a1a1a]">
                 <Skeleton className="aspect-video bg-[#252525]" />
-                <div className="p-5 space-y-3">
+                <div className="space-y-3 p-5">
                   <Skeleton className="h-5 w-3/4 bg-[#252525]" />
                   <Skeleton className="h-4 w-1/2 bg-[#252525]" />
                   <Skeleton className="h-4 w-1/3 bg-[#252525]" />
@@ -120,52 +118,30 @@ export default function RoomList() {
               </div>
             ))}
           </div>
+        ) : error ? (
+          <div className="mx-auto mt-10 max-w-lg rounded-2xl border border-white/[0.08] bg-[#181818] px-6 py-12 text-center">
+            <p className="text-base font-medium text-white">Something went wrong.</p>
+            <p className="mt-2 text-sm leading-6 text-white/50">{error}</p>
+            <button
+              type="button"
+              onClick={() => fetchRooms()}
+              className="mt-6 inline-flex min-h-10 items-center justify-center rounded-full border border-white/15 px-5 text-sm font-medium text-white transition-colors hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c8e6c9]"
+            >
+              Try again
+            </button>
+          </div>
         ) : rooms.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-[#888888] text-lg">
-              No studios found matching your criteria.
-            </p>
-            <p className="text-sm text-[#888888] mt-2">
-              Try adjusting your filters.
-            </p>
+          <div className="mx-auto mt-10 max-w-lg rounded-2xl border border-white/[0.06] bg-[#181818] px-6 py-14 text-center">
+            <SearchX className="mx-auto h-7 w-7 text-white/30" aria-hidden="true" />
+            <p className="mt-4 text-base font-medium text-white">No studios match those filters.</p>
+            <p className="mt-2 text-sm leading-6 text-white/45">Try a different category, price range or search term.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 mt-10">
+          <div className="mt-10 grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
             {rooms.map((room, i) => (
               <RoomCard key={room._id} room={room} index={i} />
             ))}
           </div>
-        )}
-
-        {/* Bottom Stats Bar */}
-        {!loading && rooms.length > 0 && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="mt-16 flex flex-wrap items-center justify-center gap-8 py-6 px-8 rounded-2xl bg-[#1a1a1a]/50 border border-white/[0.04] backdrop-blur-sm"
-          >
-            <div className="text-center">
-              <p className="text-2xl font-light text-white">{rooms.length}+</p>
-              <p className="text-xs text-[#888888] mt-0.5">Studios</p>
-            </div>
-            <div className="w-px h-8 bg-white/10" />
-            <div className="text-center">
-              <p className="text-2xl font-light text-white">4.8</p>
-              <p className="text-xs text-[#888888] mt-0.5">Avg Rating</p>
-            </div>
-            <div className="w-px h-8 bg-white/10" />
-            <div className="text-center">
-              <p className="text-2xl font-light text-white">1000+</p>
-              <p className="text-xs text-[#888888] mt-0.5">Bookings</p>
-            </div>
-            <div className="w-px h-8 bg-white/10" />
-            <div className="text-center">
-              <p className="text-2xl font-light text-white">24/7</p>
-              <p className="text-xs text-[#888888] mt-0.5">Support</p>
-            </div>
-          </motion.div>
         )}
       </div>
     </section>
