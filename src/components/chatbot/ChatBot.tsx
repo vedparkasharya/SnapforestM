@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Mic, MicOff, Volume2, VolumeX, User, Loader2 } from "lucide-react";
+import { X, Send, Mic, MicOff, Volume2, VolumeX, User, Loader2, MessageCircle, Bot } from "lucide-react";
 import Link from "next/link";
 
 interface ChatMessage {

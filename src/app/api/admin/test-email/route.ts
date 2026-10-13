@@ -32,10 +32,10 @@ export async function POST(request: NextRequest) {
       return errorResponse(
         "SMTP is not configured. Please set SMTP_USER and SMTP_PASS environment variables in Vercel.",
         500,
-        {
+        JSON.stringify({
           smtpUser: process.env.SMTP_USER ? "set" : "missing",
           smtpPass: process.env.SMTP_PASS ? "set" : "missing",
-        }
+        })
       );
     }
 

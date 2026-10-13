@@ -72,37 +72,20 @@ export default function PremiumHome() {
 
   return (
     <main className="sf-premium">
-      <section className="sf-hero">
+      <section className="sf-hero sf-hero-centered">
         <div className="sf-hero-grain" aria-hidden="true" />
-        <div className="sf-wrap sf-hero-grid">
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .7, ease: [.2, .7, .2, 1] }} className="sf-hero-copy">
-            <div className="sf-eyebrow"><span className="sf-eyebrow-dot" /> CREATOR SPACES, IN YOUR CITY</div>
-            <h1>Make room<br />for <em>the idea.</em></h1>
-            <p className="sf-hero-lede">Find a space that fits the work. Podcast rooms, filming setups, photography studios and more—without the endless back-and-forth.</p>
-            <div className="sf-hero-actions">
-              <Link href="/rooms" className="sf-button sf-button-lime">Explore spaces <ArrowUpRight size={17} /></Link>
-              <Link href="#how-it-works" className="sf-text-link">How it works <ArrowDownRight size={16} /></Link>
+        <div className="sf-wrap sf-centered-wrap">
+          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .75, ease: [.2, .7, .2, 1] }} className="sf-centered-copy">
+            <div className="sf-centered-mark"><span className="sf-centered-mark-line" /> SNAPFOREST <span className="sf-centered-mark-line" /></div>
+            <h1><span>CREATE</span><span className="sf-centered-second">SPACE</span></h1>
+            <p className="sf-centered-lede">Book professional creator studios in<br className="sf-desktop-break" /> Patna &amp; Gaya, Bihar — by the hour.</p>
+            <div className="sf-hero-actions sf-centered-actions">
+              <Link href="/rooms" className="sf-button sf-button-lime">Explore Studios <ArrowRight size={18} /></Link>
+              <Link href="#how-it-works" className="sf-button sf-button-outline sf-centered-how"><CirclePlay size={17} /> How It Works</Link>
             </div>
-            <div className="sf-hero-foot">
-              <span className="sf-hero-foot-line" />
-              <span>Made for creators in Patna and beyond.</span>
-            </div>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 24, rotate: 1.5 }} animate={{ opacity: 1, y: 0, rotate: 0 }} transition={{ duration: .85, delay: .12, ease: [.2, .7, .2, 1] }} className="sf-hero-art">
-            <div className="sf-photo-main">
-              <Image src="/rooms/photo-studio.jpg" alt="A creator-ready studio space" fill priority sizes="(max-width: 900px) 92vw, 48vw" className="sf-cover-image" />
-              <div className="sf-photo-shade" />
-              <div className="sf-photo-top"><span>THE SPACE TO MAKE IT</span><span className="sf-photo-index">SF / 001</span></div>
-              <div className="sf-photo-bottom">
-                <div><span className="sf-photo-kicker">YOUR NEXT SESSION</span><h2>Start with<br />a good space.</h2></div>
-                <Link href="/rooms" aria-label="Explore creator spaces" className="sf-round-arrow"><ArrowUpRight size={22} /></Link>
-              </div>
-            </div>
-            <div className="sf-art-note"><span className="sf-art-note-icon"><CirclePlay size={18} /></span><span><strong>Find your setup.</strong><small>Then focus on the work.</small></span></div>
-            <div className="sf-art-stamp"><span>CREATE</span><span>WITHOUT</span><span>LIMITS ↗</span></div>
+            <div className="sf-centered-foot"><span className="sf-centered-dot" /> SPACES FOR BIGGER STORIES <span className="sf-centered-foot-line" /> MADE FOR CREATORS</div>
           </motion.div>
         </div>
-        <div className="sf-hero-bottom-rule"><span>DISCOVER</span><span>BOOK</span><span>CREATE</span><span className="sf-bottom-rule-line" /><span>01 — 04</span></div>
       </section>
 
       <section className="sf-category-section">
