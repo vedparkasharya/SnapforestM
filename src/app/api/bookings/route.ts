@@ -82,7 +82,11 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const room = await Room.findById(validated.data.roomId).lean();
-    if (!room || !room.isAvailable) return errorResponse("Room is not available", 404);
+    // Mongoose lean typings can include an array union in some TS versions;
+    // findById must resolve to one room document, never an array.
+    if (!room || Array.isArray(room) || !room.isAvailable) {
+      return errorResponse("Room is not available", 404);
+    }
 
     const { start: dateStart } = getDateRange(validated.data.date);
     const todayInIndia = getTodayInIndia();
