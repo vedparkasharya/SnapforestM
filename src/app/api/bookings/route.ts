@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import Razorpay from "razorpay";
 import connectDB from "@/lib/db";
 import Booking from "@/models/Booking";
-import Room from "@/models/Room";
+import Room, { type IRoom } from "@/models/Room";
 import { successResponse, errorResponse, validationError } from "@/lib/api-response";
 import { BookingSchema } from "@/types";
 import { verifySecureToken } from "@/lib/security";
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     const guestEmail = validated.data.guestEmail.trim().toLowerCase();
     await connectDB();
 
-    const room = await Room.findById(validated.data.roomId).lean();
+    const room = await Room.findById(validated.data.roomId).lean<IRoom>();
     // Mongoose lean typings can include an array union in some TS versions;
     // findById must resolve to one room document, never an array.
     if (!room || Array.isArray(room) || !room.isAvailable) {
