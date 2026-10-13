@@ -201,3 +201,49 @@
 @media (prefers-reduced-motion:reduce) {
   .sf-premium *, .sf-premium *:before, .sf-premium *:after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; }
 }
+
+
+/* Centered, minimal mobile-first homepage hero inspired by the supplied reference */
+.sf-premium .sf-hero-centered {
+  min-height: min(790px, calc(100svh - 82px));
+  padding: 0;
+  display: flex;
+  align-items: center;
+  background: #101110;
+  color: #f8f7f2;
+}
+.sf-premium .sf-hero-centered:before { opacity: .04; background-size: 100px 100px; }
+.sf-premium .sf-centered-wrap { display:flex; justify-content:center; align-items:center; padding-top:64px; padding-bottom:74px; }
+.sf-premium .sf-centered-copy { width:100%; text-align:center; display:flex; flex-direction:column; align-items:center; }
+.sf-premium .sf-centered-mark { display:flex; align-items:center; gap:13px; color:rgba(248,247,242,.55); font-size:9px; letter-spacing:.32em; margin-bottom:27px; }
+.sf-premium .sf-centered-mark-line { width:28px; height:1px; background:#315c3e; }
+.sf-premium .sf-centered-copy h1 { display:flex; flex-direction:column; align-items:center; margin:0; font-family:var(--sf-serif); font-weight:400; letter-spacing:.075em; line-height:.84; font-size:clamp(82px,15vw,172px); }
+.sf-premium .sf-centered-copy h1 span:first-child { color:#fffefa; }
+.sf-premium .sf-centered-copy h1 .sf-centered-second { font-family:var(--font-display,Arial,sans-serif); font-size:.43em; font-weight:400; letter-spacing:.34em; margin-top:22px; margin-left:.34em; }
+.sf-premium .sf-centered-lede { max-width:650px; margin:54px auto 0; color:rgba(248,247,242,.76); font-family:var(--sf-serif); font-size:clamp(19px,2.2vw,29px); line-height:1.55; letter-spacing:-.015em; }
+.sf-premium .sf-centered-actions { justify-content:center; margin-top:48px; gap:15px; }
+.sf-premium .sf-centered-actions .sf-button { min-height:58px; padding:0 29px; border-radius:999px; font-size:13px; gap:13px; }
+.sf-premium .sf-centered-actions .sf-button-lime { background:#194d2f; color:#f9fff8!important; }
+.sf-premium .sf-centered-actions .sf-button-lime:hover { background:#24663e; }
+.sf-premium .sf-centered-how { min-width:190px; border-radius:999px; border-color:rgba(255,255,255,.18); }
+.sf-premium .sf-centered-how:hover { background:rgba(255,255,255,.07); }
+.sf-premium .sf-centered-foot { display:flex; align-items:center; gap:12px; margin-top:76px; color:rgba(248,247,242,.37); font-size:8px; letter-spacing:.18em; }
+.sf-premium .sf-centered-dot { width:6px; height:6px; border-radius:50%; background:#6eb985; box-shadow:0 0 12px #6eb98566; }
+.sf-premium .sf-centered-foot-line { width:30px; height:1px; background:rgba(255,255,255,.15); }
+.sf-premium .sf-hero-centered .sf-hero-grain { opacity:.06; }
+@media (max-width: 700px) {
+  .sf-premium .sf-hero-centered { min-height:calc(100svh - 78px); }
+  .sf-premium .sf-centered-wrap { width:calc(100% - 30px); padding-top:36px; padding-bottom:44px; }
+  .sf-premium .sf-centered-mark { font-size:8px; letter-spacing:.25em; margin-bottom:25px; }
+  .sf-premium .sf-centered-copy h1 { font-size:clamp(70px,19vw,112px); letter-spacing:.055em; }
+  .sf-premium .sf-centered-copy h1 .sf-centered-second { font-size:.37em; letter-spacing:.28em; margin-top:18px; }
+  .sf-premium .sf-centered-lede { margin-top:54px; font-size:clamp(19px,5vw,24px); line-height:1.5; max-width:390px; }
+  .sf-premium .sf-desktop-break { display:none; }
+  .sf-premium .sf-centered-actions { flex-direction:column; width:100%; max-width:310px; margin-top:43px; gap:13px; }
+  .sf-premium .sf-centered-actions .sf-button { width:100%; min-height:57px; justify-content:center; font-size:14px; }
+  .sf-premium .sf-centered-foot { margin-top:57px; font-size:7px; gap:8px; letter-spacing:.12em; flex-wrap:wrap; justify-content:center; }
+  .sf-premium .sf-centered-foot-line { width:16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sf-premium .sf-centered-copy * { animation:none!important; transition:none!important; }
+}
