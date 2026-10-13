@@ -59,10 +59,10 @@ export async function POST(request: NextRequest) {
         "2. Enable 2-Factor Authentication on your Google account\n" +
         "3. Generate an App Password at https://myaccount.google.com/apppasswords",
         500,
-        {
-          smtpUser: process.env.SMTP_USER,
+        JSON.stringify({
+          smtpUser: process.env.SMTP_USER ? "set" : "missing",
           hint: "Use Gmail App Password, not regular password",
-        }
+        })
       );
     }
   } catch (error: any) {
