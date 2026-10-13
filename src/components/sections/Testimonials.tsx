@@ -17,7 +17,7 @@ export default function Testimonials() {
         <div className="grid items-end gap-8 border-b border-black/10 pb-10 lg:grid-cols-[1fr_auto]">
           <div className="max-w-3xl">
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#477453]">Why Snapforest</p>
-            <h2 className="text-balance text-5xl leading-[0.92] tracking-[-0.05em] sm:text-6xl" style={{ fontFamily: "var(--font-primary)" }}>The details matter when you're making something.</h2>
+            <h2 className="text-balance text-5xl leading-[0.92] tracking-[-0.05em] sm:text-6xl" style={{ fontFamily: "var(--font-primary)" }}>The details matter when you&apos;re making something.</h2>
           </div>
           <Link href="/rooms" className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/55 px-4 py-2.5 text-xs font-semibold text-black/65 transition-colors hover:bg-white hover:text-black">Browse spaces <ArrowUpRight className="h-3.5 w-3.5" /></Link>
         </div>
