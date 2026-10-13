@@ -20,7 +20,7 @@ export default function ServicesMarquee() {
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9eeeb5]">Made for the work</p>
             <h2 className="text-4xl tracking-[-0.04em] sm:text-5xl" style={{ fontFamily: "var(--font-primary)" }}>One place. Different ways to create.</h2>
           </div>
-          <p className="max-w-sm text-sm leading-6 text-white/40">Find a room around the kind of session you're building. Every listing can be checked before you book.</p>
+          <p className="max-w-sm text-sm leading-6 text-white/40">Find a room around the kind of session you&apos;re building. Every listing can be checked before you book.</p>
         </div>
 
         <div className="mt-8 grid gap-px overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-white/[0.08] md:grid-cols-5">
