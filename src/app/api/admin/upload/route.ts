@@ -73,17 +73,21 @@ export async function POST(request: NextRequest) {
       try {
         console.log(`[Upload API] Uploading image ${i + 1}/${validImages.length}...`);
         const result = await uploadImage(base64Image, "snapforest/rooms");
-        if (result.success) {
+        if (result.success && typeof result.url === "string" && result.url.length > 0) {
           uploadResults.push({ index: i, url: result.url, success: true });
           console.log(`[Upload API] Image ${i + 1} uploaded successfully`);
         } else {
+          const uploadError =
+            "error" in result && typeof result.error === "string"
+              ? result.error
+              : "Upload did not return a valid image URL";
           uploadResults.push({
             index: i,
             url: null,
             success: false,
-            error: result.error,
+            error: uploadError,
           });
-          console.error(`[Upload API] Image ${i + 1} failed:`, result.error);
+          console.error(`[Upload API] Image ${i + 1} failed:`, uploadError);
         }
       } catch (err: any) {
         console.error(`[Upload API] Image ${i + 1} exception:`, err?.message || err);
