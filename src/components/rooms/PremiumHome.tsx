@@ -73,6 +73,7 @@ export default function PremiumHome() {
   return (
     <main className="sf-premium">
       <section className="sf-hero sf-hero-centered">
+        <div className="sf-hero-photo" aria-hidden="true"><Image src="/rooms/photo-studio.jpg" alt="" fill priority sizes="100vw" /></div>
         <div className="sf-hero-grain" aria-hidden="true" />
         <div className="sf-wrap sf-centered-wrap">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .75, ease: [.2, .7, .2, 1] }} className="sf-centered-copy">
