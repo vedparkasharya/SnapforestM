@@ -358,3 +358,217 @@
   .sf-hero-photo img { object-position:58% center; opacity:.28; }
   .sf-hero-centered:after { background:linear-gradient(180deg,rgba(8,18,12,.72),rgba(8,18,12,.76) 52%,#10271d 100%); }
 }
+
+
+/* Homepage visual refresh — editorial forest palette, clearer hierarchy, stronger CTAs */
+.sf-premium .sf-hero-centered {
+  position: relative;
+  min-height: min(760px, calc(100svh - 72px));
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(42, 105, 62, .28) 0%, rgba(16, 39, 29, .08) 38%, transparent 68%),
+    linear-gradient(145deg, #0c1711 0%, #101a13 48%, #0a100c 100%);
+  border-bottom: 1px solid rgba(215, 242, 120, .18);
+}
+.sf-premium .sf-hero-centered:after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  bottom: -160px;
+  width: min(820px, 90vw);
+  height: 260px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(215, 242, 120, .12);
+  border-radius: 50%;
+  box-shadow: 0 0 0 34px rgba(215, 242, 120, .018), 0 0 0 68px rgba(215, 242, 120, .014);
+  pointer-events: none;
+}
+.sf-premium .sf-hero-centered:before {
+  opacity: .18;
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse at center, #000 0%, transparent 78%);
+}
+.sf-premium .sf-centered-wrap {
+  position: relative;
+  z-index: 1;
+  padding-top: clamp(62px, 9vh, 104px);
+  padding-bottom: clamp(56px, 8vh, 88px);
+}
+.sf-premium .sf-centered-mark {
+  gap: 14px;
+  padding: 10px 15px;
+  border: 1px solid rgba(215, 242, 120, .19);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .025);
+  color: rgba(248, 247, 242, .72);
+  font-size: 9px;
+  letter-spacing: .3em;
+  backdrop-filter: blur(10px);
+}
+.sf-premium .sf-centered-mark-line {
+  width: 22px;
+  background: #a8d76c;
+}
+.sf-premium .sf-centered-copy h1 {
+  font-size: clamp(72px, 13.5vw, 148px);
+  letter-spacing: -.035em !important;
+  line-height: .86 !important;
+  text-shadow: 0 8px 50px rgba(0, 0, 0, .2);
+}
+.sf-premium .sf-centered-copy h1 > span:first-child {
+  color: #f5f6ee;
+  font-size: clamp(54px, 14.2vw, 132px) !important;
+  letter-spacing: -.035em !important;
+}
+.sf-premium .sf-centered-copy h1 > span.sf-centered-second {
+  margin-top: 12px !important;
+  color: #c6ed91;
+  font-size: clamp(30px, 7.6vw, 62px) !important;
+  letter-spacing: .36em !important;
+  margin-left: .36em !important;
+}
+.sf-premium .sf-centered-lede {
+  max-width: 540px;
+  margin-top: 30px;
+  color: rgba(245, 246, 238, .72);
+  font-family: var(--font-display, Arial, sans-serif);
+  font-size: clamp(16px, 1.7vw, 20px);
+  line-height: 1.75;
+  letter-spacing: .005em;
+}
+.sf-premium .sf-centered-actions {
+  margin-top: 32px;
+  gap: 12px;
+}
+.sf-premium .sf-centered-actions .sf-button {
+  min-height: 54px;
+  padding-inline: 24px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.sf-premium .sf-centered-actions .sf-button-lime {
+  color: #112317 !important;
+  background: #d7f278;
+  box-shadow: 0 8px 28px rgba(148, 199, 91, .14);
+}
+.sf-premium .sf-centered-actions .sf-button-lime:hover {
+  background: #e6ff9c;
+  box-shadow: 0 10px 34px rgba(148, 199, 91, .24);
+}
+.sf-premium .sf-centered-how {
+  background: rgba(255, 255, 255, .035);
+  border-color: rgba(255, 255, 255, .2);
+}
+.sf-premium .sf-centered-foot {
+  margin-top: 48px;
+  color: rgba(245, 246, 238, .48);
+  letter-spacing: .17em;
+}
+.sf-premium .sf-centered-dot {
+  background: #c6ed91;
+  box-shadow: 0 0 14px rgba(198, 237, 145, .5);
+}
+.sf-premium .sf-category-section {
+  padding-top: clamp(76px, 9vw, 112px);
+}
+.sf-premium .sf-category-card {
+  position: relative;
+  background: rgba(255, 255, 255, .18);
+  transition: background .25s, transform .25s, box-shadow .25s;
+}
+.sf-premium .sf-category-card:hover {
+  background: #fffdf6;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(24, 35, 29, .06);
+}
+.sf-premium .sf-category-icon {
+  border-radius: 12px;
+  background: rgba(24, 60, 43, .045);
+}
+.sf-premium .sf-room-card {
+  overflow: hidden;
+  border-radius: 10px;
+  transition: transform .25s, border-color .25s, box-shadow .25s;
+}
+.sf-premium .sf-room-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(215, 242, 120, .45);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .16);
+}
+.sf-premium .sf-room-image {
+  aspect-ratio: 1.22;
+}
+.sf-premium .sf-room-category {
+  border-radius: 999px;
+  padding: 8px 11px;
+  font-weight: 650;
+}
+.sf-premium .sf-room-image-arrow {
+  background: rgba(10, 16, 12, .32);
+  backdrop-filter: blur(8px);
+}
+.sf-premium .sf-button,
+.sf-premium .sf-room-link,
+.sf-premium .sf-category-card {
+  -webkit-tap-highlight-color: transparent;
+}
+@media (max-width: 700px) {
+  .sf-premium .sf-hero-centered {
+    min-height: auto;
+    background:
+      radial-gradient(ellipse at 50% 28%, rgba(42, 105, 62, .28) 0%, transparent 62%),
+      linear-gradient(145deg, #0c1711 0%, #101a13 55%, #0a100c 100%);
+  }
+  .sf-premium .sf-centered-wrap {
+    padding-top: 64px;
+    padding-bottom: 54px;
+  }
+  .sf-premium .sf-centered-mark {
+    margin-bottom: 27px;
+    font-size: 7px;
+    letter-spacing: .22em;
+  }
+  .sf-premium .sf-centered-copy h1 > span:first-child {
+    font-size: clamp(47px, 14vw, 76px) !important;
+    letter-spacing: -.035em !important;
+  }
+  .sf-premium .sf-centered-copy h1 > span.sf-centered-second {
+    font-size: clamp(27px, 8vw, 38px) !important;
+    letter-spacing: .28em !important;
+    margin-left: .28em !important;
+    margin-top: 12px !important;
+  }
+  .sf-premium .sf-centered-lede {
+    margin-top: 27px;
+    max-width: 340px;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+  .sf-premium .sf-centered-actions {
+    width: 100%;
+    max-width: 320px;
+    margin-top: 27px;
+    gap: 10px;
+  }
+  .sf-premium .sf-centered-actions .sf-button {
+    min-height: 53px;
+  }
+  .sf-premium .sf-centered-foot {
+    margin-top: 34px;
+    max-width: 310px;
+    line-height: 1.8;
+  }
+  .sf-premium .sf-category-grid {
+    margin-top: 32px;
+  }
+  .sf-premium .sf-category-card {
+    min-height: 178px;
+    padding: 17px 14px;
+  }
+  .sf-premium .sf-category-card h3 {
+    font-size: 21px;
+  }
+  .sf-premium .sf-room-info {
+    padding: 16px;
+  }
+}
