@@ -1,0 +1,32 @@
+name: Snapforest Build Audit
+
+on:
+  push:
+    branches: ["audit/final-build-check"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: snapforest-build-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: TypeScript check
+        run: npx tsc --noEmit
+      - name: Production build
+        run: npm run build
