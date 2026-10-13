@@ -26,16 +26,13 @@ export default function PWAInstallPrompt() {
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    // Check if running in standalone mode (already installed)
-    const checkStandalone = () => {
-      const standalone =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        (window.navigator as any).standalone === true;
-      setIsStandalone(standalone);
-      setIsInstalled(standalone);
-    };
-
-    checkStandalone();
+    // Check if running in standalone mode (already installed).
+    // Keep the local value for checks in this effect; React state updates are asynchronous.
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone === true;
+    setIsStandalone(standalone);
+    setIsInstalled(standalone);
 
     // Listen for display mode changes
     const displayModeQuery = window.matchMedia("(display-mode: standalone)");
