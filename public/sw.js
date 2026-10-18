@@ -1,5 +1,5 @@
 /** Snapforest service worker. Never cache API responses because some GET APIs are authenticated. */
-const CACHE_VERSION = "v4";
+const CACHE_VERSION = "v5";
 const STATIC_CACHE = `snapforest-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `snapforest-images-${CACHE_VERSION}`;
 
@@ -48,6 +48,15 @@ self.addEventListener("fetch", (event) => {
   // user's authenticated data to another browser session through Cache Storage.
   if (url.pathname.startsWith("/api/")) return;
 
+  // Always fetch page navigations from the network first so homepage and route updates appear immediately.
+  // Keep the cached homepage only as an offline fallback.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request).catch(() => caches.match(request).then((cached) => cached || caches.match("/").then((home) => home || Response.error())))
+    );
+    return;
+  }
+
   if (isImageRequest(url)) {
     event.respondWith(
       caches.match(request).then((cached) => {
@@ -80,11 +89,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request).catch(() => caches.match("/").then((cached) => cached || Response.error()))
-    );
-  }
 });
 
 self.addEventListener("push", (event) => {
