@@ -406,3 +406,148 @@ body { background-image:none !important; }
   .sf-detail-page .glass-card { border-radius: 15px; padding: 1.15rem; }
   .sf-detail-page .max-w-7xl { padding-inline: 1rem; }
 }
+
+
+/* Snapforest site-wide UI system — applied across discovery, booking, account and admin routes */
+:root {
+  --sf-bg: #0d100e;
+  --sf-surface: #141914;
+  --sf-surface-raised: #191f19;
+  --sf-border: rgba(225, 239, 220, .12);
+  --sf-text: #f4f5ef;
+  --sf-muted: #a2aaa1;
+  --sf-accent: #c9f36a;
+  --sf-accent-strong: #b7e653;
+  --sf-radius-card: 18px;
+  --sf-shadow-card: 0 18px 48px rgba(0,0,0,.22);
+}
+body { color: var(--sf-text); }
+main:not(.sf-premium) {
+  color: var(--sf-text);
+  background:
+    radial-gradient(ellipse at 50% -20%, rgba(51, 82, 45, .18), transparent 48%),
+    var(--sf-bg);
+}
+main:not(.sf-premium) > section,
+main:not(.sf-premium) > div {
+  scroll-margin-top: 96px;
+}
+main:not(.sf-premium) h1,
+main:not(.sf-premium) h2,
+main:not(.sf-premium) h3,
+main:not(.sf-premium) h4 {
+  color: var(--sf-text);
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+main:not(.sf-premium) h1 { font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1.06; font-weight: 600; }
+main:not(.sf-premium) h2 { line-height: 1.12; font-weight: 600; }
+main:not(.sf-premium) p { line-height: 1.7; }
+main:not(.sf-premium) .text-muted-foreground,
+main:not(.sf-premium) .text-gray-400,
+main:not(.sf-premium) .text-white\/50,
+main:not(.sf-premium) .text-white\/60,
+main:not(.sf-premium) .text-white\/70 { color: var(--sf-muted) !important; }
+
+/* Common cards and panels share the same border, surface, depth and corner language. */
+main:not(.sf-premium) [class*="rounded-2xl"][class*="border"],
+main:not(.sf-premium) [class*="rounded-xl"][class*="border"],
+main:not(.sf-premium) .glass-card,
+main:not(.sf-premium) .tech-card,
+main:not(.sf-premium) .sf-card {
+  border-color: var(--sf-border);
+}
+main:not(.sf-premium) [class*="rounded-2xl"][class*="border"][class*="bg-white"],
+main:not(.sf-premium) [class*="rounded-xl"][class*="border"][class*="bg-white"],
+main:not(.sf-premium) [class*="rounded-2xl"][class*="border"][class*="bg-gray"],
+main:not(.sf-premium) [class*="rounded-xl"][class*="border"][class*="bg-gray"] {
+  background-color: var(--sf-surface);
+}
+main:not(.sf-premium) .glass-card,
+main:not(.sf-premium) .tech-card,
+main:not(.sf-premium) .sf-card {
+  border-radius: var(--sf-radius-card);
+  background-color: var(--sf-surface);
+  box-shadow: 0 10px 32px rgba(0,0,0,.12);
+}
+main:not(.sf-premium) .glass-card:hover,
+main:not(.sf-premium) .tech-card:hover,
+main:not(.sf-premium) .sf-card:hover {
+  border-color: rgba(201,243,106,.28);
+}
+main:not(.sf-premium) hr { border-color: var(--sf-border); }
+
+/* Buttons keep their existing action colors, but share sizing and focus behaviour. */
+main:not(.sf-premium) button:not([role="switch"]):not([role="checkbox"]),
+main:not(.sf-premium) a[class*="inline-flex"][class*="rounded"] {
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+main:not(.sf-premium) button:focus-visible,
+main:not(.sf-premium) a:focus-visible {
+  outline: 2px solid var(--sf-accent);
+  outline-offset: 3px;
+}
+main:not(.sf-premium) button[class*="bg-[#c9f36a]"],
+main:not(.sf-premium) a[class*="bg-[#c9f36a]"],
+main:not(.sf-premium) button[class*="bg-[#d9f7e2]"],
+main:not(.sf-premium) a[class*="bg-[#d9f7e2]"] {
+  box-shadow: 0 8px 24px rgba(201,243,106,.08);
+}
+main:not(.sf-premium) button:disabled,
+main:not(.sf-premium) a[aria-disabled="true"] { cursor: not-allowed; opacity: .55; }
+
+/* Inputs, selects, date fields and text areas look like one booking flow. */
+main:not(.sf-premium) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+main:not(.sf-premium) select,
+main:not(.sf-premium) textarea {
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--sf-border);
+  background-color: #121612;
+  color: var(--sf-text);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.015);
+}
+main:not(.sf-premium) input:focus,
+main:not(.sf-premium) select:focus,
+main:not(.sf-premium) textarea:focus {
+  border-color: rgba(201,243,106,.65);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(201,243,106,.1);
+}
+main:not(.sf-premium) input[type="checkbox"],
+main:not(.sf-premium) input[type="radio"] { accent-color: var(--sf-accent); }
+main:not(.sf-premium) label { color: #dce2d9; }
+
+/* Tables, filters, status chips and empty states follow the same quiet visual hierarchy. */
+main:not(.sf-premium) table { width: 100%; border-collapse: separate; border-spacing: 0; }
+main:not(.sf-premium) th {
+  color: #aeb8aa;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+main:not(.sf-premium) td,
+main:not(.sf-premium) th { border-color: var(--sf-border); }
+main:not(.sf-premium) [class*="rounded-full"][class*="border"] { border-color: var(--sf-border); }
+main:not(.sf-premium) [class*="bg-green-"][class*="text-green-"] { border-radius: 999px; }
+main:not(.sf-premium) [class*="bg-red-"][class*="text-red-"] { border-radius: 999px; }
+
+/* Give every route breathing room below the floating navigation and on narrow screens. */
+@media (max-width: 640px) {
+  main:not(.sf-premium) { overflow-wrap: anywhere; }
+  main:not(.sf-premium) h1 { font-size: clamp(1.9rem, 8vw, 2.6rem); }
+  main:not(.sf-premium) [class*="rounded-2xl"][class*="border"],
+  main:not(.sf-premium) .glass-card,
+  main:not(.sf-premium) .tech-card,
+  main:not(.sf-premium) .sf-card { border-radius: 15px; }
+  main:not(.sf-premium) table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  main:not(.sf-premium) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  main:not(.sf-premium) select,
+  main:not(.sf-premium) textarea { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  main:not(.sf-premium) *,
+  main:not(.sf-premium) *::before,
+  main:not(.sf-premium) *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
