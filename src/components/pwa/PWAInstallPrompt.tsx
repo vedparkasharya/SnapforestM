@@ -215,7 +215,7 @@ export default function PWAInstallPrompt() {
                     </span>
                   </li>
                   <li className="flex items-center gap-3 text-xs text-white">
-                    <span className="w-6 h-6 rounded-full bg-[#1a472a] flex items-center justify-center text-[10px] font-bold flex-shrink-0 border border-neon-cyan/30">
+                    <span className="w-6 h-6 rounded-full bg-[#1a472a] flex items-center justify-center text-[10px] font-bold flex-shrink-0 border border-[#c8e6c9]/30">
                       2
                     </span>
                     <span className="flex items-center gap-1.5">
@@ -223,14 +223,14 @@ export default function PWAInstallPrompt() {
                     </span>
                   </li>
                   <li className="flex items-center gap-3 text-xs text-white">
-                    <span className="w-6 h-6 rounded-full bg-neon-cyan/20 flex items-center justify-center text-[10px] font-bold flex-shrink-0 border border-neon-cyan/30">
+                    <span className="w-6 h-6 rounded-full bg-[#c8e6c9]/10 flex items-center justify-center text-[10px] font-bold flex-shrink-0 border border-[#c8e6c9]/30">
                       3
                     </span>
-                    Tap <strong className="text-neon-cyan">Add</strong> to install
+                    Tap <strong className="text-[#c8e6c9]">Add</strong> to install
                   </li>
                 </ol>
                 <div className="flex items-center justify-center mt-3">
-                  <ArrowUpFromLine className="w-5 h-5 text-neon-cyan animate-bounce" />
+                  <ArrowUpFromLine className="w-5 h-5 text-[#c8e6c9] animate-bounce" />
                 </div>
               </div>
             ) : (
