@@ -5,6 +5,7 @@ import { ArrowUpRight, MapPin, MoveUpRight } from "lucide-react";
 
 const NAV_LINKS = [
   { label: "Studios", href: "/rooms" },
+  { label: "Verify Certificate", href: "/verify-certificate" },
   { label: "Pricing", href: "/#pricing" },
   { label: "Dashboard", href: "/dashboard" },
   { label: "Admin", href: "/admin/login" },
