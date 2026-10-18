@@ -393,13 +393,13 @@ body { background-image:none !important; }
   backdrop-filter: blur(16px);
 }
 .sf-detail-page .text-muted-foreground { color: #a2aaa1 !important; }
-.sf-detail-page .bg-white\\/5 { background-color: rgba(230, 241, 226, .045); }
-.sf-detail-page .bg-white\\/10 { background-color: rgba(230, 241, 226, .075); }
-.sf-detail-page .border-white\\/10 { border-color: rgba(230, 241, 226, .12); }
+ .sf-detail-page [class~="bg-white/5"] { background-color: rgba(230, 241, 226, .045); }
+ .sf-detail-page [class~="bg-white/10"] { background-color: rgba(230, 241, 226, .075); }
+ .sf-detail-page [class~="border-white/10"] { border-color: rgba(230, 241, 226, .12); }
 .sf-detail-page h1, .sf-detail-page h2, .sf-detail-page h3 { letter-spacing: -.025em; }
-.sf-detail-page .text-\\[\\#f9a825\\] { color: #c9f36a !important; }
-.sf-detail-page .text-\\[\\#c8e6c9\\] { color: #c9f36a !important; }
-.sf-detail-page .bg-\\[\\#1a472a\\]\\/20 { background-color: rgba(201, 243, 106, .1); }
+ .sf-detail-page [class~="text-[#f9a825]"] { color: #c9f36a !important; }
+ .sf-detail-page [class~="text-[#c8e6c9]"] { color: #c9f36a !important; }
+ .sf-detail-page [class~="bg-[#1a472a]/20"] { background-color: rgba(201, 243, 106, .1); }
 .sf-detail-page button, .sf-detail-page a { transition: border-color .2s ease, background-color .2s ease, color .2s ease; }
 .sf-detail-page img { object-fit: cover; }
 @media (max-width: 640px) {
