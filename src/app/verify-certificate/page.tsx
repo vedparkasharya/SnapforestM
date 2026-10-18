@@ -2,20 +2,18 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { ArrowLeft, ArrowRight, BadgeCheck, Search, ShieldCheck, FileBadge2 } from "lucide-react";
 
 export default function VerifyCertificatePage() {
-  const searchParams = useSearchParams();
-  const [number, setNumber] = useState(searchParams.get("number") || "");
+  const [number, setNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [certificate, setCertificate] = useState<any>(null);
 
   useEffect(() => {
-    const initial = searchParams.get("number");
-    if (initial) void verify(initial);
+    const initial = new URLSearchParams(window.location.search).get("number");
+    if (initial) { setNumber(initial); void verify(initial); }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
