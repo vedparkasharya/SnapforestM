@@ -1,18 +1,19 @@
 /**
- * Real editorial stock photographs for the demo catalogue.
- * These are representative reference images, not photographs of the named Patna venues.
- * Replace them with venue-owner photos before treating a listing as a verified real location.
+ * Representative photography for the demo catalogue.
+ * Generated demo images and stock references are not photographs of the named venues.
+ * Replace with venue-owner photos before treating a listing as a verified real location.
  */
 const u = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1400&q=85`;
+const generatedControlRoom = "/rooms/generated-control-room.jpg";
 
 export const representativeRoomPhotos: Record<string, string[]> = {
   music: [
-    u("photo-1734383172782-d57707506342"),
+    generatedControlRoom,
     u("photo-1574198443869-a58c763e411d"),
     u("photo-1520523839897-bd0b52f945a0"),
   ],
   podcast: [
-    u("photo-1590602847861-f357a9332bbc"),
+    generatedControlRoom,
     u("photo-1734383172782-d57707506342"),
     u("photo-1574198443869-a58c763e411d"),
   ],
