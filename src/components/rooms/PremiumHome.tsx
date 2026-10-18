@@ -95,7 +95,7 @@ export default function PremiumHome() {
           </motion.div>
           <motion.div className="sf-cockpit" initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: .8, delay: .12 }}>
             <div className="sf-cockpit-screen">
-              <Image src="/rooms/patna-rehearsal-premium.jpg" alt="Premium warm-lit music production studio reference photo" fill priority sizes="(max-width: 800px) 90vw, 48vw" />
+              <Image src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1800&q=90" alt="Warm, professionally equipped creator recording studio" fill priority sizes="(max-width: 800px) 90vw, 48vw" />
               <div className="sf-cockpit-screen-shade" />
               <div className="sf-screen-top"><span>SNAPFOREST / SESSION 001</span><span>● READY TO CREATE</span></div>
               <div className="sf-screen-title"><span>THE NEXT TAKE</span><strong>STARTS HERE.</strong></div>
