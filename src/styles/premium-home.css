@@ -516,3 +516,71 @@
   .sf-category-card p { font-size: 10px; }
   .sf-room-image { min-height: 0; aspect-ratio: 1.18; }
 }
+
+
+/* Final art direction: quiet luxury, editorial spacing, clear actions and image-first cards. */
+.sf-premium { --sf-lime: #c9f36a; --sf-copy: #f5f7f2; --sf-copy-muted: #a8b1a5; }
+.sf-longhaul-hero { min-height: min(860px, calc(100svh - 8px)); }
+.sf-sky { opacity: .24 !important; filter: saturate(.52) !important; }
+.sf-hero-topline { min-height: 44px; font-size: 9px; }
+.sf-longhaul-wrap { width: min(1320px, calc(100% - 80px)); padding-top: clamp(62px, 7vw, 100px); padding-bottom: clamp(68px, 7vw, 96px); }
+.sf-longhaul-copy h1 { font-size: clamp(66px, 7.4vw, 108px); line-height: .86; letter-spacing: -.085em; }
+.sf-longhaul-lede { max-width: 430px; font-size: 14px; line-height: 1.9; }
+.sf-button { min-height: 48px; border-radius: 999px; padding-inline: 19px; }
+.sf-button-lime { box-shadow: 0 8px 26px rgba(201,243,106,.10); }
+.sf-button-glass, .sf-button-outline { backdrop-filter: blur(16px); }
+.sf-cockpit-screen { border-radius: 20px; }
+.sf-cockpit-screen > img { transition: transform 900ms cubic-bezier(.2,.7,.2,1), filter 400ms ease; }
+.sf-cockpit:hover .sf-cockpit-screen > img { transform: scale(1.045); }
+.sf-player { border-radius: 16px; }
+.sf-cockpit-note { border-radius: 14px; }
+.sf-category-section, .sf-process-section, .sf-rooms-section, .sf-location-section { padding-block: clamp(64px, 7vw, 96px) !important; }
+.sf-section-head { align-items: end; gap: 32px; }
+.sf-section-head h2, .sf-process-intro h2, .sf-location-copy h2, .sf-final-inner h2 { font-size: clamp(42px, 5vw, 66px); line-height: .99; letter-spacing: -.065em; }
+.sf-category-grid { margin-top: 36px; border-radius: 20px; }
+.sf-category-card { min-height: 190px; padding: 24px; }
+.sf-category-card h3 { margin-top: 20px; font-size: clamp(20px, 2vw, 26px); letter-spacing: -.05em; }
+.sf-category-card p { line-height: 1.65; }
+.sf-rooms-section { background: #0b0e0b !important; }
+.sf-room-grid { gap: 18px; }
+.sf-room-card { overflow: hidden; border-radius: 18px; }
+.sf-room-image { aspect-ratio: 1.12; overflow: hidden; }
+.sf-room-info { padding: 21px; }
+.sf-room-title-row { gap: 12px; }
+.sf-room-title-row h3 { font-size: 19px; line-height: 1.25; }
+.sf-room-price { white-space: nowrap; }
+.sf-room-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; }
+.sf-process-grid { gap: clamp(38px, 8vw, 120px); }
+.sf-step { gap: 20px; }
+.sf-step h3 { font-size: 22px; letter-spacing: -.045em; }
+.sf-location-visual { min-height: 430px; border-radius: 20px; }
+.sf-location-tags { gap: 10px; }
+.sf-location-tags span { border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 9px 12px; }
+.sf-final-section { padding-block: clamp(54px, 7vw, 88px); }
+.sf-final-inner { gap: 30px; }
+.sf-final-inner h2 { font-size: clamp(44px, 5.4vw, 72px); }
+.sf-final-action p { max-width: 310px; }
+.sf-premium a:focus-visible, .sf-premium button:focus-visible, .sf-premium input:focus-visible { outline: 2px solid var(--sf-lime); outline-offset: 4px; }
+@media (max-width: 1000px) {
+  .sf-longhaul-hero { min-height: auto; }
+  .sf-longhaul-wrap { width: min(100% - 44px, 820px); padding-top: 64px; }
+  .sf-section-head { align-items: start; }
+  .sf-location-visual { min-height: 360px; }
+}
+@media (max-width: 700px) {
+  .sf-hero-topline { padding-inline: 18px; font-size: 8px; }
+  .sf-longhaul-wrap { width: calc(100% - 36px); padding-top: 36px !important; padding-bottom: 50px; }
+  .sf-longhaul-copy h1 { font-size: clamp(56px, 15vw, 82px); }
+  .sf-longhaul-lede { max-width: 36rem; }
+  .sf-category-section, .sf-process-section, .sf-rooms-section, .sf-location-section { padding-block: 58px !important; }
+  .sf-section-head { gap: 18px; }
+  .sf-section-head h2, .sf-process-intro h2, .sf-location-copy h2, .sf-final-inner h2 { font-size: clamp(38px, 10.5vw, 50px); }
+  .sf-category-grid { margin-top: 26px; border-radius: 15px; }
+  .sf-category-card { min-height: 152px; padding: 15px; }
+  .sf-category-card h3 { margin-top: 14px; font-size: 20px; }
+  .sf-room-info { padding: 17px; }
+  .sf-room-title-row { align-items: start; flex-wrap: wrap; }
+  .sf-location-visual { min-height: 300px; border-radius: 16px; }
+  .sf-final-inner { gap: 22px; }
+  .sf-final-action { align-items: start; }
+}
