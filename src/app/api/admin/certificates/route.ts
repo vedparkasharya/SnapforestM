@@ -76,8 +76,8 @@ export async function POST(request: NextRequest) {
     if (!fullName || !internshipRole || !allotmentDate || !startDate || !endDate) {
       return errorResponse("Name, internship role, allotment date, start date and end date are required.", 400);
     }
-    if (startDate > endDate || allotmentDate > endDate) {
-      return errorResponse("Please check the allotment, start and end dates.", 400);
+    if (startDate > endDate || allotmentDate > startDate) {
+      return errorResponse("Allotment date should be on or before the internship start date, and the start date must be on or before the end date.", 400);
     }
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return errorResponse("Enter a valid email address.", 400);
