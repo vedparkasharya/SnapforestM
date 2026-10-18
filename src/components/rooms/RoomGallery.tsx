@@ -116,7 +116,7 @@ export default function RoomGallery({ images, roomName }: RoomGalleryProps) {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
-            Gallery
+            Reference photos
           </span>
           <span className="text-xs text-muted-foreground">
             ({selected + 1}/{images.length})
@@ -275,6 +275,12 @@ export default function RoomGallery({ images, roomName }: RoomGalleryProps) {
             </div>
           )}
         </>
+      )}
+
+      {viewMode === "carousel" && (
+        <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground/70">
+          Representative stock photos. Actual venue photos should be confirmed with the host before booking.
+        </p>
       )}
 
       {/* Grid View */}
