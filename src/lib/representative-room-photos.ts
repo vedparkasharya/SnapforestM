@@ -3,7 +3,7 @@
  * Generated demo images and stock references are not photographs of the named venues.
  * Replace with venue-owner photos before treating a listing as a verified real location.
  */
-const u = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1400&q=85`;
+const u = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1400&q=85&v=2`;
 const generatedControlRoom = "/rooms/patna-rehearsal-premium.jpg";
 
 export const representativeRoomPhotos: Record<string, string[]> = {
@@ -28,7 +28,7 @@ export const representativeRoomPhotos: Record<string, string[]> = {
     u("photo-1574198443869-a58c763e411d"),
   ],
   youtube: [
-    u("photo-1648740678671-c37d78567ea8"),
+    u("photo-1516035069371-29a1b244cc32"),
     u("photo-1574198443869-a58c763e411d"),
     u("photo-1516035069371-29a1b244cc32"),
   ],
@@ -65,5 +65,17 @@ export const representativeRoomPhotos: Record<string, string[]> = {
 };
 
 export function representativeRoomImage(category?: string) {
-  return representativeRoomPhotos[(category || "").toLowerCase()]?.[0] || u("photo-1648740678671-c37d78567ea8");
+  const key = (category || "").toLowerCase().replace(/[^a-z]/g, "");
+  const normalized =
+    key.includes("podcast") ? "podcast" :
+    key.includes("youtube") || key.includes("video") ? "youtube" :
+    key.includes("music") || key.includes("rehearsal") || key.includes("audio") ? "music" :
+    key.includes("photo") || key.includes("camera") ? "photography" :
+    key.includes("stream") || key.includes("broadcast") ? "streaming" :
+    key.includes("game") ? "gaming" :
+    key.includes("dance") ? "dance" :
+    key.includes("cowork") ? "coworking" :
+    key.includes("meeting") || key.includes("conference") ? "meeting" :
+    key;
+  return representativeRoomPhotos[normalized]?.[0] || u("photo-1648740678671-c37d78567ea8");
 }
