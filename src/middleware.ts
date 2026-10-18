@@ -7,6 +7,8 @@ const publicPaths = [
   "/rooms",
   "/login",
   "/admin/login",
+  "/verify-certificate",
+  "/api/certificates/verify",
   "/api/auth/login",
   "/api/auth/register",
   "/api/auth/me",
@@ -28,7 +30,7 @@ export function middleware(request: NextRequest) {
   if (method === "OPTIONS" && pathname.startsWith("/api/admin")) {
     const response = new NextResponse(null, { status: 204 });
     response.headers.set("Access-Control-Allow-Origin", request.headers.get("origin") || "*");
-    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
     response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, token, X-Requested-With");
     response.headers.set("Access-Control-Max-Age", "86400");
     return withSecurityHeaders(response);
