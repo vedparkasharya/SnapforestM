@@ -360,3 +360,49 @@ body { background-image:none !important; }
 [class*="bg-neon-cyan"] { background-color:#1a472a !important; }
 [class*="neon-purple"], [class*="neon-pink"], [class*="neon-blue"] { border-color:rgba(200,230,201,.2) !important; }
 [class*="text-neon-purple"], [class*="text-neon-pink"], [class*="text-neon-blue"] { color:#c8e6c9 !important; }
+
+
+/* Snapforest consistency pass: shared forest palette and premium public-page surfaces */
+:root {
+  --background: 150 12% 5%;
+  --foreground: 80 20% 96%;
+  --card: 140 10% 10%;
+  --card-foreground: 80 20% 96%;
+  --popover: 150 12% 6%;
+  --popover-foreground: 80 20% 96%;
+  --primary: 91 82% 68%;
+  --primary-foreground: 150 18% 8%;
+  --secondary: 135 17% 16%;
+  --secondary-foreground: 80 20% 96%;
+  --muted: 135 12% 14%;
+  --muted-foreground: 100 7% 66%;
+  --accent: 91 82% 68%;
+  --accent-foreground: 150 18% 8%;
+  --border: 120 8% 20%;
+  --input: 120 8% 20%;
+  --ring: 91 82% 68%;
+}
+
+/* Studio detail pages use the same ink, forest and lime language as discovery. */
+.sf-detail-page { background: #0d100e; color: #f4f5ef; }
+.sf-detail-page .glass-card {
+  background: linear-gradient(145deg, #171d17 0%, #121712 100%);
+  border: 1px solid rgba(225, 239, 220, .12);
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, .16);
+  backdrop-filter: blur(16px);
+}
+.sf-detail-page .text-muted-foreground { color: #a2aaa1 !important; }
+.sf-detail-page .bg-white\\/5 { background-color: rgba(230, 241, 226, .045); }
+.sf-detail-page .bg-white\\/10 { background-color: rgba(230, 241, 226, .075); }
+.sf-detail-page .border-white\\/10 { border-color: rgba(230, 241, 226, .12); }
+.sf-detail-page h1, .sf-detail-page h2, .sf-detail-page h3 { letter-spacing: -.025em; }
+.sf-detail-page .text-\\[\\#f9a825\\] { color: #c9f36a !important; }
+.sf-detail-page .text-\\[\\#c8e6c9\\] { color: #c9f36a !important; }
+.sf-detail-page .bg-\\[\\#1a472a\\]\\/20 { background-color: rgba(201, 243, 106, .1); }
+.sf-detail-page button, .sf-detail-page a { transition: border-color .2s ease, background-color .2s ease, color .2s ease; }
+.sf-detail-page img { object-fit: cover; }
+@media (max-width: 640px) {
+  .sf-detail-page .glass-card { border-radius: 15px; padding: 1.15rem; }
+  .sf-detail-page .max-w-7xl { padding-inline: 1rem; }
+}

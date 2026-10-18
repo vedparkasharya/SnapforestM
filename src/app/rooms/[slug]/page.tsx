@@ -126,7 +126,7 @@ export default function RoomDetailPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen pt-20">
+      <main className="sf-detail-page min-h-screen pt-20">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <Skeleton className="h-8 w-32 mb-6" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -147,7 +147,7 @@ export default function RoomDetailPage() {
 
   if (!room) {
     return (
-      <main className="min-h-screen pt-20 flex items-center justify-center px-4">
+      <main className="sf-detail-page min-h-screen pt-20 flex items-center justify-center px-4">
         <div className="text-center">
           <h1 className="text-2xl font-semibold mb-2">Studio not found</h1>
           <p className="text-sm text-muted-foreground mb-5">This listing may have been removed or is currently unavailable.</p>
@@ -160,7 +160,7 @@ export default function RoomDetailPage() {
   }
 
   return (
-    <main className="min-h-screen pt-20">
+    <main className="sf-detail-page min-h-screen pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href="/rooms"
