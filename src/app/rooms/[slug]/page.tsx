@@ -30,6 +30,7 @@ import BookingWidget from "@/components/booking/BookingWidget";
 import RoomGallery from "@/components/rooms/RoomGallery";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { representativeRoomPhotos } from "@/lib/representative-room-photos";
 
 const equipmentIcons: Record<string, React.ReactNode> = {
   WiFi: <Wifi className="w-4 h-4" />,
@@ -172,7 +173,7 @@ export default function RoomDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <RoomGallery images={room.images} roomName={room.name} />
+              <RoomGallery images={representativeRoomPhotos[room.category?.toLowerCase()] || room.images} roomName={room.name} />
             </motion.div>
 
             <motion.div
