@@ -282,3 +282,21 @@
   .sf-category-card h3 { font-size: 20px; }
   .sf-final-section { padding: 48px 0; }
 }
+
+
+/* Final homepage override: match the clean room-detail dark UI */
+.sf-premium,.sf-longhaul-hero,.sf-category-section,.sf-process-section,.sf-rooms-section,.sf-location-section,.sf-final-section{background:#0e0f0e!important;color:#f4f5f2!important}
+.sf-sky{opacity:.1!important;filter:saturate(.2)}
+.sf-longhaul-brand,.sf-longhaul-kicker,.sf-title-period,.sf-longhaul-copy h1>span:first-of-type{color:#c8e6c9!important}
+.sf-brand-symbol{background:#1a472a!important;color:#fff!important}
+.sf-button-lime,.sf-footer-button,.sf-button-dark{background:#1a472a!important;color:#fff!important;border:1px solid #2b5b3a!important}
+.sf-button-lime:hover,.sf-footer-button:hover,.sf-button-dark:hover{background:#236b3a!important}
+.sf-button-glass,.sf-button-outline{color:#f4f5f2!important;border-color:#ffffff24!important;background:#ffffff04!important}
+.sf-category-card,.sf-room-card,.sf-player,.sf-cockpit-note{background:#141714!important;border-color:#ffffff16!important;color:#f4f5f2!important}
+.sf-category-card h3,.sf-room-title-row h3,.sf-step h3,.sf-final-inner h2,.sf-footer-cta h2{color:#f4f5f2!important}
+.sf-category-icon,.sf-player-art,.sf-note-icon{background:#1a241c!important;border-color:#2b3a2d!important;color:#c8e6c9!important}
+.sf-category-card p,.sf-category-top,.sf-section-intro,.sf-rooms-right p,.sf-room-meta,.sf-process-intro>p:not(.sf-overline),.sf-step p,.sf-location-copy>p:not(.sf-overline),.sf-final-action p{color:#a2a8a1!important}
+.sf-room-price,.sf-room-link,.sf-dark-link,.sf-footer-cta h2 em{color:#c8e6c9!important}
+.sf-site-footer,.sf-footer-main{background:#0b0d0b!important;color:#f4f5f2!important}
+.sf-footer-mark{background:#1a472a!important;color:#fff!important}
+@media(max-width:700px){.sf-category-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.sf-room-grid{grid-template-columns:minmax(0,1fr)!important}.sf-longhaul-wrap{padding-top:28px!important}.sf-room-image{min-height:240px}}
