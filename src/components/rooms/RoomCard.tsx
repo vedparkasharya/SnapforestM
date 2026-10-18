@@ -41,7 +41,7 @@ export default function RoomCard({ room, index = 0 }: RoomCardProps) {
     >
       <Link href={`/rooms/${room.slug}`} className="group block h-full focus-visible:outline-none">
         <div className="relative h-full overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#151817] shadow-[0_16px_50px_rgba(0,0,0,0.16)] transition-all duration-500 group-hover:-translate-y-1.5 group-hover:border-white/[0.14] group-hover:shadow-[0_28px_70px_rgba(0,0,0,0.28)] group-focus-visible:ring-2 group-focus-visible:ring-[#b9f5ca]">
-          <div className="relative aspect-[1.12/1] overflow-hidden bg-[#202321]">
+          <div className="relative aspect-[1.28/1] overflow-hidden bg-[#202321]">
             <Image src={room.images[0] || "/rooms/photo-studio.jpg"} alt={room.name} fill sizes="(max-width:640px) 92vw, (max-width:1024px) 45vw, 31vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.055]" priority={index < 3} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
             <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-2">
@@ -60,12 +60,12 @@ export default function RoomCard({ room, index = 0 }: RoomCardProps) {
             </div>
           </div>
 
-          <div className="p-5 sm:p-6">
+          <div className="p-4 sm:p-5">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2 text-xs text-white/45"><Users className="h-3.5 w-3.5" /> Up to {room.capacity} people</div>
               {hasReviews ? <span className="text-xs text-white/35">{room.reviews} reviews</span> : <span className="text-xs text-white/35">New listing</span>}
             </div>
-            <div className="mt-5 flex items-end justify-between gap-4 border-t border-white/[0.07] pt-4">
+            <div className="mt-4 flex items-end justify-between gap-4 border-t border-white/[0.07] pt-4">
               <div>
                 <p className="text-[10px] uppercase tracking-[0.15em] text-white/30">Starting at</p>
                 <p className="mt-1 text-xl font-semibold tracking-[-0.02em] text-[#d9f7e2]">{formatPrice(room.pricePerHour)} <span className="text-xs font-normal text-white/35">/ hr</span></p>
