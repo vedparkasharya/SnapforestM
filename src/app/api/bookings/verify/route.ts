@@ -79,6 +79,18 @@ export async function POST(request: NextRequest) {
       if (Number(order.amount) !== Math.round(existing.totalAmount * 100) || order.currency !== "INR") {
         return errorResponse("Payment amount does not match booking", 400);
       }
+
+      // A valid signature alone is not enough: confirm Razorpay reports this
+      // exact payment as captured, for this order, for the expected amount.
+      const payment = await razorpay.payments.fetch(String(razorpayPaymentId));
+      if (
+        payment.order_id !== razorpayOrderId ||
+        payment.status !== "captured" ||
+        Number(payment.amount) !== Math.round(existing.totalAmount * 100) ||
+        payment.currency !== "INR"
+      ) {
+        return errorResponse("Payment is not captured or does not match this booking", 409);
+      }
     }
 
     const paymentId = isDemoMode ? String(razorpayPaymentId) : String(razorpayPaymentId);
