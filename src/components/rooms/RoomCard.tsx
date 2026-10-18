@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, MapPin, Star, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
+import { representativeRoomImage } from "@/lib/representative-room-photos";
 
 interface RoomCardProps {
   room: {
@@ -42,7 +43,7 @@ export default function RoomCard({ room, index = 0 }: RoomCardProps) {
       <Link href={`/rooms/${room.slug}`} className="group block h-full focus-visible:outline-none">
         <div className="relative h-full overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#151817] shadow-[0_16px_50px_rgba(0,0,0,0.16)] transition-all duration-500 group-hover:-translate-y-1.5 group-hover:border-white/[0.14] group-hover:shadow-[0_28px_70px_rgba(0,0,0,0.28)] group-focus-visible:ring-2 group-focus-visible:ring-[#b9f5ca]">
           <div className="relative aspect-[1.28/1] overflow-hidden bg-[#202321]">
-            <Image src={room.images[0] || "/rooms/photo-studio.jpg"} alt={room.name} fill sizes="(max-width:640px) 92vw, (max-width:1024px) 45vw, 31vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.055]" priority={index < 3} />
+            <Image src={representativeRoomImage(room.category)} alt={room.name} fill sizes="(max-width:640px) 92vw, (max-width:1024px) 45vw, 31vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.055]" priority={index < 3} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
             <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-2">
               <Badge className="rounded-full border border-white/15 bg-black/30 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/85 backdrop-blur-xl">{categoryLabels[room.category] || room.category}</Badge>
