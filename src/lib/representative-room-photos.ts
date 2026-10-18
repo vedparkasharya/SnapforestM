@@ -9,11 +9,21 @@ const generatedControlRoom = "/rooms/generated-control-room.jpg";
 export const representativeRoomPhotos: Record<string, string[]> = {
   music: [
     generatedControlRoom,
-    u("photo-1574198443869-a58c763e411d"),
+    u("photo-1598488035139-bdbb2231ce04"),
+    u("photo-1598653222000-6b7b7a552625"),
+    u("photo-1511379938547-c1f69419868d"),
+    u("photo-1516280440614-37939bbacd81"),
     u("photo-1520523839897-bd0b52f945a0"),
+    u("photo-1574198443869-a58c763e411d"),
+    u("photo-1510915361894-db8b60106cb1"),
   ],
   podcast: [
+    u("photo-1590602847861-f357a9332bbc"),
     generatedControlRoom,
+    u("photo-1598488035139-bdbb2231ce04"),
+    u("photo-1598653222000-6b7b7a552625"),
+    u("photo-1511379938547-c1f69419868d"),
+    u("photo-1516280440614-37939bbacd81"),
     u("photo-1734383172782-d57707506342"),
     u("photo-1574198443869-a58c763e411d"),
   ],
