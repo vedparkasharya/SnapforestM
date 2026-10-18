@@ -80,6 +80,7 @@ export default function VerifyCertificatePage() {
             </div>
             {certificate.description && <div className="mt-4 rounded-xl border border-white/10 p-4"><p className="text-xs text-[#a8b1a5]">Certificate details</p><p className="mt-2 whitespace-pre-wrap text-sm leading-7">{certificate.description}</p></div>}
             {certificate.skills?.length > 0 && <div className="mt-4"><p className="mb-2 text-xs text-[#a8b1a5]">Skills / areas of work</p><div className="flex flex-wrap gap-2">{certificate.skills.map((skill: string)=><span key={skill} className="rounded-full border border-[#c9f36a]/15 bg-[#c9f36a]/5 px-3 py-1.5 text-xs text-[#dce8d5]">{skill}</span>)}</div></div>}
+            <Link href={"/certificate/" + encodeURIComponent(certificate.certificateNumber)} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#c9f36a] px-4 py-3 text-sm font-semibold text-[#101510]">View / print certificate <ArrowRight className="h-4 w-4" /></Link>
             <div className="mt-6 flex items-start gap-3 rounded-xl border border-white/10 bg-white/[.025] p-4 text-xs leading-6 text-[#a8b1a5]"><ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-[#c9f36a]" /><p>This result reflects the current record stored in the Snapforest verification system. If the certificate is revoked or details appear incorrect, contact the issuing organization before relying on it.</p></div>
           </div>}
         </section>
