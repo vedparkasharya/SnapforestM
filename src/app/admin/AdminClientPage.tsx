@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useAuth } from "@/providers/AuthProvider";
 import { useToast } from "@/providers/ToastProvider";
 import { formatPrice, formatDate } from "@/lib/utils";
+import CertificatesPanel from "@/components/admin/CertificatesPanel";
 
 // ─── Types ────────────────────────────────────────────
 interface Booking {
@@ -1549,6 +1550,7 @@ function AdminDashboard({
             <TabsTrigger value="bookings" className="gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-neon-cyan/20 data-[state=active]:to-neon-purple/20 data-[state=active]:text-neon-cyan"><Bookmark className="w-3.5 h-3.5" />Bookings ({filteredBookings.length})</TabsTrigger>
             <TabsTrigger value="rooms" className="gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-neon-cyan/20 data-[state=active]:to-neon-purple/20 data-[state=active]:text-neon-cyan"><Eye className="w-3.5 h-3.5" />Rooms ({filteredDisplayRooms.length})</TabsTrigger>
             <TabsTrigger value="analytics" className="gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-neon-cyan/20 data-[state=active]:to-neon-purple/20 data-[state=active]:text-neon-cyan"><LineChart className="w-3.5 h-3.5" />Analytics</TabsTrigger>
+            <TabsTrigger value="certificates" className="gap-1.5 data-[state=active]:bg-[#c9f36a]/10 data-[state=active]:text-[#c9f36a]"><QrCode className="w-3.5 h-3.5" />Certificates</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -1811,6 +1813,10 @@ function AdminDashboard({
                 </div>
               </motion.div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="certificates">
+            <CertificatesPanel />
           </TabsContent>
         </Tabs>
 
