@@ -174,12 +174,12 @@ export default function PWAInstallPrompt() {
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
           className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md"
         >
-          <div className="bg-gradient-to-br from-[#1a1a2e] to-[#16213e] border border-neon-cyan/20 rounded-2xl p-5 shadow-2xl backdrop-blur-xl">
+          <div className="bg-[#111512] border border-white/[0.12] rounded-2xl p-4 sm:p-5 shadow-[0_24px_70px_rgba(0,0,0,0.55)]">
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neon-cyan/20 to-neon-purple/20 flex items-center justify-center border border-neon-cyan/30">
-                  <Smartphone className="w-6 h-6 text-neon-cyan" />
+                <div className="w-12 h-12 rounded-xl bg-[#1a3825] flex items-center justify-center border border-[#c8e6c9]/20">
+                  <Smartphone className="w-6 h-6 text-[#c8e6c9]" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-white text-sm">
@@ -207,19 +207,19 @@ export default function PWAInstallPrompt() {
                 </p>
                 <ol className="space-y-2">
                   <li className="flex items-center gap-3 text-xs text-white">
-                    <span className="w-6 h-6 rounded-full bg-neon-cyan/20 flex items-center justify-center text-[10px] font-bold flex-shrink-0 border border-neon-cyan/30">
+                    <span className="w-6 h-6 rounded-full bg-[#1a472a] flex items-center justify-center text-[10px] font-bold flex-shrink-0 border border-[#c8e6c9]/20">
                       1
                     </span>
                     <span className="flex items-center gap-1.5">
-                      Tap the <Share className="w-3.5 h-3.5 text-neon-cyan inline" /> Share button in Safari
+                      Tap the <Share className="w-3.5 h-3.5 text-[#c8e6c9] inline" /> Share button in Safari
                     </span>
                   </li>
                   <li className="flex items-center gap-3 text-xs text-white">
-                    <span className="w-6 h-6 rounded-full bg-neon-cyan/20 flex items-center justify-center text-[10px] font-bold flex-shrink-0 border border-neon-cyan/30">
+                    <span className="w-6 h-6 rounded-full bg-[#1a472a] flex items-center justify-center text-[10px] font-bold flex-shrink-0 border border-neon-cyan/30">
                       2
                     </span>
                     <span className="flex items-center gap-1.5">
-                      Scroll down and tap <strong className="text-neon-cyan">Add to Home Screen</strong>
+                      Scroll down and tap <strong className="text-[#c8e6c9]">Add to Home Screen</strong>
                     </span>
                   </li>
                   <li className="flex items-center gap-3 text-xs text-white">
@@ -244,7 +244,7 @@ export default function PWAInstallPrompt() {
                     { label: "Works Offline", icon: Wifi },
                     { label: "No App Store", icon: Check },
                   ].map((item) => (
-                    <div key={item.label} className="flex items-center gap-1 text-[10px] text-neon-cyan/80">
+                    <div key={item.label} className="flex items-center gap-1 text-[10px] text-[#c8e6c9]/80">
                       <item.icon className="w-3 h-3" />
                       <span>{item.label}</span>
                     </div>
@@ -258,16 +258,16 @@ export default function PWAInstallPrompt() {
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1 text-xs hover:bg-white/5"
+                className="flex-1 text-xs border-white/15 bg-transparent text-white hover:bg-white/[0.06]"
                 onClick={handleDismiss}
               >
                 Not Now
               </Button>
               {!isIOS && (
                 <Button
-                  variant="neon"
+                  variant="default"
                   size="sm"
-                  className="flex-[2] text-xs hover:shadow-[0_0_20px_rgba(0,245,212,0.3)]"
+                  className="flex-[2] text-xs bg-[#1a472a] text-white hover:bg-[#236b3a] border border-[#c8e6c9]/10"
                   onClick={handleInstall}
                 >
                   <Download className="w-3.5 h-3.5 mr-1.5" />
