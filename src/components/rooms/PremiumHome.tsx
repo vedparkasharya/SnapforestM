@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  ArrowDown, ArrowRight, ArrowUpRight, AudioLines, Camera, Check,
+  ArrowDown, ArrowRight, ArrowUpRight, Camera, Check,
   CirclePlay, Clapperboard, Headphones, MapPin, Mic2, Music2,
   Play, Search, Video, Waves, Wifi, Sparkles
 } from "lucide-react";
@@ -29,7 +29,7 @@ const categories = [
   { name: "Photography", detail: "Find your perfect light", icon: Camera, number: "02", tone: "blue" },
   { name: "Video & YouTube", detail: "Your next take starts here", icon: Video, number: "03", tone: "orange" },
   { name: "Music", detail: "Make room for your sound", icon: Music2, number: "04", tone: "violet" },
-  { name: "Streaming", detail: "Go live, your way", icon: AudioLines, number: "05", tone: "green" },
+  { name: "Streaming", detail: "Go live, your way", icon: Waves, number: "05", tone: "green" },
   { name: "More spaces", detail: "Room for every big idea", icon: Waves, number: "06", tone: "pink" },
 ];
 
@@ -101,7 +101,7 @@ export default function PremiumHome() {
               <div className="sf-screen-corner">01 / 06</div>
             </div>
             <div className="sf-player">
-              <div className="sf-player-art"><AudioLines size={23} /></div>
+              <div className="sf-player-art"><Waves size={23} /></div>
               <div className="sf-player-track"><small>YOUR CREATIVE PLAYLIST</small><strong>Ideas in motion <span>— Snapforest</span></strong><div className="sf-track-line"><i /></div></div>
               <button type="button" className="sf-player-play" aria-label="Explore studios" onClick={() => { window.location.href = "/rooms"; }}><Play size={15} fill="currentColor" /></button>
               <div className="sf-player-wave" aria-hidden="true">{Array.from({ length: 19 }, (_, i) => <i key={i} style={{ height: (7 + ((i * 13) % 19)) + "px" }} />)}</div>
