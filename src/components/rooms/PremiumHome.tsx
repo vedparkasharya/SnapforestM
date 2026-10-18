@@ -5,9 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  ArrowDownRight, ArrowRight, ArrowUpRight, AudioLines, Camera,
-  Check, CirclePlay, Clapperboard, Headphones, MapPin, Mic2,
-  Music2, Search, Video, Waves, Wifi
+  ArrowDown, ArrowRight, ArrowUpRight, AudioLines, Camera, Check,
+  CirclePlay, Clapperboard, Headphones, MapPin, Mic2, Music2,
+  Play, Search, Video, Waves, Wifi, Sparkles
 } from "lucide-react";
 
 type Room = {
@@ -25,18 +25,18 @@ type Room = {
 };
 
 const categories = [
-  { name: "Podcast", detail: "For conversations worth hearing", icon: Mic2, number: "01" },
-  { name: "Photography", detail: "Light, space, and the right frame", icon: Camera, number: "02" },
-  { name: "Video & YouTube", detail: "A setup that gets you rolling", icon: Video, number: "03" },
-  { name: "Music", detail: "Room to find your sound", icon: Music2, number: "04" },
-  { name: "Streaming", detail: "Go live without the setup stress", icon: AudioLines, number: "05" },
-  { name: "More spaces", detail: "Gaming, dance, work, and more", icon: Waves, number: "06" },
+  { name: "Podcast", detail: "Conversations worth hearing", icon: Mic2, number: "01", tone: "coral" },
+  { name: "Photography", detail: "Find your perfect light", icon: Camera, number: "02", tone: "blue" },
+  { name: "Video & YouTube", detail: "Your next take starts here", icon: Video, number: "03", tone: "orange" },
+  { name: "Music", detail: "Make room for your sound", icon: Music2, number: "04", tone: "violet" },
+  { name: "Streaming", detail: "Go live, your way", icon: AudioLines, number: "05", tone: "green" },
+  { name: "More spaces", detail: "Room for every big idea", icon: Waves, number: "06", tone: "pink" },
 ];
 
 const steps = [
-  { number: "01", title: "Find your kind of space", copy: "Explore rooms by purpose, location, equipment, and price." },
-  { number: "02", title: "Check the details", copy: "Know what is included, how much it costs, and where you will go." },
-  { number: "03", title: "Choose your time", copy: "Pick a slot and follow the booking steps in one place." },
+  { number: "01", title: "Find your kind of space", copy: "Explore studios by purpose, location, equipment and price." },
+  { number: "02", title: "Make sure it fits", copy: "See the setup, capacity, location and rates before you decide." },
+  { number: "03", title: "Book your time", copy: "Choose a slot and get on with the part you came to do." },
 ];
 
 function formatPrice(value?: number) {
@@ -53,7 +53,10 @@ export default function PremiumHome() {
   useEffect(() => {
     const controller = new AbortController();
     fetch("/api/rooms", { headers: { Accept: "application/json" }, signal: controller.signal })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) throw new Error("Could not load rooms");
+        return response.json();
+      })
       .then((payload) => {
         if (payload?.success && Array.isArray(payload.data)) setRooms(payload.data.slice(0, 6));
       })
@@ -71,99 +74,72 @@ export default function PremiumHome() {
   }, [rooms, query, category]);
 
   return (
-    <main className="sf-premium">
-      <section className="sf-hero sf-hero-centered">
-        <div className="sf-hero-photo" aria-hidden="true"><Image src="/rooms/photo-studio.jpg" alt="" fill priority sizes="100vw" /></div>
-        <div className="sf-hero-grain" aria-hidden="true" />
-        <div className="sf-wrap sf-centered-wrap">
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .75, ease: [.2, .7, .2, 1] }} className="sf-centered-copy">
-            <div className="sf-centered-mark"><span className="sf-centered-mark-line" /> SNAPFOREST <span className="sf-centered-mark-line" /></div>
-            <h1><span>CREATE</span><span className="sf-centered-second">SPACE</span></h1>
-            <p className="sf-centered-lede">Book professional creator studios in<br className="sf-desktop-break" /> Patna &amp; Gaya, Bihar — by the hour.</p>
-            <div className="sf-hero-actions sf-centered-actions">
-              <Link href="/rooms" className="sf-button sf-button-lime">Explore Studios <ArrowRight size={18} /></Link>
-              <Link href="#how-it-works" className="sf-button sf-button-outline sf-centered-how"><CirclePlay size={17} /> How It Works</Link>
+    <main className="sf-premium sf-longhaul">
+      <section className="sf-hero sf-longhaul-hero">
+        <div className="sf-sky" aria-hidden="true">
+          <span className="sf-sun" /><span className="sf-mountain sf-mountain-back" />
+          <span className="sf-mountain sf-mountain-front" /><span className="sf-horizon-grid" />
+        </div>
+        <div className="sf-hero-topline"><span><i /> CREATOR MODE: ON</span><span>INDIA · EST. 2024</span></div>
+        <div className="sf-wrap sf-longhaul-wrap">
+          <motion.div className="sf-longhaul-copy" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .7 }}>
+            <div className="sf-longhaul-brand"><span className="sf-brand-symbol">S.</span> SNAPFOREST <span className="sf-brand-rule" /> CREATOR SPACES</div>
+            <p className="sf-longhaul-kicker">YOUR IDEA. YOUR SPACE. YOUR TAKE.</p>
+            <h1>MAKE<br /><span>ROOM</span><br />FOR MORE<span className="sf-title-period">.</span></h1>
+            <p className="sf-longhaul-lede">A good idea deserves a great setup. Discover creator studios for podcasts, photography, music and everything you’re ready to make.</p>
+            <div className="sf-hero-actions">
+              <Link href="/rooms" className="sf-button sf-button-lime">Explore studios <ArrowRight size={17} /></Link>
+              <Link href="#how-it-works" className="sf-button sf-button-glass"><CirclePlay size={17} /> How it works</Link>
             </div>
-            <div className="sf-centered-foot"><span className="sf-centered-dot" /> SPACES FOR BIGGER STORIES <span className="sf-centered-foot-line" /> MADE FOR CREATORS</div>
+          </motion.div>
+          <motion.div className="sf-cockpit" initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: .8, delay: .12 }}>
+            <div className="sf-cockpit-screen">
+              <Image src="/rooms/photo-studio.jpg" alt="Creative studio ready for your next session" fill priority sizes="(max-width: 800px) 90vw, 48vw" />
+              <div className="sf-cockpit-screen-shade" />
+              <div className="sf-screen-top"><span>SNAPFOREST / SESSION 001</span><span>● READY TO CREATE</span></div>
+              <div className="sf-screen-title"><span>THE NEXT TAKE</span><strong>STARTS HERE.</strong></div>
+              <div className="sf-screen-corner">01 / 06</div>
+            </div>
+            <div className="sf-player">
+              <div className="sf-player-art"><AudioLines size={23} /></div>
+              <div className="sf-player-track"><small>YOUR CREATIVE PLAYLIST</small><strong>Ideas in motion <span>— Snapforest</span></strong><div className="sf-track-line"><i /></div></div>
+              <button type="button" className="sf-player-play" aria-label="Explore studios" onClick={() => { window.location.href = "/rooms"; }}><Play size={15} fill="currentColor" /></button>
+              <div className="sf-player-wave" aria-hidden="true">{Array.from({ length: 19 }, (_, i) => <i key={i} style={{ height: (7 + ((i * 13) % 19)) + "px" }} />)}</div>
+            </div>
+            <div className="sf-cockpit-note"><span className="sf-note-icon"><Sparkles size={17} /></span><span><small>MADE FOR THE MAKERS</small><strong>Bring the idea. We’ll help with the space.</strong></span></div>
           </motion.div>
         </div>
+        <div className="sf-hero-bottomline"><span>SPACES FOR BIGGER STORIES</span><span className="sf-bottom-dash" /><span>MADE FOR CREATORS</span><a href="#spaces" aria-label="Scroll to studio spaces"><ArrowDown size={17} /></a></div>
       </section>
 
-      <section className="sf-category-section">
+      <section className="sf-category-section" id="spaces">
         <div className="sf-wrap">
-          <div className="sf-section-head sf-category-head">
-            <div><p className="sf-overline">THE RIGHT ROOM CHANGES EVERYTHING</p><h2>What are you<br /><em>making today?</em></h2></div>
-            <p className="sf-section-intro">Every idea needs a different kind of space. Start with what you want to create—we’ll help you find the room.</p>
-          </div>
+          <div className="sf-section-head sf-category-head"><div><p className="sf-overline"><span /> PICK YOUR PLAYGROUND</p><h2>What are you<br /><em>making today?</em></h2></div><p className="sf-section-intro">From a one-person podcast to your next big production—start with the idea, then find the space that fits.</p></div>
           <div className="sf-category-grid">
-            {categories.map(({ name, detail, icon: Icon, number }) => (
-              <Link href="/rooms" key={name} className="sf-category-card">
-                <div className="sf-category-top"><span>{number}</span><ArrowUpRight size={17} className="sf-category-arrow" /></div>
-                <span className="sf-category-icon"><Icon size={22} strokeWidth={1.6} /></span>
-                <h3>{name}</h3><p>{detail}</p>
+            {categories.map(({ name, detail, icon: Icon, number, tone }) => (
+              <Link href="/rooms" key={name} className={"sf-category-card sf-tone-" + tone}>
+                <div className="sf-category-top"><span>{number} / SPACE</span><ArrowUpRight size={17} className="sf-category-arrow" /></div>
+                <span className="sf-category-icon"><Icon size={23} strokeWidth={1.7} /></span><h3>{name}</h3><p>{detail}</p>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="sf-rooms-section" id="spaces">
+      <section className="sf-rooms-section">
         <div className="sf-wrap">
-          <div className="sf-section-head sf-rooms-head">
-            <div><p className="sf-overline sf-overline-light">A PLACE TO START</p><h2>Spaces with<br /><em>purpose.</em></h2></div>
-            <div className="sf-rooms-right"><p>Browse the available rooms, compare what’s included, and choose the space that feels right for your next session.</p><Link href="/rooms" className="sf-button sf-button-outline">View all spaces <ArrowUpRight size={17} /></Link></div>
-          </div>
-          {rooms.length > 0 && (
-            <div className="sf-room-controls">
-              <label className="sf-search"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by room or city" aria-label="Search available spaces" /></label>
-              <div className="sf-filter-pills">
-                {["All spaces", "Podcast", "Photo", "Music"].map((item) => <button type="button" key={item} onClick={() => setCategory(item)} className={category === item ? "is-active" : ""}>{item}</button>)}
-              </div>
-            </div>
-          )}
-          {visibleRooms.length > 0 ? (
-            <div className="sf-room-grid">
-              {visibleRooms.map((room, index) => (
-                <motion.article key={room._id} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ duration: .5, delay: index * .07 }} className="sf-room-card">
-                  <Link href={`/rooms/${room.slug}`} className="sf-room-image">
-                    <Image src={room.images?.[0] || "/rooms/photo-studio.jpg"} alt={room.name} fill sizes="(max-width: 700px) 90vw, 31vw" className="sf-cover-image" />
-                    <span className="sf-room-category">{room.category || "CREATOR SPACE"}</span><span className="sf-room-image-arrow"><ArrowUpRight size={19} /></span>
-                  </Link>
-                  <div className="sf-room-info">
-                    <div className="sf-room-title-row"><h3>{room.name}</h3>{formatPrice(room.pricePerHour) && <span className="sf-room-price">{formatPrice(room.pricePerHour)}<small> / hr</small></span>}</div>
-                    <div className="sf-room-meta"><span><MapPin size={13} />{room.city || "Location on listing"}</span>{room.capacity ? <span><Waves size={13} /> Up to {room.capacity}</span> : null}</div>
-                    <Link href={`/rooms/${room.slug}`} className="sf-room-link">View space <ArrowRight size={15} /></Link>
-                  </div>
-                </motion.article>
-              ))}
-            </div>
-          ) : (
-            <div className="sf-room-empty"><div className="sf-empty-icon"><Clapperboard size={23} /></div><div><h3>Find your next setup.</h3><p>Explore the current room listings for available spaces, equipment, and live rates.</p></div><Link href="/rooms" className="sf-button sf-button-lime">Explore all spaces <ArrowRight size={16} /></Link></div>
-          )}
-          <div className="sf-listings-note"><span className="sf-listings-dot" /> Listings and prices come from the current room catalogue.</div>
+          <div className="sf-section-head sf-rooms-head"><div><p className="sf-overline sf-overline-light"><span /> YOUR NEXT SETUP</p><h2>Good spaces.<br /><em>Great stories.</em></h2></div><div className="sf-rooms-right"><p>Explore the current listings, compare the details and choose a space that works for your session.</p><Link href="/rooms" className="sf-button sf-button-outline">Browse all spaces <ArrowUpRight size={17} /></Link></div></div>
+          {rooms.length > 0 && <div className="sf-room-controls"><label className="sf-search"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by room or city" aria-label="Search available spaces" /></label><div className="sf-filter-pills">{["All spaces", "Podcast", "Photo", "Music"].map((item) => <button type="button" key={item} onClick={() => setCategory(item)} className={category === item ? "is-active" : ""}>{item}</button>)}</div></div>}
+          {visibleRooms.length > 0 ? <div className="sf-room-grid">{visibleRooms.map((room, index) => <motion.article key={room._id} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-30px" }} transition={{ duration: .45, delay: index * .06 }} className="sf-room-card"><Link href={"/rooms/" + room.slug} className="sf-room-image"><Image src={room.images?.[0] || "/rooms/photo-studio.jpg"} alt={room.name} fill sizes="(max-width: 700px) 90vw, 31vw" className="sf-cover-image" /><span className="sf-room-category">{room.category || "CREATOR SPACE"}</span><span className="sf-room-image-arrow"><ArrowUpRight size={19} /></span></Link><div className="sf-room-info"><div className="sf-room-title-row"><h3>{room.name}</h3>{formatPrice(room.pricePerHour) && <span className="sf-room-price">{formatPrice(room.pricePerHour)}<small> / hr</small></span>}</div><div className="sf-room-meta"><span><MapPin size={13} />{room.city || "Location on listing"}</span>{room.capacity ? <span><Waves size={13} /> Up to {room.capacity}</span> : null}</div><Link href={"/rooms/" + room.slug} className="sf-room-link">View space <ArrowRight size={15} /></Link></div></motion.article>)}</div> : <div className="sf-room-empty"><div className="sf-empty-icon"><Clapperboard size={23} /></div><div><h3>Your next setup is out there.</h3><p>Explore current room listings for equipment, locations and live rates.</p></div><Link href="/rooms" className="sf-button sf-button-lime">Explore all spaces <ArrowRight size={16} /></Link></div>}
+          <div className="sf-listings-note"><span className="sf-listings-dot" /> Room details and prices are taken from the current catalogue.</div>
         </div>
       </section>
 
-      <section className="sf-process-section" id="how-it-works">
-        <div className="sf-wrap sf-process-grid">
-          <div className="sf-process-intro"><p className="sf-overline">NO GUESSWORK. JUST THE WORK.</p><h2>Less organising.<br /><em>More creating.</em></h2><p>We keep the details up front so you can spend less time coordinating and more time doing what you came to do.</p><Link href="/rooms" className="sf-dark-link">Find your space <ArrowUpRight size={16} /></Link></div>
-          <div className="sf-steps">
-            {steps.map((step) => <article className="sf-step" key={step.number}><span className="sf-step-num">{step.number}</span><div><h3>{step.title}</h3><p>{step.copy}</p></div><ArrowUpRight size={17} className="sf-step-arrow" /></article>)}
-            <div className="sf-process-aside"><span className="sf-aside-mark"><Check size={16} /></span><p>Room details, equipment, location and rates should be clear <em>before</em> you book.</p></div>
-          </div>
-        </div>
-      </section>
+      <section className="sf-process-section" id="how-it-works"><div className="sf-wrap sf-process-grid"><div className="sf-process-intro"><p className="sf-overline"><span /> EASY AS ONE, TWO, THREE</p><h2>Less setup.<br /><em>More creating.</em></h2><p>Skip the endless coordination. Find the room, check what’s included, and get back to making something you’re proud of.</p><Link href="/rooms" className="sf-dark-link">Find your space <ArrowUpRight size={16} /></Link></div><div className="sf-steps">{steps.map((step) => <article className="sf-step" key={step.number}><span className="sf-step-num">{step.number}</span><div><h3>{step.title}</h3><p>{step.copy}</p></div><ArrowUpRight size={17} className="sf-step-arrow" /></article>)}<div className="sf-process-aside"><span className="sf-aside-mark"><Check size={16} /></span><p>Clear room details. Transparent rates. A little more time for <em>the work that matters.</em></p></div></div></div></section>
 
-      <section className="sf-location-section">
-        <div className="sf-wrap sf-location-grid">
-          <div className="sf-location-copy"><p className="sf-overline sf-overline-light">ROOTED LOCALLY. MADE FOR IDEAS.</p><h2>Good work<br />needs <em>good space.</em></h2><p>Snapforest helps creators discover spaces for recording, filming, photography, music and focused work—with room details available before you make a decision.</p><div className="sf-location-tags"><span><MapPin size={14} /> Patna, Bihar</span><span><Wifi size={14} /> Creator-ready setups</span><span><Headphones size={14} /> Different ways to create</span></div><Link href="/rooms" className="sf-button sf-button-lime">Explore available rooms <ArrowUpRight size={17} /></Link></div>
-          <div className="sf-location-visual"><Image src="/rooms/photo-studio.jpg" alt="Studio space for creative work" fill sizes="(max-width: 800px) 90vw, 44vw" className="sf-cover-image" /><div className="sf-location-overlay" /><div className="sf-location-caption"><span>SNAPFOREST / FIELD NOTES</span><strong>A space for the next take.</strong></div><div className="sf-location-index">PATNA · BIHAR</div></div>
-        </div>
-      </section>
+      <section className="sf-location-section"><div className="sf-wrap sf-location-grid"><div className="sf-location-copy"><p className="sf-overline sf-overline-light"><span /> ROOTED LOCALLY. OPEN TO IDEAS.</p><h2>Your city.<br />Your <em>creative era.</em></h2><p>Snapforest helps creators discover spaces for recording, filming, photography, music and focused work—with the details you need before you book.</p><div className="sf-location-tags"><span><MapPin size={14} /> Patna &amp; Gaya, Bihar</span><span><Wifi size={14} /> Creator-ready setups</span><span><Headphones size={14} /> Space for your sound</span></div><Link href="/rooms" className="sf-button sf-button-lime">Explore available rooms <ArrowUpRight size={17} /></Link></div><div className="sf-location-visual"><Image src="/rooms/photo-studio.jpg" alt="A creative studio space" fill sizes="(max-width: 800px) 90vw, 44vw" className="sf-cover-image" /><div className="sf-location-overlay" /><div className="sf-location-caption"><span>SNAPFOREST / FIELD NOTES</span><strong>Make something real.</strong></div><div className="sf-location-index">BIHAR · INDIA</div></div></div></section>
 
-      <section className="sf-final-section">
-        <div className="sf-wrap sf-final-inner"><div><p className="sf-overline">YOUR IDEA IS WAITING</p><h2>Make the next<br /><em>thing happen.</em></h2></div><div className="sf-final-action"><p>Find a room that fits your session. Check the details. Get started.</p><Link href="/rooms" className="sf-button sf-button-dark">Find your space <ArrowUpRight size={18} /></Link></div><span className="sf-final-watermark" aria-hidden="true">SF.</span></div>
-      </section>
+      <section className="sf-final-section"><div className="sf-wrap sf-final-inner"><div><p className="sf-overline"><span /> YOUR IDEA IS WAITING</p><h2>Make the next<br /><em>thing happen.</em></h2></div><div className="sf-final-action"><p>Find a room that fits your session. Check the details. Start creating.</p><Link href="/rooms" className="sf-button sf-button-dark">Find your space <ArrowUpRight size={18} /></Link></div><span className="sf-final-watermark" aria-hidden="true">SF.</span></div></section>
     </main>
   );
 }
