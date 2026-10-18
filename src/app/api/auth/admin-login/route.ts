@@ -80,25 +80,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let user: any = null;
-    let isValidPassword = await comparePassword(password, ADMIN_PASSWORD_HASH);
-
-    try {
-      await connectDB();
-      user = await User.findOne({ email: sanitizedEmail });
-
-      if (user?.password) {
-        isValidPassword = await comparePassword(password, user.password);
-      }
-    } catch (dbError) {
-      console.warn("[Admin Login] DB unavailable; authenticating from configured admin secret", dbError);
-    }
-
+    // The configured environment hash is the single source of truth for the
+    // admin password. A stale database password must not silently override a
+    // newly rotated ADMIN_PASSWORD_HASH.
+    const isValidPassword = await comparePassword(password, ADMIN_PASSWORD_HASH);
     if (!isValidPassword) {
       return NextResponse.json(
         { success: false, message: "Invalid credentials" },
         { status: 401, headers }
       );
+    }
+
+    let user: any = null;
+    try {
+      await connectDB();
+      user = await User.findOne({ email: sanitizedEmail });
+    } catch (dbError) {
+      console.warn("[Admin Login] DB unavailable; authenticating from configured admin secret", dbError);
     }
 
     if (user && user.role !== "admin") {
