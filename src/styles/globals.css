@@ -265,3 +265,91 @@ img { max-width: 100%; }
   .sf-footer-cta h2 { font-size: 23px; }
   .sf-footer-bottom { width: calc(100% - 28px); }
 }
+
+
+/* Snapforest unified dark booking UI — shared across every route */
+:root {
+  --background: 0 0% 5.5%;
+  --card: 0 0% 9%;
+  --popover: 0 0% 7%;
+  --primary: 144 45% 20%;
+  --accent: 144 45% 20%;
+  --border: 0 0% 16%;
+  --input: 0 0% 16%;
+  --ring: 144 45% 65%;
+  --neon-forest: #1a472a;
+  --neon-mint: #c8e6c9;
+}
+html, body { background:#0e0f0e !important; color:#f4f5f2; }
+body { background-image:none !important; }
+.sf-premium { background:#0e0f0e !important; color:#f4f5f2; }
+.sf-longhaul-hero, .sf-category-section, .sf-process-section, .sf-rooms-section,
+.sf-location-section, .sf-final-section { background:#0e0f0e !important; color:#f4f5f2 !important; }
+.sf-longhaul-hero { overflow:hidden; }
+.sf-sky { opacity:.12 !important; filter:saturate(.25); }
+.sf-sun { background:#234a30 !important; box-shadow:0 0 100px 60px rgba(26,71,42,.12) !important; }
+.sf-mountain-back { background:#121713 !important; }
+.sf-mountain-front { background:#0e0f0e !important; }
+.sf-hero-topline, .sf-hero-bottomline { color:#8c968d !important; }
+.sf-longhaul-brand, .sf-longhaul-kicker { color:#c8e6c9 !important; }
+.sf-brand-symbol { background:#1a472a !important; color:#f4f5f2 !important; border-radius:10px !important; }
+.sf-longhaul-copy h1 { color:#f4f5f2 !important; }
+.sf-longhaul-copy h1 > span:first-of-type { color:#c8e6c9 !important; }
+.sf-title-period { color:#c8e6c9 !important; }
+.sf-longhaul-lede, .sf-section-intro, .sf-rooms-right p,
+.sf-process-intro > p:not(.sf-overline), .sf-step p,
+.sf-location-copy > p:not(.sf-overline), .sf-final-action p { color:#a2a8a1 !important; }
+.sf-button-lime, .sf-footer-button, .sf-button-dark {
+  background:#1a472a !important; color:#fff !important; border:1px solid #2b5b3a !important;
+}
+.sf-button-lime:hover, .sf-footer-button:hover, .sf-button-dark:hover { background:#236b3a !important; }
+.sf-button-glass, .sf-button-outline { color:#f4f5f2 !important; border-color:#ffffff24 !important; background:#ffffff04 !important; }
+.sf-cockpit-screen, .sf-location-visual { background:#141714 !important; border-color:#ffffff18 !important; }
+.sf-player, .sf-cockpit-note { background:#141714 !important; border-color:#ffffff16 !important; color:#f4f5f2 !important; }
+.sf-player-art, .sf-note-icon, .sf-category-icon { background:#1a241c !important; border-color:#2b3a2d !important; color:#c8e6c9 !important; }
+.sf-category-grid { border-color:#ffffff16 !important; }
+.sf-category-card { background:#141714 !important; border-color:#ffffff16 !important; color:#f4f5f2 !important; }
+.sf-category-card:hover { background:#191f1a !important; }
+.sf-category-card h3 { color:#f4f5f2 !important; }
+.sf-category-card p, .sf-category-top { color:#9ba39a !important; }
+.sf-overline, .sf-footer-eyebrow { color:#a2aaa1 !important; }
+.sf-overline > span, .sf-listings-dot { background:#c8e6c9 !important; }
+.sf-room-controls { background:#111311 !important; border-color:#ffffff18 !important; }
+.sf-search { border-color:#ffffff22 !important; color:#a2aaa1 !important; }
+.sf-search input { color:#f4f5f2 !important; }
+.sf-filter-pills button { border-color:#ffffff22 !important; color:#d5d9d4 !important; }
+.sf-filter-pills button.is-active, .sf-filter-pills button:hover { background:#1a472a !important; border-color:#1a472a !important; color:#fff !important; }
+.sf-room-card { background:#141714 !important; border-color:#ffffff16 !important; }
+.sf-room-card:hover { border-color:#c8e6c944 !important; }
+.sf-room-price, .sf-room-link, .sf-dark-link { color:#c8e6c9 !important; }
+.sf-room-meta { color:#a2aaa1 !important; }
+.sf-process-section { border-top:1px solid #ffffff10 !important; border-bottom:1px solid #ffffff10 !important; }
+.sf-step, .sf-steps { border-color:#ffffff16 !important; }
+.sf-step h3 { color:#f4f5f2 !important; }
+.sf-step-arrow { color:#c8e6c9 !important; }
+.sf-aside-mark { background:#1a472a !important; color:#c8e6c9 !important; }
+.sf-location-overlay { background:linear-gradient(180deg,transparent 15%,rgba(14,15,14,.9)) !important; }
+.sf-location-tags span { color:#c7cec6 !important; }
+.sf-final-section { border-top:1px solid #ffffff12 !important; }
+.sf-final-watermark { color:#c8e6c908 !important; }
+.sf-site-footer { background:#0b0d0b !important; color:#f4f5f2 !important; border-top:1px solid #ffffff12 !important; }
+.sf-footer-main { background:#0b0d0b !important; }
+.sf-footer-mark { background:#1a472a !important; color:#fff !important; }
+.sf-footer-brand p, .sf-footer-description, .sf-footer-location,
+.sf-footer-links a, .sf-footer-bottom { color:#9da59c !important; }
+.sf-footer-cta h2 { color:#f4f5f2 !important; }
+.sf-footer-cta h2 em { color:#c8e6c9 !important; }
+.sf-footer-bottom { border-color:#ffffff14 !important; }
+.text-neon-cyan { color:#c8e6c9 !important; }
+.bg-neon-cyan\/20 { background-color:rgba(200,230,201,.12) !important; }
+.border-neon-cyan\/30 { border-color:rgba(200,230,201,.3) !important; }
+@media (max-width:700px) {
+  .sf-longhaul-hero { min-height:auto !important; }
+  .sf-longhaul-wrap { padding-top:28px !important; }
+  .sf-cockpit-screen { aspect-ratio:1.12 !important; }
+  .sf-category-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+  .sf-category-card { min-width:0 !important; }
+  .sf-room-grid { grid-template-columns:minmax(0,1fr) !important; }
+  .sf-room-image { min-height:240px; }
+  .sf-footer-main { gap:32px !important; }
+}
