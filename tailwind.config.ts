@@ -55,9 +55,9 @@ const config: Config = {
           stone: "#2a2a2a",
           stoneLight: "#333333",
         },
-        "neon-cyan": "#00d9ff",
-        "neon-purple": "#d946ef",
-        "neon-pink": "#ec4899",
+        "neon-cyan": "#b9f5ca",
+        "neon-purple": "#1a472a",
+        "neon-pink": "#c9f4d4",
       },
       borderRadius: {
         lg: "var(--radius)",
