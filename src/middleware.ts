@@ -22,7 +22,8 @@ function withSecurityHeaders(response: NextResponse) {
 }
 
 export function middleware(request: NextRequest) {
-  const { pathname, method } = request.nextUrl;
+  const { pathname } = request.nextUrl;
+  const { method } = request;
 
   if (method === "OPTIONS" && pathname.startsWith("/api/admin")) {
     const response = new NextResponse(null, { status: 204 });
