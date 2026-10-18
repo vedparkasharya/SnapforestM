@@ -19,7 +19,6 @@ export default function AuthModal({ isOpen, onClose, defaultMode = "login" }: Au
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const { login, register } = useAuth();
 
   useEffect(() => {
@@ -47,30 +46,28 @@ export default function AuthModal({ isOpen, onClose, defaultMode = "login" }: Au
     setMode((current) => current === "login" ? "register" : "login");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError("");
     setIsSubmitting(true);
 
-    let result;
-    if (mode === "register") {
-      if (!name.trim()) {
+    try {
+      if (mode === "register" && !name.trim()) {
         setError("Name is required");
-        setIsSubmitting(false);
         return;
       }
-      result = await register(name.trim(), email.trim(), password);
-    } else {
-      result = await login(email.trim(), password);
-    }
 
-    if (result.success) {
-      handleClose();
-    } else {
-      setError(result.message);
-    }
+      const result = mode === "register"
+        ? await register(name.trim(), email.trim(), password)
+        : await login(email.trim(), password);
 
-    setIsSubmitting(false);
+      if (result.success) handleClose();
+      else setError(result.message);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const goToAdminLogin = () => {
@@ -85,83 +82,98 @@ export default function AuthModal({ isOpen, onClose, defaultMode = "login" }: Au
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-[#070907]/95 px-4 py-6 backdrop-blur-md"
           onClick={handleClose}
           role="presentation"
         >
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 16, scale: 0.985 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ type: "spring", damping: 20 }}
-            className="relative w-full max-w-md"
-            onClick={(e) => e.stopPropagation()}
+            exit={{ opacity: 0, y: 12, scale: 0.985 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="relative my-auto w-full max-w-[430px]"
+            onClick={(event) => event.stopPropagation()}
             role="dialog"
             aria-modal="true"
             aria-labelledby="auth-modal-title"
           >
-            <div className="glass-card relative overflow-hidden p-8">
-              <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-neon-cyan/20 blur-[60px]" />
-              <div className="absolute -bottom-20 -left-20 h-40 w-40 rounded-full bg-neon-purple/20 blur-[60px]" />
+            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.12] bg-[#111512] p-6 shadow-[0_30px_100px_rgba(0,0,0,0.7)] sm:p-8">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#b9f5ca]/40 to-transparent" />
 
-              <button type="button" onClick={handleClose} aria-label="Close sign in dialog" className="absolute right-4 top-4 z-10 rounded-full p-2 text-muted-foreground hover:bg-white/10 hover:text-white">
-                <X className="h-5 w-5" />
+              <button
+                type="button"
+                onClick={handleClose}
+                aria-label="Close sign in dialog"
+                className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-white/60 transition hover:bg-white/[0.09] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b9f5ca]"
+              >
+                <X className="h-4 w-4" />
               </button>
 
-              <div className="relative mb-6 space-y-2 text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-neon-cyan via-neon-purple to-neon-pink">
-                  {mode === "login" ? <LogIn className="h-7 w-7 text-white" /> : <UserPlus className="h-7 w-7 text-white" />}
+              <div className="mb-7 space-y-3 text-center">
+                <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-[#b9f5ca]/20 bg-[#1b3826] text-[#c9f4d4] shadow-[0_8px_30px_rgba(26,71,42,0.24)]">
+                  {mode === "login" ? <LogIn className="h-6 w-6" /> : <UserPlus className="h-6 w-6" />}
                 </div>
-                <h2 id="auth-modal-title" className="text-xl font-bold">{mode === "login" ? "Welcome Back" : "Get Started"}</h2>
-                <p className="text-sm text-muted-foreground">{mode === "login" ? "Sign in to your Snapforest account" : "Create your Snapforest account"}</p>
+                <div>
+                  <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.24em] text-[#b9f5ca]/70">SNAPFOREST · CREATOR SPACES</p>
+                  <h2 id="auth-modal-title" className="text-2xl font-semibold tracking-tight text-white">
+                    {mode === "login" ? "Welcome back" : "Create your account"}
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-white/55">
+                    {mode === "login" ? "Sign in to manage your bookings and spaces." : "Join Snapforest and find your creative space."}
+                  </p>
+                </div>
               </div>
 
               {error && (
-                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} role="alert" className="relative mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-center text-sm text-red-400">
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  role="alert"
+                  className="mb-4 rounded-xl border border-red-400/20 bg-red-400/[0.07] p-3 text-sm text-red-300"
+                >
                   {error}
                 </motion.div>
               )}
 
-              <form onSubmit={handleSubmit} className="relative space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {mode === "register" && (
                   <div>
-                    <label htmlFor="auth-name" className="mb-1.5 block text-sm font-medium">Full Name</label>
-                    <input id="auth-name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" autoComplete="name" maxLength={100} className="h-11 w-full rounded-lg border border-input bg-background px-4 text-sm outline-none transition-all focus-visible:ring-2 focus-visible:ring-ring" required />
+                    <label htmlFor="auth-name" className="mb-2 block text-xs font-medium tracking-wide text-white/75">Full name</label>
+                    <input id="auth-name" type="text" value={name} onChange={(event) => setName(event.target.value)} placeholder="Your full name" autoComplete="name" maxLength={100} className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#0b0e0c] px-4 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-[#9cdbad]/60 focus:ring-2 focus:ring-[#9cdbad]/10" required />
                   </div>
                 )}
 
                 <div>
-                  <label htmlFor="auth-email" className="mb-1.5 block text-sm font-medium">Email</label>
-                  <input id="auth-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" maxLength={254} className="h-11 w-full rounded-lg border border-input bg-background px-4 text-sm outline-none transition-all focus-visible:ring-2 focus-visible:ring-ring" required />
+                  <label htmlFor="auth-email" className="mb-2 block text-xs font-medium tracking-wide text-white/75">Email address</label>
+                  <input id="auth-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" maxLength={254} className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#0b0e0c] px-4 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-[#9cdbad]/60 focus:ring-2 focus:ring-[#9cdbad]/10" required />
                 </div>
 
                 <div>
-                  <label htmlFor="auth-password" className="mb-1.5 block text-sm font-medium">Password</label>
+                  <label htmlFor="auth-password" className="mb-2 block text-xs font-medium tracking-wide text-white/75">Password</label>
                   <div className="relative">
-                    <input id="auth-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" minLength={6} maxLength={128} autoComplete={mode === "login" ? "current-password" : "new-password"} className="h-11 w-full rounded-lg border border-input bg-background px-4 pr-12 text-sm outline-none transition-all focus-visible:ring-2 focus-visible:ring-ring" required />
-                    <button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-2 text-muted-foreground hover:bg-white/10 hover:text-white">
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    <input id="auth-password" type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="At least 6 characters" minLength={6} maxLength={128} autoComplete={mode === "login" ? "current-password" : "new-password"} className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#0b0e0c] px-4 pr-12 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-[#9cdbad]/60 focus:ring-2 focus:ring-[#9cdbad]/10" required />
+                    <button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-white/45 transition hover:bg-white/[0.06] hover:text-white">
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
 
-                <button type="submit" disabled={isSubmitting} className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-neon-cyan to-neon-purple text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
-                  {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : mode === "login" ? <><LogIn className="h-5 w-5" />Sign In</> : <><UserPlus className="h-5 w-5" />Create Account</>}
+                <button type="submit" disabled={isSubmitting} className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#c9f4d4] px-4 text-sm font-semibold text-[#102017] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9f4d4] disabled:cursor-not-allowed disabled:opacity-60">
+                  {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : mode === "login" ? <><LogIn className="h-4 w-4" /> Sign in</> : <><UserPlus className="h-4 w-4" /> Create account</>}
                 </button>
               </form>
 
-              <div className="relative mt-6 text-center">
-                <button type="button" onClick={switchMode} className="text-sm text-neon-cyan hover:underline">
-                  {mode === "login" ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
+              <div className="mt-5 text-center">
+                <button type="button" onClick={switchMode} className="text-sm text-[#b9f5ca] transition hover:text-white hover:underline hover:underline-offset-4">
+                  {mode === "login" ? "New to Snapforest? Create an account" : "Already have an account? Sign in"}
                 </button>
               </div>
 
-              <div className="relative mt-4 border-t border-white/10 pt-4">
-                <button type="button" onClick={goToAdminLogin} className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-neon-cyan/40 py-2.5 text-sm text-neon-cyan transition-colors hover:bg-neon-cyan/10">
-                  <ShieldCheck className="h-4 w-4" />
-                  Sign in as Admin
+              <div className="mt-6 border-t border-white/[0.09] pt-5">
+                <button type="button" onClick={goToAdminLogin} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/[0.12] bg-white/[0.025] text-sm text-white/70 transition hover:border-[#b9f5ca]/30 hover:bg-[#b9f5ca]/[0.05] hover:text-white">
+                  <ShieldCheck className="h-4 w-4 text-[#b9f5ca]" /> Sign in as admin
                 </button>
-                <p className="mt-2 text-center text-xs text-muted-foreground">Admin access only. You will be redirected to the admin login.</p>
+                <p className="mt-2 text-center text-xs leading-5 text-white/40">For authorised administrators only.</p>
               </div>
             </div>
           </motion.div>
