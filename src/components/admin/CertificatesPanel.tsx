@@ -58,7 +58,7 @@ export default function CertificatesPanel() {
       if (!response.ok || !result.success) throw new Error(result.message || "Could not issue certificate.");
       setIssued(result.data); setForm({ ...initialForm, issueDate:new Date().toISOString().slice(0,10) });
       await load();
-      toast({ title:"Certificate issued", description:`${result.data.certificateNumber} is ready for verification.` });
+      toast.showToast("Certificate issued successfully.", "success");
     } catch (e) { setError(e instanceof Error ? e.message : "Could not issue certificate."); }
     finally { setSaving(false); }
   }
@@ -74,7 +74,7 @@ export default function CertificatesPanel() {
       const result = await response.json();
       if (!response.ok || !result.success) throw new Error(result.message || "Could not update status.");
       await load();
-      toast({ title: status === "revoked" ? "Certificate revoked" : "Certificate reactivated", description:item.certificateNumber });
+      toast.showToast(item.certificateNumber + (status === "revoked" ? " revoked." : " reactivated."), status === "revoked" ? "warning" : "success");
     } catch(e) { setError(e instanceof Error ? e.message : "Could not update status."); }
   }
 
