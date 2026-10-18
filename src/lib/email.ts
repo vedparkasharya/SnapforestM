@@ -129,6 +129,7 @@ export async function sendBookingConfirmationEmail(
 
     const htmlContent = buildEmailTemplate({
       userName,
+      userEmail,
       roomName,
       roomAddress,
       date,
@@ -218,6 +219,7 @@ export async function sendTestEmail(
 
 function buildEmailTemplate(data: {
   userName: string;
+  userEmail: string;
   roomName: string;
   roomAddress: string;
   date: string;
