@@ -279,7 +279,7 @@ export default function RoomGallery({ images, roomName }: RoomGalleryProps) {
 
       {viewMode === "carousel" && (
         <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground/70">
-          Representative stock photos. Actual venue photos should be confirmed with the host before booking.
+          Representative reference imagery. Confirm the actual venue photos and room details with the host before booking.
         </p>
       )}
 

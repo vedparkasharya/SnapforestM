@@ -64,7 +64,7 @@ export const representativeRoomPhotos: Record<string, string[]> = {
   ],
 };
 
-export function representativeRoomImage(category?: string) {
+export function representativeRoomGallery(category?: string) {
   const key = (category || "").toLowerCase().replace(/[^a-z]/g, "");
   const normalized =
     key.includes("podcast") ? "podcast" :
@@ -77,5 +77,9 @@ export function representativeRoomImage(category?: string) {
     key.includes("cowork") ? "coworking" :
     key.includes("meeting") || key.includes("conference") ? "meeting" :
     key;
-  return representativeRoomPhotos[normalized]?.[0] || u("photo-1648740678671-c37d78567ea8");
+  return representativeRoomPhotos[normalized] || representativeRoomPhotos.photography;
+}
+
+export function representativeRoomImage(category?: string) {
+  return representativeRoomGallery(category)[0] || u("photo-1648740678671-c37d78567ea8");
 }
