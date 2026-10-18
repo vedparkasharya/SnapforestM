@@ -353,3 +353,10 @@ body { background-image:none !important; }
   .sf-room-image { min-height:240px; }
   .sf-footer-main { gap:32px !important; }
 }
+
+
+/* Remove legacy neon-blue/purple accents from older screens */
+[class*="neon-cyan"] { color:#c8e6c9 !important; border-color:rgba(200,230,201,.3) !important; }
+[class*="bg-neon-cyan"] { background-color:#1a472a !important; }
+[class*="neon-purple"], [class*="neon-pink"], [class*="neon-blue"] { border-color:rgba(200,230,201,.2) !important; }
+[class*="text-neon-purple"], [class*="text-neon-pink"], [class*="text-neon-blue"] { color:#c8e6c9 !important; }
