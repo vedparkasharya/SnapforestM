@@ -14,6 +14,10 @@ export interface IInternshipApplication extends Document {
   utrNumber: string;
   referralCode: string;
   referralSource: string;
+  boardCollegeUniversity: string;
+  paymentMethod: "upi" | "razorpay";
+  paymentScreenshotUrl?: string;
+  nocLetterUrl?: string;
   collegeIdUrl?: string;
   resumeUrl?: string;
   motivation: string;
@@ -37,6 +41,10 @@ const InternshipApplicationSchema = new Schema<IInternshipApplication>({
   utrNumber: { type: String, default: "", trim: true, maxlength: 100 },
   referralCode: { type: String, default: "", trim: true, uppercase: true, maxlength: 40, index: true },
   referralSource: { type: String, default: "", trim: true, maxlength: 80 },
+  boardCollegeUniversity: { type: String, default: "", trim: true, maxlength: 180 },
+  paymentMethod: { type: String, enum: ["upi", "razorpay"], default: "upi" },
+  paymentScreenshotUrl: { type: String, default: "" },
+  nocLetterUrl: { type: String, default: "" },
   collegeIdUrl: { type: String, default: "" },
   resumeUrl: { type: String, default: "" },
   motivation: { type: String, default: "", trim: true, maxlength: 1500 },
