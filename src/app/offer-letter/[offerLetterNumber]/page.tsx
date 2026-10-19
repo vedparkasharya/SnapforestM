@@ -69,14 +69,15 @@ export default function OfferLetterPage() {
       <button onClick={() => window.print()} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#c9f36a] px-5 py-3 text-sm font-semibold text-[#101510] sm:w-auto"><Printer className="h-4 w-4"/>Print / Save PDF</button>
     </div>}
       <style jsx global>{`
+        @page { size: A4 portrait; margin: 0; }
         @media print {
-          @page { size: A4 portrait; margin: 12mm; }
-          html, body { background: #fffdf8 !important; color: #172117 !important; margin: 0 !important; padding: 0 !important; print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
+          html, body { width: 210mm !important; margin: 0 !important; padding: 0 !important; background: #fff !important; color: #172117 !important; overflow: visible !important; }
           body { display: block !important; }
           body * { visibility: hidden !important; }
           .offer-letter-document, .offer-letter-document * { visibility: visible !important; }
-          .no-print, nav, footer { display: none !important; }
-          .offer-letter-document { position: absolute !important; left: 0 !important; top: 0 !important; width: 186mm !important; max-width: none !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; background: #fffdf8 !important; }
+          .no-print, nav, footer, header { display: none !important; }
+          main { display: block !important; width: 210mm !important; margin: 0 !important; padding: 0 !important; background: #fff !important; }
+          .offer-letter-document { position: relative !important; display: block !important; box-sizing: border-box !important; width: 210mm !important; max-width: none !important; margin: 0 !important; padding: 12mm 14mm !important; box-shadow: none !important; border: 0 !important; background: #fff !important; color: #172117 !important; page-break-after: avoid !important; }
           .offer-letter-document img { print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
         }
       `}</style>
