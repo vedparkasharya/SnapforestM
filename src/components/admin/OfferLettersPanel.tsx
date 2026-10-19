@@ -53,7 +53,7 @@ export default function OfferLettersPanel() {
       const data = await r.json();
       if (!r.ok || !data.success) throw new Error(data.message || "Could not create offer letter.");
       setCreated(data.data); setForm({ ...empty, issueDate: today }); await load();
-      toast.success("Offer letter created");
+      toast.showToast("Offer letter created.", "success");
     } catch (e) { setError(e instanceof Error ? e.message : "Could not create offer letter."); }
     finally { setSaving(false); }
   }
@@ -64,7 +64,7 @@ export default function OfferLettersPanel() {
       const r = await fetch("/api/admin/offer-letters", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ offerLetterNumber: item.offerLetterNumber, status: next }) });
       const data = await r.json();
       if (!r.ok || !data.success) throw new Error(data.message || "Could not update status.");
-      await load(); toast.success(next === "active" ? "Offer letter reactivated" : "Offer letter withdrawn");
+      await load(); toast.showToast(next === "active" ? "Offer letter reactivated." : "Offer letter withdrawn.", next === "active" ? "success" : "warning");
     } catch (e) { setError(e instanceof Error ? e.message : "Could not update status."); }
   }
   const urlFor = (number: string) => typeof window === "undefined" ? "" : `${window.location.origin}/offer-letter/${encodeURIComponent(number)}`;
