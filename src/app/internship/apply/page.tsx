@@ -26,19 +26,9 @@ const initial: FormState = {
   registrationNumber: "", internshipRole: "", deliveryMode: "online", motivation: "",
 };
 
-async function fileToDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Could not read file."));
-    reader.onerror = () => reject(new Error("Could not read file."));
-    reader.readAsDataURL(file);
-  });
-}
-
 export default function InternshipApplyPage() {
   const [form, setForm] = useState<FormState>(initial);
-  const [collegeId, setCollegeId] = useState<File | null>(null);
-  const [resume, setResume] = useState<File | null>(null);
+  const [utrNumber, setUtrNumber] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState<{ applicationNumber: string; fullName: string; deliveryMode: string } | null>(null);
@@ -46,39 +36,20 @@ export default function InternshipApplyPage() {
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm(prev => ({ ...prev, [key]: value }));
   }
-  function onFileChange(event: ChangeEvent<HTMLInputElement>, kind: "id" | "resume") {
-    const file = event.target.files?.[0] || null;
-    if (file && file.size > 3 * 1024 * 1024) {
-      setError("Each file must be 3 MB or smaller.");
-      event.target.value = "";
-      return;
-    }
-    if (file && !["application/pdf", "image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      setError("Please choose a PDF, JPG, PNG or WEBP file.");
-      event.target.value = "";
-      return;
-    }
-    setError("");
-    if (kind === "id") setCollegeId(file); else setResume(file);
-  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true); setError(""); setSuccess(null);
     try {
-      if (!collegeId) throw new Error("Please upload your college ID card or admission slip.");
-      const payload = {
-        ...form,
-        collegeId: await fileToDataUrl(collegeId),
-        resume: resume ? await fileToDataUrl(resume) : "",
-      };
+      if (!utrNumber.trim()) throw new Error("Please enter the payment UTR / transaction ID.");
+      const payload = { ...form, utrNumber: utrNumber.trim() };
       const response = await fetch("/api/internship-applications", {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
       });
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.message || "Application submission failed.");
       setSuccess(data.data);
-      setForm(initial); setCollegeId(null); setResume(null);
+      setForm(initial); setUtrNumber("");
       const formElement = event.currentTarget;
       formElement.reset();
     } catch (e) {
@@ -142,12 +113,15 @@ export default function InternshipApplyPage() {
         </section>
 
         <section className={cardClass}>
-          <div className="mb-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#6b8b5c]">Section 03</p><h2 className="mt-1 text-lg font-bold">Supporting documents</h2><p className="mt-1 text-xs text-[#727d70]">PDF, JPG, PNG or WEBP · Maximum 3 MB per file.</p></div>
-          <label className={labelClass}>College ID card / admission slip *<div className="mt-2 rounded-xl border border-dashed border-[#cbd5c5] bg-[#fafbf8] p-4"><div className="flex items-center gap-3"><FileUp className="h-5 w-5 text-[#54734b]"/><div className="min-w-0 flex-1"><p className="text-sm font-medium">{collegeId?.name || "Choose a file to upload"}</p><p className="mt-1 text-xs font-normal text-[#778173]">Required for student verification</p></div><span className="text-xs font-semibold text-[#315e38]">Browse</span></div><input className="mt-3 block w-full text-xs font-normal text-[#596456] file:mr-3 file:rounded-lg file:border-0 file:bg-[#e8efe3] file:px-3 file:py-2 file:text-xs file:font-semibold file:text-[#315e38]" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" required onChange={e=>onFileChange(e,"id")}/></div></label>
-          <label className={`${labelClass} mt-5 block`}>Resume / CV <span className="font-normal text-[#7b8578]">(optional)</span><div className="mt-2 rounded-xl border border-dashed border-[#cbd5c5] bg-[#fafbf8] p-4"><div className="flex items-center gap-3"><FileUp className="h-5 w-5 text-[#54734b]"/><div className="min-w-0 flex-1"><p className="text-sm font-medium">{resume?.name || "Choose your resume"}</p><p className="mt-1 text-xs font-normal text-[#778173]">PDF or image format</p></div></div><input className="mt-3 block w-full text-xs font-normal text-[#596456] file:mr-3 file:rounded-lg file:border-0 file:bg-[#e8efe3] file:px-3 file:py-2 file:text-xs file:font-semibold file:text-[#315e38]" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" onChange={e=>onFileChange(e,"resume")}/></div></label>
+          <div className="mb-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#6b8b5c]">Section 03</p><h2 className="mt-1 text-lg font-bold">Payment details</h2><p className="mt-1 text-xs text-[#727d70]">Scan the Snapforest payment QR and enter your transaction reference.</p></div>
+          <div className="rounded-xl border border-[#e2e7de] bg-[#fafbf8] p-4 text-center">
+            <img src="/images/snapforest-payment-qr.png" alt="Snapforest payment QR code" className="mx-auto h-56 w-56 max-w-full object-contain" />
+            <p className="mt-2 text-xs leading-5 text-[#687363]">Please verify the payee name in your payment app before sending money.</p>
+          </div>
+          <label className={labelClass + " mt-5 block"}>UTR / Transaction ID *<input className={fieldClass} required maxLength={100} value={utrNumber} onChange={e=>setUtrNumber(e.target.value)} placeholder="Enter payment transaction reference"/></label>
         </section>
 
-        <section className="rounded-2xl border border-[#dce4d7] bg-[#edf3e8] p-5 sm:p-6"><h2 className="font-bold text-[#214f31]">Before you submit</h2><ul className="mt-3 space-y-2 text-sm leading-5 text-[#4e5c4a]"><li>• Internship application is free; no registration payment is required.</li><li>• The ₹100 certificate delivery fee applies only after successful internship completion.</li><li>• Submitting an application does not guarantee selection. Your details will be reviewed by Snapforest.</li></ul><label className="mt-4 flex items-start gap-3 border-t border-[#d4dfcd] pt-4 text-sm text-[#334431]"><input required type="checkbox" className="mt-1 h-4 w-4 accent-[#315e38]"/><span>I confirm that the information provided is accurate and consent to its use for reviewing my internship application.</span></label></section>
+        <section className="rounded-2xl border border-[#dce4d7] bg-[#edf3e8] p-5 sm:p-6"><h2 className="font-bold text-[#214f31]">Before you submit</h2><ul className="mt-3 space-y-2 text-sm leading-5 text-[#4e5c4a]"><li>• Follow the payment instructions shown on this page before submitting.</li><li>• Any certificate delivery fee, if applicable, will be communicated by Snapforest.</li><li>• Submitting an application does not guarantee selection. Your details will be reviewed by Snapforest.</li></ul><label className="mt-4 flex items-start gap-3 border-t border-[#d4dfcd] pt-4 text-sm text-[#334431]"><input required type="checkbox" className="mt-1 h-4 w-4 accent-[#315e38]"/><span>I confirm that the information provided is accurate and consent to its use for reviewing my internship application.</span></label></section>
 
         {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
         <button type="submit" disabled={busy} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#214f31] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#183d27] disabled:cursor-not-allowed disabled:opacity-60">{busy?"Submitting application…": "Submit internship application"}{!busy&&<ArrowRight className="h-4 w-4"/>}</button>
