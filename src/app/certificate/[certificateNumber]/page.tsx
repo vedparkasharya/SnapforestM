@@ -122,7 +122,7 @@ export default function InternshipCertificatePage() {
             pointer-events: none !important;
           }
           html, body {
-            background: #fbfcf7 !important;
+            background: #fffefb !important;
             background-image: none !important;
             color: #172117 !important;
             print-color-adjust: exact !important;
@@ -136,13 +136,13 @@ export default function InternshipCertificatePage() {
           }
           body {
             display: block !important;
-            background: #fbfcf7 !important;
+            background: #fffefb !important;
             background-image: none !important;
             color: #172117 !important;
           }
           main {
             display: block !important;
-            background: #fbfcf7 !important;
+            background: #fffefb !important;
             background-image: none !important;
             color: #172117 !important;
             width: 297mm !important;
@@ -175,7 +175,7 @@ export default function InternshipCertificatePage() {
             border-radius: 0 !important;
             box-shadow: none !important;
             overflow: visible !important;
-            background: #fbfcf7 !important;
+            background: #fffefb !important;
             color: #172117 !important;
             box-sizing: border-box !important;
             break-inside: avoid !important;
@@ -194,7 +194,7 @@ export default function InternshipCertificatePage() {
             overflow: visible !important;
             border: 0.8mm solid #82977a !important;
             box-sizing: border-box !important;
-            background: #fbfcf7 !important;
+            background: #fffefb !important;
             color: #172117 !important;
           }
           .certificate-document > div > .pointer-events-none {
