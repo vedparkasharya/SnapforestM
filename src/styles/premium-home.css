@@ -632,3 +632,15 @@
 @media(max-width:1000px){.sf-reference-hero{padding-top:96px}.sf-reference-layout{grid-template-columns:minmax(280px,.82fr) minmax(0,1.18fr);gap:28px;min-height:590px}.sf-reference-copy{padding-left:0}.sf-reference-copy h1{font-size:clamp(54px,7vw,76px)}.sf-reference-kicker p{font-size:10px}.sf-reference-visual{height:480px}.sf-reference-benefits{gap:14px 8px}.sf-reference-benefits strong{font-size:9px}}
 @media(max-width:700px){.sf-reference-hero{min-height:auto;padding:96px 0 26px}.sf-reference-layout{width:calc(100% - 36px);display:flex;flex-direction:column;align-items:stretch;gap:34px;min-height:0}.sf-reference-copy{padding:4px 0 0}.sf-reference-kicker{gap:10px;margin-bottom:23px}.sf-reference-kicker p{font-size:10px}.sf-reference-copy h1{font-size:clamp(64px,17vw,92px)}.sf-reference-swish{margin-top:18px}.sf-reference-lede{font-size:13px;max-width:440px}.sf-reference-benefits{grid-template-columns:repeat(2,minmax(0,1fr));gap:15px 10px;margin-top:25px}.sf-reference-benefits strong{font-size:10px}.sf-reference-benefits small{font-size:9px}.sf-reference-visual{height:390px;width:100%;border-radius:4px}.sf-reference-room-label{left:4%;bottom:9%;width:57%;padding:12px;border-radius:12px 0 0 12px}.sf-reference-room-label>strong{font-size:15px}.sf-reference-room-label>p{font-size:10px}.sf-reference-price{right:4%;bottom:9%;width:40%;padding:12px 10px;border-radius:0 12px 12px 0}.sf-reference-price>a{font-size:9px;padding:9px 5px}.sf-reference-arrows{right:-6px;bottom:24%}.sf-reference-arrows a{width:35px;height:35px}.sf-reference-dots{bottom:2%}}
 @media(max-width:390px){.sf-reference-kicker p{width:100%}.sf-reference-visual{height:330px}.sf-reference-benefits{grid-template-columns:1fr 1fr}.sf-reference-room-label{width:58%}.sf-reference-price{width:40%}}
+
+
+/* The moon control toggles a restrained light presentation without changing the default reference look. */
+html.sf-light-mode .sf-reference-hero{background:#f4f6ef;color:#101722}
+html.sf-light-mode .sf-reference-glow{background:radial-gradient(ellipse at 78% 45%,rgba(255,103,34,.09),transparent 42%),linear-gradient(115deg,#f4f6ef 0%,#edf1e7 52%,#e7ece1 100%)}
+html.sf-light-mode .sf-reference-copy h1{color:#101722}
+html.sf-light-mode .sf-reference-kicker p,html.sf-light-mode .sf-reference-lede{color:#3f4a43}
+html.sf-light-mode .sf-reference-benefits strong{color:#172117}
+html.sf-light-mode .sf-reference-benefits small{color:#59665b}
+html.sf-light-mode .sf-reference-benefits>div>span{color:#24372a;border-color:#17211735}
+html.sf-light-mode nav>div{background:#f8faf4!important;border-color:#dce3d6!important}
+html.sf-light-mode nav a{color:#26352b}
