@@ -644,3 +644,26 @@ html.sf-light-mode .sf-reference-benefits small{color:#59665b}
 html.sf-light-mode .sf-reference-benefits>div>span{color:#24372a;border-color:#17211735}
 html.sf-light-mode nav>div{background:#f8faf4!important;border-color:#dce3d6!important}
 html.sf-light-mode nav a{color:#26352b}
+
+
+/* Mobile polish: keep fixed navigation from visually colliding with section content. */
+@media (max-width: 700px) {
+  .sf-reference-hero { padding-top: 112px !important; }
+  .sf-reference-layout { gap: 28px !important; }
+  .sf-location-section { scroll-margin-top: 100px; }
+  .sf-location-grid { gap: 28px !important; }
+  .sf-location-copy { padding-top: 20px; }
+  .sf-location-copy h2 { max-width: 100%; text-wrap: balance; }
+  .sf-location-copy > p:not(.sf-overline) { max-width: 38rem; line-height: 1.75; }
+  .sf-location-visual { min-height: 320px !important; aspect-ratio: 4 / 5; }
+  .sf-location-caption { left: 22px !important; right: 22px !important; bottom: 24px !important; }
+  .sf-location-caption strong { font-size: clamp(34px, 9vw, 48px) !important; line-height: 1.02 !important; text-wrap: balance; }
+  .sf-room-grid { gap: 16px !important; }
+  .sf-room-image { aspect-ratio: 1.1 !important; }
+}
+@media (max-width: 390px) {
+  .sf-reference-hero { padding-top: 106px !important; }
+  .sf-reference-layout { width: calc(100% - 28px) !important; }
+  .sf-location-tags span { max-width: 100%; font-size: 12px; }
+  .sf-location-visual { min-height: 285px !important; }
+}
