@@ -21,6 +21,18 @@ export default function InternshipCertificatePage() {
   const [certificate, setCertificate] = useState<Certificate|null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const beforePrint = () => document.body.classList.add("certificate-printing");
+    const afterPrint = () => document.body.classList.remove("certificate-printing");
+    window.addEventListener("beforeprint", beforePrint);
+    window.addEventListener("afterprint", afterPrint);
+    return () => {
+      window.removeEventListener("beforeprint", beforePrint);
+      window.removeEventListener("afterprint", afterPrint);
+      document.body.classList.remove("certificate-printing");
+    };
+  }, []);
   useEffect(() => {
     const number = String(params.certificateNumber || "");
     fetch("/api/certificates/verify?number=" + encodeURIComponent(number), { cache:"no-store" })
@@ -49,7 +61,7 @@ export default function InternshipCertificatePage() {
       <div className="relative border-2 border-[#294b31] p-6 sm:p-10 md:p-14">
         <div className="pointer-events-none absolute inset-3 border border-[#294b31]/20"/>
         <div className="relative text-center">
-          <div className="print-logo mx-auto flex h-14 w-40 items-center justify-center rounded-lg border border-[#d9dfd2] bg-white px-3 py-2"><img src="/logo.png" alt="Snapforest logo" className="h-full w-full object-contain" /></div>
+          <div className="print-logo mx-auto flex h-16 w-16 items-center justify-center rounded-xl border border-[#d9dfd2] bg-white p-1"><img src="/logo.png" alt="Snapforest logo" width="300" height="300" className="h-full w-full rounded-lg object-contain" /></div>
           <p className="mt-3 text-xs font-bold tracking-[.24em] text-[#294b31]">{certificate.organization.toUpperCase()} · PEOPLE & CULTURE</p>
           <h1 className="mt-4 font-serif text-4xl font-extrabold tracking-wide text-[#183d27] sm:text-6xl" style={{ color: "#183d27", WebkitTextFillColor: "#183d27", opacity: 1, filter: "none", background: "none" }}>CERTIFICATE OF INTERNSHIP</h1>
           <div className="mx-auto mt-4 h-1 w-28 rounded-full bg-[#8a9f70]"/>
@@ -76,56 +88,67 @@ export default function InternshipCertificatePage() {
       </div>
       <style jsx global>{`
         @media print {
-          @page { size: A4 landscape; margin: 0; }
-          html, body {
-            width: 297mm !important;
-            height: 210mm !important;
-            min-height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: hidden !important;
+          @page { size: A4 landscape; margin: 5mm; }
+
+          html:has(body.certificate-printing),
+          body.certificate-printing,
+          body.certificate-printing main {
             background: #fbfcf7 !important;
+            background-image: none !important;
             color: #172117 !important;
             print-color-adjust: exact !important;
             -webkit-print-color-adjust: exact !important;
           }
-          body, main, main:not(.sf-premium) {
+          html, body {
+            width: auto !important;
+            height: auto !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+          }
+          body.certificate-printing {
             display: block !important;
-            width: 297mm !important;
-            height: 210mm !important;
+            background: #fbfcf7 !important;
+          }
+          body.certificate-printing main {
+            display: block !important;
+            width: 100% !important;
+            height: auto !important;
             min-height: 0 !important;
             max-width: none !important;
             margin: 0 !important;
             padding: 0 !important;
-            overflow: hidden !important;
-            background: #fbfcf7 !important;
-            background-image: none !important;
-            color: #172117 !important;
+            overflow: visible !important;
           }
-          body * { visibility: hidden !important; }
-          .certificate-document, .certificate-document * { visibility: visible !important; }
-          .no-print, nav, footer { display: none !important; }
-          .certificate-document {
+          body.certificate-printing * { visibility: hidden !important; }
+          body.certificate-printing .certificate-document,
+          body.certificate-printing .certificate-document * { visibility: visible !important; }
+          body.certificate-printing .no-print,
+          body.certificate-printing nav,
+          body.certificate-printing footer { display: none !important; }
+
+          body.certificate-printing .certificate-document {
             position: relative !important;
             display: block !important;
-            width: 297mm !important;
-            height: 210mm !important;
+            width: 100% !important;
+            height: 200mm !important;
             min-width: 0 !important;
             min-height: 0 !important;
             max-width: none !important;
             margin: 0 !important;
-            padding: 4mm !important;
-            border: 2mm solid #214f31 !important;
+            padding: 3mm !important;
+            border: 1.2mm solid #214f31 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
-            overflow: hidden !important;
+            overflow: visible !important;
             background: #fbfcf7 !important;
             color: #172117 !important;
             box-sizing: border-box !important;
             break-inside: avoid !important;
             page-break-inside: avoid !important;
           }
-          .certificate-document > div {
+          body.certificate-printing .certificate-document > div {
             position: relative !important;
             display: flex !important;
             flex-direction: column !important;
@@ -134,13 +157,14 @@ export default function InternshipCertificatePage() {
             height: 100% !important;
             min-height: 0 !important;
             margin: 0 !important;
-            padding: 5mm 8mm !important;
-            overflow: hidden !important;
-            border: 0.8mm double #b99a4a !important;
+            padding: 4mm 7mm !important;
+            overflow: visible !important;
+            border: 0.7mm double #b99a4a !important;
             box-sizing: border-box !important;
             background: #fbfcf7 !important;
+            color: #172117 !important;
           }
-          .certificate-document > div > .pointer-events-none {
+          body.certificate-printing .certificate-document > div > .pointer-events-none {
             display: block !important;
             position: absolute !important;
             inset: 2mm !important;
@@ -148,7 +172,15 @@ export default function InternshipCertificatePage() {
             opacity: 0.8 !important;
             pointer-events: none !important;
           }
-          .certificate-document .relative.text-center h1 {
+          body.certificate-printing .certificate-document .relative.text-center {
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: #263b29 !important;
+            -webkit-text-fill-color: #263b29 !important;
+            filter: none !important;
+            mix-blend-mode: normal !important;
+          }
+          body.certificate-printing .certificate-document .relative.text-center h1 {
             display: block !important;
             visibility: visible !important;
             opacity: 1 !important;
@@ -162,10 +194,11 @@ export default function InternshipCertificatePage() {
             text-shadow: none !important;
             filter: none !important;
             mix-blend-mode: normal !important;
-            background: none !important;
+            background: transparent !important;
+            background-image: none !important;
             -webkit-background-clip: border-box !important;
           }
-          .certificate-document .relative.text-center h2 {
+          body.certificate-printing .certificate-document .relative.text-center h2 {
             display: block !important;
             visibility: visible !important;
             opacity: 1 !important;
@@ -179,31 +212,31 @@ export default function InternshipCertificatePage() {
             text-shadow: none !important;
             filter: none !important;
             mix-blend-mode: normal !important;
-            background: none !important;
+            background: transparent !important;
+            background-image: none !important;
             -webkit-background-clip: border-box !important;
           }
-          .certificate-document .relative.text-center,
-          .certificate-document .relative.text-center p,
-          .certificate-document .relative.text-center span {
+          body.certificate-printing .certificate-document .relative.text-center p,
+          body.certificate-printing .certificate-document .relative.text-center span {
             visibility: visible !important;
             opacity: 1 !important;
             color: #263b29 !important;
             -webkit-text-fill-color: #263b29 !important;
             text-shadow: none !important;
           }
-          .certificate-document .relative.text-center > .print-logo {
+          body.certificate-printing .certificate-document .relative.text-center > .print-logo {
             display: flex !important;
-            width: 36mm !important;
-            height: 14mm !important;
+            width: 17mm !important;
+            height: 17mm !important;
             margin-left: auto !important;
             margin-right: auto !important;
-            padding: 1.5mm 2mm !important;
+            padding: 0.8mm !important;
             border: 0.3mm solid #d9dfd2 !important;
             border-radius: 2mm !important;
             background: #ffffff !important;
             box-sizing: border-box !important;
           }
-          .certificate-document .relative.text-center > .print-logo img {
+          body.certificate-printing .certificate-document .relative.text-center > .print-logo img {
             display: block !important;
             width: 100% !important;
             height: 100% !important;
@@ -213,52 +246,52 @@ export default function InternshipCertificatePage() {
             visibility: visible !important;
             filter: none !important;
           }
-          .certificate-document > div > * { position: relative !important; min-width: 0 !important; flex-shrink: 0 !important; }
-          .certificate-document .relative.text-center { flex-shrink: 1 !important; }
-          .certificate-document .relative.mx-auto.mt-7.flex {
-            margin-top: 2mm !important;
-            padding-top: 1.5mm !important;
-            padding-bottom: 1.5mm !important;
-          }
-          .certificate-document .relative.mx-auto.mt-4.grid {
+          body.certificate-printing .certificate-document > div > * { position: relative !important; min-width: 0 !important; flex-shrink: 0 !important; }
+          body.certificate-printing .certificate-document .relative.text-center { flex-shrink: 1 !important; }
+          body.certificate-printing .certificate-document .relative.mx-auto.mt-7.flex {
             margin-top: 1.5mm !important;
-            padding-bottom: 1.5mm !important;
+            padding-top: 1mm !important;
+            padding-bottom: 1mm !important;
           }
-          .certificate-document .relative.mt-5.text-center { margin-top: 1.5mm !important; }
-          .certificate-document .relative.mt-7.flex.flex-col {
+          body.certificate-printing .certificate-document .relative.mx-auto.mt-4.grid {
+            margin-top: 1mm !important;
+            padding-bottom: 1mm !important;
+          }
+          body.certificate-printing .certificate-document .relative.mt-5.text-center { margin-top: 1mm !important; }
+          body.certificate-printing .certificate-document .relative.mt-7.flex.flex-col {
             display: flex !important;
             flex-direction: row !important;
             align-items: flex-end !important;
             justify-content: space-between !important;
             width: 100% !important;
-            margin-top: 2mm !important;
-            gap: 5mm !important;
+            margin-top: 1.5mm !important;
+            gap: 4mm !important;
           }
-          .certificate-document .relative.mt-7.flex.flex-col > div:first-child {
+          body.certificate-printing .certificate-document .relative.mt-7.flex.flex-col > div:first-child {
             flex: 1 1 45% !important;
             min-width: 0 !important;
             overflow: visible !important;
             padding-left: 1mm !important;
           }
-          .certificate-document .relative.mt-7.flex.flex-col > div:last-child {
+          body.certificate-printing .certificate-document .relative.mt-7.flex.flex-col > div:last-child {
             flex: 0 0 auto !important;
             min-width: 0 !important;
-            gap: 4mm !important;
+            gap: 3mm !important;
           }
-          .certificate-document .relative.mt-7.flex.flex-col > div:first-child p {
+          body.certificate-printing .certificate-document .relative.mt-7.flex.flex-col > div:first-child p {
             overflow-wrap: anywhere !important;
             word-break: break-word !important;
           }
-          .certificate-document .relative.mt-7.flex.flex-col > div:last-child img {
-            width: 21mm !important;
-            height: 21mm !important;
+          body.certificate-printing .certificate-document .relative.mt-7.flex.flex-col > div:last-child img {
+            width: 19mm !important;
+            height: 19mm !important;
           }
-          .certificate-document .relative.mt-8.border-t {
-            margin-top: 2mm !important;
-            padding-top: 1.5mm !important;
+          body.certificate-printing .certificate-document .relative.mt-8.border-t {
+            margin-top: 1.5mm !important;
+            padding-top: 1mm !important;
           }
-          .certificate-document p,
-          .certificate-document span {
+          body.certificate-printing .certificate-document p,
+          body.certificate-printing .certificate-document span {
             overflow-wrap: anywhere !important;
           }
         }
