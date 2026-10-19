@@ -46,6 +46,7 @@ function publicShape(item: any) {
     issueDate: item.issueDate,
     description: item.description,
     skills: item.skills || [],
+    deliveryMode: item.deliveryMode || "online",
     status: item.status,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
@@ -108,7 +109,9 @@ export async function POST(request: NextRequest) {
     const certificate = await InternshipCertificate.create({
       certificateNumber, fullName, email, internshipRole, department, organization,
       issuerName, issuerTitle, allotmentDate, startDate, endDate, issueDate,
-      description, skills, status: "active",
+      description, skills,
+      deliveryMode: body.deliveryMode === "offline" ? "offline" : "online",
+      status: "active",
     });
     return successResponse(publicShape(certificate.toObject()), "Internship certificate issued successfully", 201);
   } catch (error) {
