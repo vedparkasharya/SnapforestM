@@ -17,6 +17,7 @@ export interface IOfferLetter extends Document {
   issuerName: string;
   issuerTitle: string;
   terms: string;
+  deliveryMode: "online" | "offline";
   status: "active" | "revoked";
   createdAt: Date;
   updatedAt: Date;
@@ -39,6 +40,7 @@ const OfferLetterSchema = new Schema<IOfferLetter>({
   issuerName: { type: String, default: "Snapforest", trim: true, maxlength: 120 },
   issuerTitle: { type: String, default: "Authorized Signatory", trim: true, maxlength: 120 },
   terms: { type: String, default: "", trim: true, maxlength: 5000 },
+  deliveryMode: { type: String, enum: ["online", "offline"], default: "online", index: true },
   status: { type: String, enum: ["active", "revoked"], default: "active", index: true },
 }, { timestamps: true });
 
