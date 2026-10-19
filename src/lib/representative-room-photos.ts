@@ -4,7 +4,7 @@
  * Replace with venue-owner photos before treating a listing as a verified real location.
  */
 const u = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1400&q=85&v=2`;
-const generatedControlRoom = "/rooms/patna-rehearsal-premium.jpg";
+const generatedControlRoom = u("photo-1598488035139-bdbb2231ce04");
 
 export const representativeRoomPhotos: Record<string, string[]> = {
   music: [
