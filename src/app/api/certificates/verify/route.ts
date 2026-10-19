@@ -14,24 +14,43 @@ export async function GET(request: NextRequest) {
   try {
     await connectDB();
     const certificate = await InternshipCertificate.findOne({ certificateNumber: number }).lean();
-    if (!certificate) return errorResponse("No certificate was found with this number. Check the number and try again.", 404);
+    if (!certificate || Array.isArray(certificate)) return errorResponse("No certificate was found with this number. Check the number and try again.", 404);
+    // Mongoose lean() can be inferred as a document-or-array union in this model;
+    // findOne() returns one record, so narrow it to the certificate record shape.
+    const certificateRecord = certificate as {
+      certificateNumber: string;
+      fullName: string;
+      internshipRole: string;
+      department: string;
+      organization: string;
+      issuerName: string;
+      issuerTitle: string;
+      allotmentDate: Date;
+      startDate: Date;
+      endDate: Date;
+      issueDate: Date;
+      description: string;
+      skills?: string[];
+      status: string;
+      createdAt: Date;
+    };
     return successResponse({
-      certificateNumber: certificate.certificateNumber,
-      fullName: certificate.fullName,
-      internshipRole: certificate.internshipRole,
-      department: certificate.department,
-      organization: certificate.organization,
-      issuerName: certificate.issuerName,
-      issuerTitle: certificate.issuerTitle,
-      allotmentDate: certificate.allotmentDate,
-      startDate: certificate.startDate,
-      endDate: certificate.endDate,
-      issueDate: certificate.issueDate,
-      description: certificate.description,
-      skills: certificate.skills || [],
-      status: certificate.status,
-      createdAt: certificate.createdAt,
-    }, certificate.status === "active" ? "Certificate record found" : "This certificate has been revoked");
+      certificateNumber: certificateRecord.certificateNumber,
+      fullName: certificateRecord.fullName,
+      internshipRole: certificateRecord.internshipRole,
+      department: certificateRecord.department,
+      organization: certificateRecord.organization,
+      issuerName: certificateRecord.issuerName,
+      issuerTitle: certificateRecord.issuerTitle,
+      allotmentDate: certificateRecord.allotmentDate,
+      startDate: certificateRecord.startDate,
+      endDate: certificateRecord.endDate,
+      issueDate: certificateRecord.issueDate,
+      description: certificateRecord.description,
+      skills: certificateRecord.skills || [],
+      status: certificateRecord.status,
+      createdAt: certificateRecord.createdAt,
+    }, certificateRecord.status === "active" ? "Certificate record found" : "This certificate has been revoked");
   } catch (error) {
     console.error("Public certificate verification error:", error);
     return errorResponse("Verification service is temporarily unavailable.", 503);
