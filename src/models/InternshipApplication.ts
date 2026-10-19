@@ -11,8 +11,9 @@ export interface IInternshipApplication extends Document {
   registrationNumber: string;
   internshipRole: string;
   deliveryMode: "online" | "offline";
-  collegeIdUrl: string;
-  resumeUrl: string;
+  utrNumber: string;
+  collegeIdUrl?: string;
+  resumeUrl?: string;
   motivation: string;
   adminNote?: string;
   status: "submitted" | "reviewing" | "accepted" | "rejected";
@@ -31,7 +32,8 @@ const InternshipApplicationSchema = new Schema<IInternshipApplication>({
   registrationNumber: { type: String, required: true, trim: true, maxlength: 80 },
   internshipRole: { type: String, required: true, trim: true, maxlength: 120 },
   deliveryMode: { type: String, enum: ["online", "offline"], required: true },
-  collegeIdUrl: { type: String, required: true },
+  utrNumber: { type: String, required: true, trim: true, maxlength: 100 },
+  collegeIdUrl: { type: String, default: "" },
   resumeUrl: { type: String, default: "" },
   motivation: { type: String, default: "", trim: true, maxlength: 1500 },
   adminNote: { type: String, default: "", trim: true, maxlength: 1500 },
