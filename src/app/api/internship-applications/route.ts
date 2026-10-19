@@ -9,7 +9,6 @@ export const runtime = "nodejs";
 
 const clean = (value: unknown, max = 300) => typeof value === "string" ? value.trim().slice(0, max) : "";
 
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -20,21 +19,26 @@ export async function POST(request: NextRequest) {
     const branch = clean(body.branch, 120);
     const yearOfStudy = clean(body.yearOfStudy, 60);
     const registrationNumber = clean(body.registrationNumber, 80);
-    const internshipRole = clean(body.internshipRole, 120);
-    const deliveryMode = body.deliveryMode === "offline" ? "offline" : body.deliveryMode === "online" ? "online" : "";
+    const internshipRole = clean(body.internshipRole, 120) || "Software Developer Intern";
+    const deliveryMode = body.deliveryMode === "offline" ? "offline" : "online";
     const motivation = clean(body.motivation, 1500);
     const utrNumber = clean(body.utrNumber, 100);
+    const referralCode = clean(body.referralCode, 40).toUpperCase();
+    const referralSource = clean(body.referralSource, 80);
 
-    if (!fullName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !phone || !college || !branch || !yearOfStudy || !registrationNumber || !internshipRole || !deliveryMode || !utrNumber) {
-      return errorResponse("Please complete all required fields and enter the payment UTR / transaction ID.", 400);
+    if (!fullName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return errorResponse("Please enter your name and a valid email address.", 400);
     }
-    if (!utrNumber) return errorResponse("Please enter the payment UTR / transaction ID.", 400);
+    // Standard registration still requires the ₹100 payment transaction reference.
+    // Referral-code eligibility is recorded for admin review; it is not auto-waived until verified.
+    if (!utrNumber) return errorResponse("Please complete the ₹100 registration payment and enter its UTR / transaction ID.", 400);
 
     await connectDB();
     const applicationNumber = "SF-INT-" + new Date().getFullYear() + "-" + randomBytes(5).toString("hex").toUpperCase();
     const record = await InternshipApplication.create({
       applicationNumber, fullName, email, phone, college, branch, yearOfStudy,
-      registrationNumber, internshipRole, deliveryMode, utrNumber, motivation,
+      registrationNumber, internshipRole, deliveryMode, utrNumber, referralCode,
+      referralSource, motivation,
     });
     return successResponse({
       applicationNumber: record.applicationNumber,
@@ -47,10 +51,6 @@ export async function POST(request: NextRequest) {
     }, "Your Snapforest internship application has been submitted.");
   } catch (error) {
     console.error("Internship application submission error:", error);
-    const message = error instanceof Error ? error.message : "";
-    if (message.includes("Upload a JPG") || message.includes("5 MB") || message.includes("Invalid image") || message.includes("File size")) {
-      return errorResponse(message, 400);
-    }
     return errorResponse("We could not submit your application right now. Please try again later.", 500);
   }
 }
