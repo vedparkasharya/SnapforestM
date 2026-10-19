@@ -49,7 +49,7 @@ export default function InternshipCertificatePage() {
       <div className="relative border-2 border-[#294b31] p-6 sm:p-10 md:p-14">
         <div className="pointer-events-none absolute inset-3 border border-[#294b31]/20"/>
         <div className="relative text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-[#183d27] text-[#d7f2a4]"><span className="text-xl font-bold">S.</span></div>
+          <div className="print-logo mx-auto flex h-14 w-40 items-center justify-center rounded-lg border border-[#d9dfd2] bg-white px-3 py-2"><img src="/logo.png" alt="Snapforest logo" className="h-full w-full object-contain" /></div>
           <p className="mt-3 text-xs font-bold tracking-[.24em] text-[#294b31]">{certificate.organization.toUpperCase()} · PEOPLE & CULTURE</p>
           <h1 className="mt-4 font-serif text-4xl font-extrabold tracking-wide text-[#183d27] sm:text-6xl" style={{ color: "#183d27", WebkitTextFillColor: "#183d27", opacity: 1, filter: "none", background: "none" }}>CERTIFICATE OF INTERNSHIP</h1>
           <div className="mx-auto mt-4 h-1 w-28 rounded-full bg-[#8a9f70]"/>
@@ -191,10 +191,27 @@ export default function InternshipCertificatePage() {
             -webkit-text-fill-color: #263b29 !important;
             text-shadow: none !important;
           }
-          .certificate-document .relative.text-center > div:first-child {
-            width: 11mm !important;
-            height: 11mm !important;
-            border-radius: 3mm !important;
+          .certificate-document .relative.text-center > .print-logo {
+            display: flex !important;
+            width: 36mm !important;
+            height: 14mm !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            padding: 1.5mm 2mm !important;
+            border: 0.3mm solid #d9dfd2 !important;
+            border-radius: 2mm !important;
+            background: #ffffff !important;
+            box-sizing: border-box !important;
+          }
+          .certificate-document .relative.text-center > .print-logo img {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none !important;
+            object-fit: contain !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            filter: none !important;
           }
           .certificate-document > div > * { position: relative !important; min-width: 0 !important; flex-shrink: 0 !important; }
           .certificate-document .relative.text-center { flex-shrink: 1 !important; }
