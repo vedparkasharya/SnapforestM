@@ -1,8 +1,8 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CheckCircle2, FileUp, GraduationCap, Laptop, MapPin, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, GraduationCap, Laptop, MapPin, ShieldCheck } from "lucide-react";
 
 const roles = [
   "Software Developer Intern",
