@@ -3,7 +3,6 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { BadgeCheck, Copy, ExternalLink, Loader2, Plus, RefreshCw, ShieldCheck, XCircle } from "lucide-react";
 import { useToast } from "@/providers/ToastProvider";
-import { useAuth } from "@/providers/AuthProvider";
 
 type Certificate = {
   _id: string; certificateNumber: string; fullName: string; email: string;
@@ -28,9 +27,8 @@ function fmt(value: string) {
 
 export default function CertificatesPanel() {
   const toast = useToast();
-  const { user } = useAuth();
-  // Prefer the current React auth session over stale localStorage data.
-  const token = user?.token || adminToken();
+  // Admin APIs must use the dedicated admin session, never a regular-user token.
+  const token = adminToken();
   const [form, setForm] = useState(initialForm);
   const [items, setItems] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
