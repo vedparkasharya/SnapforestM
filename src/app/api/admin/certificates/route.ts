@@ -16,6 +16,19 @@ function validDate(value: unknown): Date | null {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
 }
+
+function diagnoseIssueError(error: unknown): { message: string; code: string } {
+  const err = error as { name?: string; message?: string; code?: number | string; errors?: Record<string, unknown> };
+  const raw = typeof err?.message === "string" ? err.message : "";
+  if (err?.code === 11000) return { code: "DUPLICATE_KEY", message: "Duplicate certificate number detected by the database. Use a different certificate number and try again." };
+  if (err?.name === "ValidationError") return { code: "DATABASE_VALIDATION", message: "The database rejected one or more certificate fields. Check required fields and date values." };
+  if (/MONGODB_URI|define MONGODB_URI/i.test(raw)) return { code: "DB_CONFIG_MISSING", message: "Database configuration is missing on the server. Check MONGODB_URI in the Production environment variables." };
+  if (/timed out|server selection|ECONNREFUSED|ENOTFOUND|MongoServerSelectionError|connection/i.test(raw)) return { code: "DB_CONNECTION_FAILED", message: "Could not connect to the certificate database. Check MongoDB availability, network access and credentials." };
+  if (/JSON|Unexpected end|position \d+/i.test(raw) && /json|unexpected|position/i.test(raw)) return { code: "INVALID_REQUEST_JSON", message: "The request data was invalid or incomplete. Refresh the page and submit the certificate again." };
+  // Do not expose raw server/database errors or connection strings to the browser.
+  return { code: "CERTIFICATE_ISSUE_FAILED", message: "The server could not issue this certificate. Check Production Runtime Logs for the matching 'Issue certificate error' entry." };
+}
+
 function publicShape(item: any) {
   return {
     _id: String(item._id),
@@ -99,8 +112,14 @@ export async function POST(request: NextRequest) {
     });
     return successResponse(publicShape(certificate.toObject()), "Internship certificate issued successfully", 201);
   } catch (error) {
-    console.error("Issue certificate error:", error);
-    return errorResponse("Could not issue certificate. Please try again.", 500);
+    const diagnostic = diagnoseIssueError(error);
+    console.error("[Issue certificate error]", {
+      code: diagnostic.code,
+      name: error instanceof Error ? error.name : "UnknownError",
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    return errorResponse(diagnostic.message, 500, diagnostic.code);
   }
 }
 
