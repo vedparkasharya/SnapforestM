@@ -14,7 +14,7 @@ async function uploadDocument(value: unknown, folder: string): Promise<string | 
   if (typeof value !== "string" || !value) return null;
   const match = value.match(/^data:(image\/(?:jpeg|png|webp)|application\/pdf);base64,([A-Za-z0-9+/=]+)$/);
   if (!match) throw new Error("Upload a JPG, PNG, WEBP or PDF file.");
-  if (value.length * 0.75 > 5 * 1024 * 1024) throw new Error("Each document must be 5 MB or smaller.");
+  if (value.length * 0.75 > 3 * 1024 * 1024) throw new Error("Each document must be 3 MB or smaller.");
   const result = await cloudinary.uploader.upload(value, {
     folder: "snapforest/internship-applications",
     resource_type: "auto",
