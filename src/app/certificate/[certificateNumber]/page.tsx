@@ -50,20 +50,25 @@ export default function InternshipCertificatePage() {
         <div className="pointer-events-none absolute inset-3 border border-[#294b31]/20"/>
         <div className="relative text-center">
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-[#183d27] text-[#d7f2a4]"><span className="text-xl font-bold">S.</span></div>
-          <p className="mt-3 text-[10px] font-semibold tracking-[.28em] text-[#45684a]">{certificate.organization.toUpperCase()} · PEOPLE & CULTURE</p>
-          <h1 className="mt-5 font-serif text-3xl font-semibold tracking-tight sm:text-5xl">Certificate of Internship</h1>
-          <div className="mx-auto mt-4 h-px w-28 bg-[#8a9f70]"/>
-          <p className="mt-6 text-sm text-[#526052]">This is to certify that</p>
-          <h2 className="mt-2 break-words font-serif text-3xl font-semibold text-[#183d27] sm:text-4xl">{certificate.fullName}</h2>
+          <p className="mt-3 text-[10px] font-bold tracking-[.28em] text-[#36553a]">{certificate.organization.toUpperCase()} · PEOPLE & CULTURE</p>
+          <h1 className="mt-4 font-serif text-3xl font-bold tracking-tight text-[#183d27] sm:text-5xl">CERTIFICATE OF INTERNSHIP</h1>
+          <div className="mx-auto mt-4 h-1 w-28 rounded-full bg-[#8a9f70]"/>
+          <p className="mt-5 text-sm font-medium text-[#405044]">PROUDLY PRESENTED TO</p>
+          <h2 className="mt-2 break-words font-serif text-4xl font-bold leading-tight text-[#123d27] sm:text-5xl">{certificate.fullName}</h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#354235]">{certificate.description || "has been associated with the organization as an intern and completed the internship assignment described below."}</p>
           <p className="mt-5 text-lg font-semibold text-[#183d27]">{certificate.internshipRole}</p>
           {certificate.department && <p className="mt-1 text-sm text-[#526052]">{certificate.department}</p>}
         </div>
-        <div className="relative mx-auto mt-8 grid max-w-3xl gap-3 border-y border-[#d5ddcd] py-5 sm:grid-cols-4">
+        <div className="relative mx-auto mt-7 flex max-w-3xl flex-wrap items-center justify-center gap-2 border-y border-[#d5ddcd] py-3 text-[9px] font-bold uppercase tracking-wider text-[#294b31] sm:gap-3">
+          <span className="rounded-full border border-[#9eb69b] bg-[#edf4e8] px-3 py-1.5">AICTE Approved</span>
+          <span className="rounded-full border border-[#9eb69b] bg-[#edf4e8] px-3 py-1.5">Startup Bihar</span>
+          <span className="rounded-full border border-[#9eb69b] bg-[#edf4e8] px-3 py-1.5">MSME / Udyam</span>
+        </div>
+        <div className="relative mx-auto mt-4 grid max-w-3xl gap-3 border-b border-[#d5ddcd] pb-5 sm:grid-cols-4">
           {[["Allotment date",date(certificate.allotmentDate)],["Start date",date(certificate.startDate)],["End date",date(certificate.endDate)],["Issue date",date(certificate.issueDate)]].map(([label,value])=><div key={label}><p className="text-[10px] uppercase tracking-wider text-[#657264]">{label}</p><p className="mt-1 text-xs font-semibold text-[#263b29]">{value}</p></div>)}
         </div>
         {certificate.skills?.length>0 && <div className="relative mt-5 text-center"><p className="text-[10px] uppercase tracking-[.18em] text-[#657264]">Areas of work</p><p className="mt-2 text-xs text-[#354235]">{certificate.skills.join(" · ")}</p></div>}
-        <div className="relative mt-8 flex flex-col items-end justify-between gap-6 sm:flex-row sm:items-end">
+        <div className="relative mt-7 flex flex-col items-end justify-between gap-6 sm:flex-row sm:items-end">
           <div className="text-left"><p className="text-[10px] uppercase tracking-wider text-[#657264]">Certificate number</p><p className="mt-1 font-mono text-sm font-bold text-[#183d27]">{certificate.certificateNumber}</p><div className="mt-3 flex items-center gap-2 text-[10px] text-[#45684a]"><BadgeCheck className="h-4 w-4"/>{certificate.status==="active"?"Verification record: Active":"Verification record: Revoked"}</div></div>
           <div className="flex items-end gap-5"><div className="text-right"><p className="font-serif text-lg italic text-[#294b31]">{certificate.issuerName}</p><div className="mt-1 w-40 border-t border-[#83947b] pt-2 text-left"><p className="text-xs font-semibold">{certificate.issuerName}</p><p className="mt-0.5 text-[10px] text-[#657264]">{certificate.issuerTitle}</p></div></div>{qrUrl && <div className="w-24 shrink-0 text-center"><img src={qrUrl} alt="Scan to verify certificate" className="h-24 w-24 bg-white p-1"/><p className="mt-1 text-[8px] text-[#526052]">SCAN TO VERIFY</p></div>}</div>
         </div>
@@ -74,9 +79,11 @@ export default function InternshipCertificatePage() {
           @page { size: A4 landscape; margin: 8mm; }
           html, body { background: #fff !important; color: #172117 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
           body * { visibility: hidden !important; }
-          .certificate-document, .certificate-document * { visibility: visible !important; }
-          .certificate-document { position: absolute !important; inset: 0 auto auto 0 !important; width: 100% !important; max-width: none !important; margin: 0 !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; }
-          .certificate-document > div { padding: 8mm !important; }
+          .certificate-document, .certificate-document * { visibility: visible !important; opacity: 1 !important; }
+          .certificate-document h1, .certificate-document h2 { color: #123d27 !important; -webkit-text-fill-color: #123d27 !important; opacity: 1 !important; text-shadow: none !important; }
+          .certificate-document p, .certificate-document span { -webkit-text-fill-color: currentColor; }
+          .certificate-document { position: absolute !important; inset: 0 auto auto 0 !important; width: 100% !important; max-width: none !important; margin: 0 !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; background: #fbfcf7 !important; color: #172117 !important; }
+          .certificate-document > div { padding: 7mm !important; }
           .no-print, nav, footer { display: none !important; }
         }
       `}</style>
