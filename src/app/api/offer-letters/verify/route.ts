@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       department: item.department, employmentType: item.employmentType, workLocation: item.workLocation,
       salary: item.salary, joiningDate: item.joiningDate, issueDate: item.issueDate,
       probationPeriod: item.probationPeriod, reportingTo: item.reportingTo, organization: item.organization,
-      issuerName: item.issuerName, issuerTitle: item.issuerTitle, terms: item.terms, status: item.status,
+      issuerName: item.issuerName, issuerTitle: item.issuerTitle, terms: item.terms, deliveryMode: item.deliveryMode || "online", status: item.status,
     }, item.status === "active" ? "Offer letter found" : "This offer letter has been withdrawn");
   } catch (error) {
     console.error("Offer letter lookup error:", error);
