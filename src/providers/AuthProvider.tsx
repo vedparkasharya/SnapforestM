@@ -73,7 +73,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } finally {
         if (!cancelled) {
-          if (!user) setUser(null);
+          // Do not reset auth state here: this effect may finish after a
+          // successful login and its initial render's `user` value is stale.
+          // The state already starts as null when no valid session is restored.
           setIsLoading(false);
         }
       }
