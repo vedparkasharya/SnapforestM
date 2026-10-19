@@ -22,12 +22,12 @@ export async function POST(request: NextRequest) {
   const rateLimitKey = `admin-login:${clientIP}`;
 
   try {
-    const rateLimit = checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000);
+    const rateLimit = checkRateLimit(rateLimitKey, 5, 60 * 1000);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         {
           success: false,
-          message: "Too many login attempts. Please try again in 15 minutes.",
+          message: "Too many login attempts. Please try again in 1 minute.",
           retryAfter: Math.ceil((rateLimit.resetTime - Date.now()) / 1000),
         },
         { status: 429, headers }
