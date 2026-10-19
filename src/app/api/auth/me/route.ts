@@ -23,6 +23,18 @@ export async function GET(request: NextRequest) {
       return errorResponse("Invalid or expired session", 401);
     }
 
+    // Keep the environment-configured admin session valid even if no matching
+    // database user exists, including after a page refresh.
+    if (payload.type === "admin" && payload.role === "admin" && payload.userId === "admin-configured") {
+      return successResponse({
+        id: payload.userId,
+        name: payload.name || process.env.ADMIN_NAME || "Snapforest Admin",
+        email: payload.email,
+        image: payload.image || null,
+        role: "admin",
+      });
+    }
+
     await connectDB();
     const user = await User.findById(payload.userId).select("-password");
     if (!user || user.email.toLowerCase() !== String(payload.email).toLowerCase()) {
