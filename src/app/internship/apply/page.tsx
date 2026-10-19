@@ -48,8 +48,8 @@ export default function InternshipApplyPage() {
   }
   function onFileChange(event: ChangeEvent<HTMLInputElement>, kind: "id" | "resume") {
     const file = event.target.files?.[0] || null;
-    if (file && file.size > 5 * 1024 * 1024) {
-      setError("Each file must be 5 MB or smaller.");
+    if (file && file.size > 3 * 1024 * 1024) {
+      setError("Each file must be 3 MB or smaller.");
       event.target.value = "";
       return;
     }
@@ -142,7 +142,7 @@ export default function InternshipApplyPage() {
         </section>
 
         <section className={cardClass}>
-          <div className="mb-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#6b8b5c]">Section 03</p><h2 className="mt-1 text-lg font-bold">Supporting documents</h2><p className="mt-1 text-xs text-[#727d70]">PDF, JPG, PNG or WEBP · Maximum 5 MB per file.</p></div>
+          <div className="mb-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#6b8b5c]">Section 03</p><h2 className="mt-1 text-lg font-bold">Supporting documents</h2><p className="mt-1 text-xs text-[#727d70]">PDF, JPG, PNG or WEBP · Maximum 3 MB per file.</p></div>
           <label className={labelClass}>College ID card / admission slip *<div className="mt-2 rounded-xl border border-dashed border-[#cbd5c5] bg-[#fafbf8] p-4"><div className="flex items-center gap-3"><FileUp className="h-5 w-5 text-[#54734b]"/><div className="min-w-0 flex-1"><p className="text-sm font-medium">{collegeId?.name || "Choose a file to upload"}</p><p className="mt-1 text-xs font-normal text-[#778173]">Required for student verification</p></div><span className="text-xs font-semibold text-[#315e38]">Browse</span></div><input className="mt-3 block w-full text-xs font-normal text-[#596456] file:mr-3 file:rounded-lg file:border-0 file:bg-[#e8efe3] file:px-3 file:py-2 file:text-xs file:font-semibold file:text-[#315e38]" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" required onChange={e=>onFileChange(e,"id")}/></div></label>
           <label className={`${labelClass} mt-5 block`}>Resume / CV <span className="font-normal text-[#7b8578]">(optional)</span><div className="mt-2 rounded-xl border border-dashed border-[#cbd5c5] bg-[#fafbf8] p-4"><div className="flex items-center gap-3"><FileUp className="h-5 w-5 text-[#54734b]"/><div className="min-w-0 flex-1"><p className="text-sm font-medium">{resume?.name || "Choose your resume"}</p><p className="mt-1 text-xs font-normal text-[#778173]">PDF or image format</p></div></div><input className="mt-3 block w-full text-xs font-normal text-[#596456] file:mr-3 file:rounded-lg file:border-0 file:bg-[#e8efe3] file:px-3 file:py-2 file:text-xs file:font-semibold file:text-[#315e38]" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" onChange={e=>onFileChange(e,"resume")}/></div></label>
         </section>
