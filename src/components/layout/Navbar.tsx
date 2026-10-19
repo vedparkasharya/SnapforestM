@@ -48,10 +48,10 @@ export default function Navbar() {
         <div className={`mx-auto w-full max-w-[1600px] rounded-[24px] border px-3 transition-all duration-500 sm:px-5 ${scrolled ? "border-white/[0.13] bg-[#07111e]/95 shadow-2xl backdrop-blur-2xl" : "border-white/[0.1] bg-[#07111e]/90 backdrop-blur-xl"}`}>
           <div className="flex h-[62px] items-center justify-between gap-3 sm:h-[66px]">
             <Link href="/" className="group flex items-center gap-2.5" aria-label="Snapforest home">
-              <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.06] shadow-sm">
-                <img src="/logo.png" alt="" className="h-7 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
+              <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-xl border border-[#d9ff4f]/30 bg-[#d9ff4f] shadow-sm">
+                <img src="/logo.png" alt="" className="h-8 w-8 rounded-lg object-contain transition-transform duration-300 group-hover:scale-105" />
               </span>
-              <span className="hidden text-sm font-semibold tracking-[-0.02em] text-white sm:block">Snapforest</span>
+              <span className="hidden text-[19px] font-extrabold tracking-[-0.045em] text-white sm:block">Snapforest</span>
             </Link>
 
             <div className="hidden items-center gap-1.5 lg:flex">
@@ -94,7 +94,7 @@ export default function Navbar() {
                 </div>
               )}
 
-              <button type="button" aria-label={isOpen ? "Close menu" : "Open menu"} aria-expanded={isOpen} onClick={() => setIsOpen((value) => !value)} className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-white md:hidden">
+              <button type="button" aria-label={isOpen ? "Close menu" : "Open menu"} aria-expanded={isOpen} onClick={() => setIsOpen((value) => !value)} className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-white lg:hidden">
                 {isOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </button>
             </div>
@@ -102,7 +102,7 @@ export default function Navbar() {
 
           <AnimatePresence>
             {isOpen && (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-white/[0.08] md:hidden">
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-white/[0.08] lg:hidden">
                 <div className="space-y-1 py-3">
                   <MobileLink href="/" label="Home" active={pathname === "/"} />
                   <MobileLink href="/rooms" label="Studios" active={isActive("/rooms")} />
