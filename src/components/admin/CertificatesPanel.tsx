@@ -27,8 +27,9 @@ function fmt(value: string) {
 
 export default function CertificatesPanel() {
   const toast = useToast();
-  // Admin APIs must use the dedicated admin session, never a regular-user token.
-  const token = adminToken();
+  // Read the dedicated admin token after mount; client components can also be server-rendered.
+  const [token, setToken] = useState("");
+  useEffect(() => { setToken(adminToken()); }, []);
   const [form, setForm] = useState(initialForm);
   const [items, setItems] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,10 +48,11 @@ export default function CertificatesPanel() {
     } catch (e) { setError(e instanceof Error ? e.message : "Could not load certificates."); }
     finally { setLoading(false); }
   }, [token]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { if (token) void load(); else { setLoading(false); setError("Admin session not found. Please sign out and sign in again."); } }, [load, token]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setSaving(true); setError(""); setIssued(null);
+    if (!token) { setError("Admin session not found. Please sign out and sign in again."); setSaving(false); return; }
     try {
       const response = await fetch("/api/admin/certificates", {
         method:"POST", headers: { "Content-Type":"application/json", Authorization:`Bearer ${token}` },
