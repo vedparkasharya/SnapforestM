@@ -236,6 +236,7 @@ function buildEmailTemplate(data: {
 }): string {
   const {
     userName,
+    userEmail,
     roomName,
     roomAddress,
     date,
@@ -336,7 +337,7 @@ function buildEmailTemplate(data: {
       </div>
       <div class="detail-row">
         <span class="detail-label">Email</span>
-        <span class="detail-value">${escapeHtml(data.userEmail || "")}</span>
+        <span class="detail-value">${escapeHtml(userEmail || "")}</span>
       </div>
       ${guestPhone ? `
       <div class="detail-row">
