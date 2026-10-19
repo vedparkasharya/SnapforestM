@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { BadgeCheck, Copy, ExternalLink, Loader2, Plus, RefreshCw, ShieldCheck, XCircle } from "lucide-react";
 import { useToast } from "@/providers/ToastProvider";
+import { useAuth } from "@/providers/AuthProvider";
 
 type Certificate = {
   _id: string; certificateNumber: string; fullName: string; email: string;
@@ -27,6 +28,9 @@ function fmt(value: string) {
 
 export default function CertificatesPanel() {
   const toast = useToast();
+  const { user } = useAuth();
+  // Prefer the current React auth session over stale localStorage data.
+  const token = user?.token || adminToken();
   const [form, setForm] = useState(initialForm);
   const [items, setItems] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,20 +42,20 @@ export default function CertificatesPanel() {
   const load = useCallback(async () => {
     setLoading(true); setError("");
     try {
-      const response = await fetch("/api/admin/certificates", { headers: { Authorization: `Bearer ${adminToken()}` }, cache:"no-store" });
+      const response = await fetch("/api/admin/certificates", { headers: { Authorization: `Bearer ${token}` }, cache:"no-store" });
       const result = await response.json();
       if (!response.ok || !result.success) throw new Error(result.message || "Could not load certificates.");
       setItems(result.data);
     } catch (e) { setError(e instanceof Error ? e.message : "Could not load certificates."); }
     finally { setLoading(false); }
-  }, []);
+  }, [token]);
   useEffect(() => { void load(); }, [load]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setSaving(true); setError(""); setIssued(null);
     try {
       const response = await fetch("/api/admin/certificates", {
-        method:"POST", headers: { "Content-Type":"application/json", Authorization:`Bearer ${adminToken()}` },
+        method:"POST", headers: { "Content-Type":"application/json", Authorization:`Bearer ${token}` },
         body: JSON.stringify({ ...form, skills: form.skills.split(",").map(s=>s.trim()).filter(Boolean) }),
       });
       const result = await response.json();
@@ -68,7 +72,7 @@ export default function CertificatesPanel() {
     if (status === "revoked" && !window.confirm(`Revoke certificate ${item.certificateNumber}? Public verification will show it as revoked.`)) return;
     try {
       const response = await fetch("/api/admin/certificates", {
-        method:"PATCH", headers:{ "Content-Type":"application/json", Authorization:`Bearer ${adminToken()}` },
+        method:"PATCH", headers:{ "Content-Type":"application/json", Authorization:`Bearer ${token}` },
         body:JSON.stringify({ certificateNumber:item.certificateNumber, status }),
       });
       const result = await response.json();
