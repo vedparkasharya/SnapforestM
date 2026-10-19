@@ -113,7 +113,7 @@ export default function InternshipCertificatePage() {
             min-height: 0 !important;
             margin: 0 !important;
             padding: 2.5mm !important;
-            border: 1.4mm solid #172117 !important;
+            border: 1.2mm solid #294b31 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             overflow: hidden !important;
@@ -134,7 +134,7 @@ export default function InternshipCertificatePage() {
             margin: 0 !important;
             padding: 5mm 8mm !important;
             overflow: hidden !important;
-            border: 0.6mm double #294b31 !important;
+            border: 0.7mm double #9a8457 !important;
             box-sizing: border-box !important;
           }
           .certificate-document > div::before { content: none !important; }
@@ -142,7 +142,7 @@ export default function InternshipCertificatePage() {
             display: block !important;
             position: absolute !important;
             inset: 2mm !important;
-            border: 0.35mm solid #294b31 !important;
+            border: 0.3mm solid #9a8457 !important;
             opacity: 0.55 !important;
             pointer-events: none !important;
           }
@@ -170,6 +170,19 @@ export default function InternshipCertificatePage() {
             color: #263b29 !important;
             -webkit-text-fill-color: #263b29 !important;
           }
+          .certificate-document .relative.text-center h1,
+          .certificate-document .relative.text-center h2 {
+            opacity: 1 !important;
+            color: #183d27 !important;
+            -webkit-text-fill-color: #183d27 !important;
+            text-shadow: none !important;
+            filter: none !important;
+            mix-blend-mode: normal !important;
+          }
+          .certificate-document .relative.text-center h2 {
+            color: #123d27 !important;
+            -webkit-text-fill-color: #123d27 !important;
+          }
           .certificate-document > div > * { position: relative !important; min-width: 0 !important; flex-shrink: 0 !important; }
           .certificate-document .relative.text-center { flex-shrink: 1 !important; }
           .certificate-document .relative.text-center > div:first-child {
@@ -179,13 +192,13 @@ export default function InternshipCertificatePage() {
           }
           .certificate-document h1 {
             margin-top: 1.5mm !important;
-            font-size: 30pt !important;
+            font-size: 25pt !important;
             line-height: 1.08 !important;
             white-space: normal !important;
           }
           .certificate-document h2 {
             margin-top: 1.5mm !important;
-            font-size: 25pt !important;
+            font-size: 29pt !important;
             line-height: 1.08 !important;
             white-space: normal !important;
           }
