@@ -90,12 +90,36 @@ export default function InternshipCertificatePage() {
         @media print {
           @page { size: A4 landscape; margin: 0; }
 
-          html, body, main, body::before, body::after {
+          :root,
+          html,
+          body,
+          body > *,
+          main,
+          body::before,
+          body::after,
+          html::before,
+          html::after {
             background: #fbfcf7 !important;
+            background-color: #fbfcf7 !important;
             background-image: none !important;
             color: #172117 !important;
+            color-scheme: light !important;
             print-color-adjust: exact !important;
             -webkit-print-color-adjust: exact !important;
+          }
+          /* Paint the complete printable sheet ivory, including any exposed page
+             area around the certificate. This prevents the site's dark theme
+             from leaking into the PDF as a black frame. */
+          body::before {
+            content: "" !important;
+            display: block !important;
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: #fbfcf7 !important;
+            z-index: -1 !important;
+            pointer-events: none !important;
           }
           html, body {
             background: #fbfcf7 !important;
