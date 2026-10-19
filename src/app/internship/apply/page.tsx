@@ -128,7 +128,7 @@ export default function InternshipApplyPage() {
           <p className="mt-3 text-sm leading-6 text-[#596456]">Apply for a one-month internship and learn by working on practical projects with our team. Complete the form carefully; required fields are marked with an asterisk.</p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="flex items-start gap-3 rounded-xl bg-[#f2f6ee] p-3.5"><GraduationCap className="mt-0.5 h-5 w-5 shrink-0 text-[#315e38]"/><div><p className="text-sm font-semibold">One-month internship</p><p className="mt-1 text-xs leading-5 text-[#63715e]">Certificate after successful completion.</p></div></div>
-            <div className="flex items-start gap-3 rounded-xl bg-[#f2f6ee] p-3.5"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#315e38]"/><div><p className="text-sm font-semibold">No registration fee</p><p className="mt-1 text-xs leading-5 text-[#63715e]">₹100 certificate delivery fee applies only after successful completion.</p></div></div>
+            <div className="flex items-start gap-3 rounded-xl bg-[#f2f6ee] p-3.5"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#315e38]"/><div><p className="text-sm font-semibold">₹100 registration fee</p><p className="mt-1 text-xs leading-5 text-[#63715e]">Pay by UPI QR or Razorpay at registration.</p></div></div>
           </div>
         </div>
       </header>
@@ -188,7 +188,7 @@ export default function InternshipApplyPage() {
         <section className="rounded-2xl border border-[#dce4d7] bg-[#edf3e8] p-5 sm:p-6"><h2 className="font-bold text-[#214f31]">Before you submit</h2><ul className="mt-3 space-y-2 text-sm leading-5 text-[#4e5c4a]"><li>• Pay ₹100 by UPI QR or Razorpay. UPI payments require the transaction UTR.</li><li>• Keep your payment reference for verification.</li><li>• Resume is not required. Submitting an application does not guarantee selection.</li></ul><label className="mt-4 flex items-start gap-3 border-t border-[#d4dfcd] pt-4 text-sm text-[#334431]"><input required type="checkbox" className="mt-1 h-4 w-4 accent-[#315e38]"/><span>I confirm that the information provided is accurate and consent to its use for reviewing my internship application.</span></label></section>
 
         {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
-        <button type="submit" disabled={busy} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#214f31] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#183d27] disabled:cursor-not-allowed disabled:opacity-60">{busy?"Submitting application…": "Submit internship application"}{!busy&&<ArrowRight className="h-4 w-4"/>}</button>
+        <button type="submit" disabled={busy || Boolean(uploading)} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#214f31] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#183d27] disabled:cursor-not-allowed disabled:opacity-60">{busy?"Submitting application…":uploading?"Uploading document…":"Submit internship application"}{!busy&&<ArrowRight className="h-4 w-4"/>}</button>
         <p className="pb-4 text-center text-xs leading-5 text-[#778173]">Snapforest · Internship Applications · Please keep your application reference after submission.</p>
       </form>
     </div>
