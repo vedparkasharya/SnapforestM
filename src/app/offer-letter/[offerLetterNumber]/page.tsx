@@ -9,7 +9,7 @@ type Offer = {
   offerLetterNumber: string; fullName: string; jobTitle: string; department: string;
   employmentType: string; workLocation: string; salary: string; joiningDate: string; issueDate: string;
   probationPeriod: string; reportingTo: string; organization: string; issuerName: string;
-  issuerTitle: string; terms: string; status: "active" | "revoked";
+  issuerTitle: string; terms: string; deliveryMode: "online" | "offline"; status: "active" | "revoked";
 };
 function fmt(value: string) {
   if (!value) return "—";
@@ -40,6 +40,7 @@ export default function OfferLetterPage() {
           <div><p className="text-xs font-bold tracking-[.24em] text-[#214f31]">{offer.organization.toUpperCase()}</p><h1 className="mt-2 font-serif text-3xl font-bold text-[#183d27] sm:text-4xl">Letter of Offer</h1><p className="mt-2 text-sm text-[#5a655a]">Offer reference: {offer.offerLetterNumber}</p></div>
           <img src="/logo.png" alt="Snapforest logo" className="h-16 w-16 rounded-xl border border-[#d9dfd2] bg-white object-contain p-1"/>
         </div>
+        <div className="mt-5 border border-[#d9dfd2] bg-[#f4f6ef] px-3 py-2 text-xs font-semibold uppercase tracking-wide text-[#214f31]">{offer.deliveryMode === "offline" ? "Offline issue · Physical copy for handover" : "Online issue · Digital delivery · No physical collection required"}</div>
         <div className="mt-7 space-y-3 text-sm leading-6 text-[#263b29]">
           <p>{fmt(offer.issueDate)}</p><p className="font-semibold">{offer.fullName}</p>
           <p>Dear {offer.fullName},</p>
