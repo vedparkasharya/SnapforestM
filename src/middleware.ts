@@ -50,13 +50,12 @@ export function middleware(request: NextRequest) {
     return withSecurityHeaders(NextResponse.next());
   }
 
+  // Admin API routes perform authorization in their Node.js route handlers via
+  // checkAdminAuth(). Do not verify HMAC tokens in middleware: this middleware
+  // may execute in the Edge runtime, while the shared verifier uses node:crypto.
+  // Verifying here can fail before the route handler gets a chance to validate
+  // a legitimate admin token. Every /api/admin route must retain checkAdminAuth.
   if (pathname.startsWith("/api/admin")) {
-    const authHeader = request.headers.get("authorization");
-    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7).trim() : request.headers.get("token");
-    const decoded = token ? verifySecureToken(token) : null;
-    if (!decoded || decoded.role !== "admin") {
-      return withSecurityHeaders(NextResponse.json({ success: false, message: "Unauthorized: Admin access required" }, { status: 403 }));
-    }
     return withSecurityHeaders(NextResponse.next());
   }
 
