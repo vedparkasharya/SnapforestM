@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectDB from "@/lib/db";
-import User from "@/models/User";
 import {
   generateSecureToken,
   trackLoginAttempt,
@@ -91,28 +89,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let user: any = null;
-    try {
-      await connectDB();
-      user = await User.findOne({ email: sanitizedEmail });
-    } catch (dbError) {
-      console.warn("[Admin Login] DB unavailable; authenticating from configured admin secret", dbError);
-    }
-
-    let userId = "admin-configured";
-    let userName = ADMIN_NAME;
-    let userEmail = ADMIN_EMAIL;
-    let userImage: string | null = null;
-    let userRole = "admin";
-
-    if (user) {
-      userId = user._id.toString();
-      userName = user.name;
-      userEmail = user.email;
-      userImage = user.image;
-      // The explicitly configured admin credentials grant admin access.
-      userRole = "admin";
-    }
+    // The configured environment credentials are the source of truth for admin
+    // identity. Always use the sentinel ID so /api/auth/me can restore this
+    // admin session without depending on a database user's role.
+    const userId = "admin-configured";
+    const userName = ADMIN_NAME;
+    const userEmail = ADMIN_EMAIL;
+    const userImage: string | null = null;
+    const userRole = "admin";
 
     resetLoginAttempts(`${clientIP}:${sanitizedEmail}`);
 
