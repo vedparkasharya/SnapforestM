@@ -75,40 +75,24 @@ export default function InternshipCertificatePage() {
         <p className="relative mt-8 border-t border-[#d5ddcd] pt-3 text-center text-[9px] text-[#657264]">This certificate can be authenticated at snapforest.in/verify-certificate using the certificate number or QR code.</p>
       </div>
       <style jsx global>{`
-        .certificate-document h1, .certificate-document h2 {
-          color: #123d27 !important;
-          -webkit-text-fill-color: #123d27 !important;
-          opacity: 1 !important;
-          text-shadow: none !important;
-          filter: none !important;
-        }
-        .certificate-document p, .certificate-document span {
-          opacity: 1 !important;
-        }
         @media print {
           @page { size: A4 landscape; margin: 0; }
-          html, body, main { width: 100% !important; height: 100% !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important; background: #fff !important; color: #172117 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-          body * { visibility: hidden !important; background-color: transparent; }
+          html, body { width: 297mm !important; height: 210mm !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; background: #fbfcf7 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+          body * { visibility: hidden !important; }
           .certificate-document, .certificate-document * { visibility: visible !important; opacity: 1 !important; }
-          .certificate-document h1, .certificate-document h2 { color: #123d27 !important; -webkit-text-fill-color: #123d27 !important; opacity: 1 !important; text-shadow: none !important; }
-          .certificate-document p, .certificate-document span { -webkit-text-fill-color: currentColor; }
-          .certificate-document { position: fixed !important; top: 0 !important; left: 0 !important; z-index: 999999 !important; display: block !important; width: 100vw !important; height: 100vh !important; max-width: none !important; margin: 0 !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; overflow: hidden !important; background: #fbfcf7 !important; color: #172117 !important; box-sizing: border-box !important; break-inside: avoid !important; page-break-inside: avoid !important; }
-          .certificate-document * { overflow-wrap: anywhere !important; }
-          .certificate-document > div { position: relative !important; width: 100% !important; height: 100% !important; box-sizing: border-box !important; padding: 3mm !important; overflow: hidden !important; border: 0 !important; }
-          .certificate-document > div::before { content: "" !important; position: absolute !important; inset: 2.5mm !important; border: 0.25mm solid #294b31 !important; pointer-events: none !important; }
-          .certificate-document > div > .pointer-events-none { inset: 4mm !important; border-color: #294b31 !important; }
-          .certificate-document > div > *:not(.pointer-events-none) { position: relative !important; z-index: 1 !important; }
-          .certificate-document .relative.mt-8.flex.flex-col { margin-top: 2mm !important; }
-          .certificate-document .relative.mt-8.border-t { margin-top: 2mm !important; padding-top: 1.5mm !important; }
-          .certificate-document .relative.mx-auto.mt-4.grid { margin-top: 1.5mm !important; padding-bottom: 1.5mm !important; }
-          .certificate-document .relative.mx-auto.mt-7.flex { margin-top: 2mm !important; padding-top: 1.5mm !important; padding-bottom: 1.5mm !important; }
-          .certificate-document h1 { margin-top: 2mm !important; font-size: 25pt !important; line-height: 1.1 !important; }
-          .certificate-document h2 { margin-top: 2mm !important; font-size: 28pt !important; line-height: 1.1 !important; }
+          .certificate-document { position: fixed !important; inset: 0 !important; display: block !important; width: 297mm !important; height: 210mm !important; max-width: none !important; margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; overflow: hidden !important; background: #fbfcf7 !important; color: #172117 !important; box-sizing: border-box !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+          .certificate-document > div { position: relative !important; width: 100% !important; height: 100% !important; margin: 0 !important; padding: 8mm 10mm !important; overflow: hidden !important; border: 0 !important; box-sizing: border-box !important; }
+          .certificate-document > div::before { content: none !important; display: none !important; }
+          .certificate-document > div > .pointer-events-none { display: none !important; }
+          .certificate-document > div > * { position: relative !important; z-index: auto !important; }
+          .certificate-document h1 { margin-top: 2mm !important; font-size: 23pt !important; line-height: 1.1 !important; }
+          .certificate-document h2 { margin-top: 2mm !important; font-size: 27pt !important; line-height: 1.1 !important; }
           .certificate-document .relative.mx-auto.mt-7.flex { margin-top: 3mm !important; padding-top: 2mm !important; padding-bottom: 2mm !important; }
           .certificate-document .relative.mx-auto.mt-4.grid { margin-top: 2mm !important; padding-bottom: 2mm !important; }
           .certificate-document .relative.mt-5.text-center { margin-top: 2mm !important; }
-          .certificate-document .relative.mt-7.flex.flex-col { margin-top: 3mm !important; gap: 2mm !important; }
+          .certificate-document .relative.mt-7.flex.flex-col { margin-top: 4mm !important; gap: 2mm !important; }
           .certificate-document .relative.mt-8.border-t { margin-top: 3mm !important; padding-top: 2mm !important; }
+          .certificate-document p, .certificate-document span, .certificate-document h1, .certificate-document h2 { overflow-wrap: normal !important; }
           .no-print, nav, footer { display: none !important; }
         }
       `}</style>
