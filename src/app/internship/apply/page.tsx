@@ -19,11 +19,11 @@ const roles = [
 type FormState = {
   fullName: string; email: string; phone: string; college: string; branch: string;
   yearOfStudy: string; registrationNumber: string; internshipRole: string;
-  deliveryMode: "online" | "offline"; motivation: string;
+  deliveryMode: "online" | "offline"; motivation: string; referralCode: string; referralSource: string;
 };
 const initial: FormState = {
   fullName: "", email: "", phone: "", college: "", branch: "", yearOfStudy: "",
-  registrationNumber: "", internshipRole: "", deliveryMode: "online", motivation: "",
+  registrationNumber: "", internshipRole: "", deliveryMode: "online", motivation: "", referralCode: "", referralSource: "",
 };
 
 export default function InternshipApplyPage() {
@@ -94,18 +94,18 @@ export default function InternshipApplyPage() {
           <div className="space-y-5">
             <label className={labelClass}>Student full name *<input className={fieldClass} autoComplete="name" required maxLength={120} value={form.fullName} onChange={e=>setField("fullName",e.target.value)} placeholder="As shown on your college ID"/></label>
             <label className={labelClass}>Student email *<input className={fieldClass} type="email" autoComplete="email" required maxLength={160} value={form.email} onChange={e=>setField("email",e.target.value)} placeholder="you@example.com"/></label>
-            <label className={labelClass}>Contact number *<input className={fieldClass} type="tel" autoComplete="tel" inputMode="tel" required maxLength={20} value={form.phone} onChange={e=>setField("phone",e.target.value)} placeholder="10-digit mobile number"/></label>
-            <label className={labelClass}>College / University name *<input className={fieldClass} required maxLength={180} value={form.college} onChange={e=>setField("college",e.target.value)} placeholder="Enter your institution name"/></label>
-            <label className={labelClass}>Branch / Course *<input className={fieldClass} required maxLength={120} value={form.branch} onChange={e=>setField("branch",e.target.value)} placeholder="e.g. B.Tech Computer Science"/></label>
-            <label className={labelClass}>Current year / semester *<select className={fieldClass} required value={form.yearOfStudy} onChange={e=>setField("yearOfStudy",e.target.value)}><option value="">Select year / semester</option><option>1st year</option><option>2nd year</option><option>3rd year</option><option>4th year</option><option>Recent graduate</option><option>Other</option></select></label>
-            <label className={labelClass}>College roll / registration number *<input className={fieldClass} required maxLength={80} value={form.registrationNumber} onChange={e=>setField("registrationNumber",e.target.value)} placeholder="Enter your college registration number"/></label>
+            <label className={labelClass}>Contact number (optional)<input className={fieldClass} type="tel" autoComplete="tel" inputMode="tel" maxLength={20} value={form.phone} onChange={e=>setField("phone",e.target.value)} placeholder="10-digit mobile number"/></label>
+            <label className={labelClass}>College / University name (optional)<input className={fieldClass} maxLength={180} value={form.college} onChange={e=>setField("college",e.target.value)} placeholder="Enter your institution name"/></label>
+            <label className={labelClass}>Branch / Course (optional)<input className={fieldClass} maxLength={120} value={form.branch} onChange={e=>setField("branch",e.target.value)} placeholder="e.g. B.Tech Computer Science"/></label>
+            <label className={labelClass}>Current year / semester (optional)<select className={fieldClass} value={form.yearOfStudy} onChange={e=>setField("yearOfStudy",e.target.value)}><option value="">Select year / semester</option><option>1st year</option><option>2nd year</option><option>3rd year</option><option>4th year</option><option>Recent graduate</option><option>Other</option></select></label>
+            <label className={labelClass}>College roll / registration number (optional)<input className={fieldClass} maxLength={80} value={form.registrationNumber} onChange={e=>setField("registrationNumber",e.target.value)} placeholder="Enter your college registration number"/></label>
           </div>
         </section>
 
         <section className={cardClass}>
           <div className="mb-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#6b8b5c]">Section 02</p><h2 className="mt-1 text-lg font-bold">Internship preferences</h2><p className="mt-1 text-xs text-[#727d70]">Choose one role and your preferred training mode.</p></div>
-          <fieldset><legend className={labelClass}>Area / Internship role *</legend><div className="mt-3 space-y-2">{roles.map(role=><label key={role} className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 text-sm transition ${form.internshipRole===role?"border-[#719564] bg-[#f2f6ee]":"border-[#e5e8e1] hover:bg-[#fafbf8]"}`}><input type="radio" name="internshipRole" required checked={form.internshipRole===role} onChange={()=>setField("internshipRole",role)} className="h-4 w-4 accent-[#315e38]"/><span>{role}</span></label>)}</div></fieldset>
-          <fieldset className="mt-6"><legend className={labelClass}>Internship mode *</legend><div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <fieldset><legend className={labelClass}>Area / Internship role (optional)</legend><div className="mt-3 space-y-2">{roles.map(role=><label key={role} className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 text-sm transition ${form.internshipRole===role?"border-[#719564] bg-[#f2f6ee]":"border-[#e5e8e1] hover:bg-[#fafbf8]"}`}><input type="radio" name="internshipRole" checked={form.internshipRole===role} onChange={()=>setField("internshipRole",role)} className="h-4 w-4 accent-[#315e38]"/><span>{role}</span></label>)}</div></fieldset>
+          <fieldset className="mt-6"><legend className={labelClass}>Internship mode (optional)</legend><div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label className={`cursor-pointer rounded-xl border p-4 ${form.deliveryMode==="online"?"border-[#719564] bg-[#f2f6ee]":"border-[#e5e8e1]"}`}><input type="radio" name="deliveryMode" checked={form.deliveryMode==="online"} onChange={()=>setField("deliveryMode","online")} className="sr-only"/><Laptop className="h-5 w-5 text-[#315e38]"/><p className="mt-2 text-sm font-bold">Online Internship</p><p className="mt-1 text-xs leading-5 text-[#687363]">Remote participation.</p></label>
             <label className={`cursor-pointer rounded-xl border p-4 ${form.deliveryMode==="offline"?"border-[#719564] bg-[#f2f6ee]":"border-[#e5e8e1]"}`}><input type="radio" name="deliveryMode" checked={form.deliveryMode==="offline"} onChange={()=>setField("deliveryMode","offline")} className="sr-only"/><MapPin className="h-5 w-5 text-[#315e38]"/><p className="mt-2 text-sm font-bold">Offline Internship</p><p className="mt-1 text-xs leading-5 text-[#687363]">In-person participation, subject to confirmation.</p></label>
           </div></fieldset>
@@ -113,11 +113,14 @@ export default function InternshipApplyPage() {
         </section>
 
         <section className={cardClass}>
-          <div className="mb-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#6b8b5c]">Section 03</p><h2 className="mt-1 text-lg font-bold">Payment details</h2><p className="mt-1 text-xs text-[#727d70]">Scan the Snapforest payment QR and enter your transaction reference.</p></div>
+          <div className="mb-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#6b8b5c]">Section 03</p><h2 className="mt-1 text-lg font-bold">Payment details</h2><p className="mt-1 text-xs text-[#727d70]">Standard registration fee: ₹100. Enter your transaction reference after payment.</p></div>
           <div className="rounded-xl border border-[#e2e7de] bg-[#fafbf8] p-4 text-center">
             <img src="/images/snapforest-payment-qr.png" alt="Snapforest payment QR code" className="mx-auto h-56 w-56 max-w-full object-contain" />
             <p className="mt-2 text-xs leading-5 text-[#687363]">Please verify the payee name in your payment app before sending money.</p>
           </div>
+          <label className={labelClass + " mt-5 block"}>How did you hear about Snapforest? (optional)<select className={fieldClass} value={form.referralSource} onChange={e=>setField("referralSource",e.target.value)}><option value="">Select source</option><option>Instagram / Facebook</option><option>WhatsApp Group / Channel</option><option>LinkedIn</option><option>College / University</option><option>Friend / Referral</option><option>Google / Website Search</option><option>Other</option></select></label>
+          <label className={labelClass + " mt-5 block"}>Referral code (optional)<input className={fieldClass} maxLength={40} value={form.referralCode} onChange={e=>setField("referralCode",e.target.value)} placeholder="Enter your friend's referral code"/></label>
+          <div className="mt-4 rounded-xl border border-[#dce8d3] bg-[#f2f7ed] p-4"><p className="font-semibold text-[#214f31]">Refer & Earn</p><p className="mt-2 text-sm leading-6 text-[#596456]">Refer 2 friends who complete paid registration to qualify for a free internship. Referral codes and eligibility are subject to verification by Snapforest.</p></div>
           <label className={labelClass + " mt-5 block"}>UTR / Transaction ID *<input className={fieldClass} required maxLength={100} value={utrNumber} onChange={e=>setUtrNumber(e.target.value)} placeholder="Enter payment transaction reference"/></label>
         </section>
 
