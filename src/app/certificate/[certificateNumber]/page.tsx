@@ -76,30 +76,136 @@ export default function InternshipCertificatePage() {
       </div>
       <style jsx global>{`
         @media print {
-          @page { size: A4 landscape; margin: 0; }
-          html, body { width: 297mm !important; height: 210mm !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; background: #fbfcf7 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+          @page { size: A4 landscape; margin: 5mm; }
+          html, body {
+            width: auto !important;
+            height: auto !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            background: #fbfcf7 !important;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
+          body { display: block !important; }
           body * { visibility: hidden !important; }
-          .certificate-document, .certificate-document * { visibility: visible !important; opacity: 1 !important; }
-          .certificate-document { position: fixed !important; inset: 0 !important; display: block !important; width: 297mm !important; height: 210mm !important; max-width: none !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; overflow: hidden !important; background: #fbfcf7 !important; color: #172117 !important; box-sizing: border-box !important; break-inside: avoid !important; page-break-inside: avoid !important; }
-          .certificate-document > div { position: relative !important; display: flex !important; flex-direction: column !important; justify-content: center !important; width: 100% !important; height: 210mm !important; min-height: 0 !important; margin: 0 !important; padding: 7mm 12mm !important; overflow: hidden !important; border: 0 !important; box-sizing: border-box !important; }
-          .certificate-document > div::before { content: none !important; display: none !important; }
-          .certificate-document > div > .pointer-events-none { display: none !important; }
-          .certificate-document > div > * { position: relative !important; z-index: auto !important; flex-shrink: 0 !important; min-width: 0 !important; }
-          .certificate-document .relative.text-center { flex-shrink: 1 !important; }
-          .certificate-document .relative.text-center > div:first-child { width: 12mm !important; height: 12mm !important; border-radius: 3mm !important; }
-          .certificate-document h1 { margin-top: 1.5mm !important; font-size: 22pt !important; line-height: 1.08 !important; white-space: normal !important; }
-          .certificate-document h2 { margin-top: 1.5mm !important; font-size: 25pt !important; line-height: 1.08 !important; white-space: normal !important; }
-          .certificate-document .relative.mx-auto.mt-7.flex { margin-top: 2mm !important; padding-top: 1.5mm !important; padding-bottom: 1.5mm !important; }
-          .certificate-document .relative.mx-auto.mt-4.grid { margin-top: 1.5mm !important; padding-bottom: 1.5mm !important; }
-          .certificate-document .relative.mt-5.text-center { margin-top: 1.5mm !important; }
-          .certificate-document .relative.mt-7.flex.flex-col { display: flex !important; flex-direction: row !important; align-items: flex-end !important; justify-content: space-between !important; width: 100% !important; margin-top: 2mm !important; gap: 5mm !important; }
-          .certificate-document .relative.mt-7.flex.flex-col > div:first-child { flex: 1 1 45% !important; min-width: 0 !important; overflow: visible !important; }
-          .certificate-document .relative.mt-7.flex.flex-col > div:last-child { flex: 0 0 auto !important; min-width: 0 !important; gap: 4mm !important; }
-          .certificate-document .relative.mt-7.flex.flex-col > div:first-child p { overflow-wrap: anywhere !important; word-break: break-word !important; }
-          .certificate-document .relative.mt-7.flex.flex-col > div:last-child img { width: 22mm !important; height: 22mm !important; }
-          .certificate-document .relative.mt-8.border-t { margin-top: 2mm !important; padding-top: 1.5mm !important; }
-          .certificate-document p, .certificate-document span, .certificate-document h1, .certificate-document h2 { overflow-wrap: anywhere !important; }
+          main, main * { visibility: visible !important; }
+          main {
+            display: block !important;
+            width: 100% !important;
+            max-width: none !important;
+            min-height: 0 !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            background: #fbfcf7 !important;
+          }
           .no-print, nav, footer { display: none !important; }
+          .certificate-document {
+            position: relative !important;
+            display: block !important;
+            width: 100% !important;
+            max-width: none !important;
+            min-width: 0 !important;
+            height: 200mm !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            overflow: hidden !important;
+            background: #fbfcf7 !important;
+            color: #172117 !important;
+            box-sizing: border-box !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+          .certificate-document > div {
+            position: relative !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            width: 100% !important;
+            height: 200mm !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 5mm 8mm !important;
+            overflow: hidden !important;
+            border: 0 !important;
+            box-sizing: border-box !important;
+          }
+          .certificate-document > div::before,
+          .certificate-document > div > .pointer-events-none { display: none !important; content: none !important; }
+          .certificate-document > div > * { position: relative !important; min-width: 0 !important; flex-shrink: 0 !important; }
+          .certificate-document .relative.text-center { flex-shrink: 1 !important; }
+          .certificate-document .relative.text-center > div:first-child {
+            width: 11mm !important;
+            height: 11mm !important;
+            border-radius: 3mm !important;
+          }
+          .certificate-document h1 {
+            margin-top: 1.5mm !important;
+            font-size: 21pt !important;
+            line-height: 1.08 !important;
+            white-space: normal !important;
+          }
+          .certificate-document h2 {
+            margin-top: 1.5mm !important;
+            font-size: 25pt !important;
+            line-height: 1.08 !important;
+            white-space: normal !important;
+          }
+          .certificate-document .relative.mx-auto.mt-7.flex {
+            margin-top: 2mm !important;
+            padding-top: 1.5mm !important;
+            padding-bottom: 1.5mm !important;
+          }
+          .certificate-document .relative.mx-auto.mt-4.grid {
+            margin-top: 1.5mm !important;
+            padding-bottom: 1.5mm !important;
+          }
+          .certificate-document .relative.mt-5.text-center { margin-top: 1.5mm !important; }
+          .certificate-document .relative.mt-7.flex.flex-col {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: flex-end !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            margin-top: 2mm !important;
+            gap: 5mm !important;
+          }
+          .certificate-document .relative.mt-7.flex.flex-col > div:first-child {
+            flex: 1 1 45% !important;
+            min-width: 0 !important;
+            overflow: visible !important;
+            padding-left: 1mm !important;
+          }
+          .certificate-document .relative.mt-7.flex.flex-col > div:last-child {
+            flex: 0 0 auto !important;
+            min-width: 0 !important;
+            gap: 4mm !important;
+          }
+          .certificate-document .relative.mt-7.flex.flex-col > div:first-child p {
+            overflow-wrap: anywhere !important;
+            word-break: break-word !important;
+          }
+          .certificate-document .relative.mt-7.flex.flex-col > div:last-child img {
+            width: 21mm !important;
+            height: 21mm !important;
+          }
+          .certificate-document .relative.mt-8.border-t {
+            margin-top: 2mm !important;
+            padding-top: 1.5mm !important;
+          }
+          .certificate-document p,
+          .certificate-document span,
+          .certificate-document h1,
+          .certificate-document h2 {
+            overflow-wrap: anywhere !important;
+          }
         }
       `}</style>
     </section>}
