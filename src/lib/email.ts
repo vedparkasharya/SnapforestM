@@ -217,23 +217,7 @@ export async function sendTestEmail(
 
 // ─── Email Template Builder ──────────────────────────
 
-function buildEmailTemplate(data: {
-  userName: string;
-  userEmail: string;
-  roomName: string;
-  roomAddress: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  totalAmount: number;
-  bookingType: string;
-  mapLink?: string;
-  status: string;
-  bookingId?: string;
-  guestPhone?: string;
-  purpose?: string;
-  notes?: string;
-}): string {
+function buildEmailTemplate(data: BookingEmailData): string {
   const {
     userName,
     userEmail,
