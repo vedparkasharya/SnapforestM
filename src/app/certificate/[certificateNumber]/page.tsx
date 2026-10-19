@@ -88,9 +88,9 @@ export default function InternshipCertificatePage() {
       </div>
       <style jsx global>{`
         @media print {
-          @page { size: A4 landscape; margin: 5mm; }
+          @page { size: A4 landscape; margin: 0; }
 
-          html, body, main {
+          html, body, main, body::before, body::after {
             background: #fbfcf7 !important;
             background-image: none !important;
             color: #172117 !important;
@@ -103,12 +103,12 @@ export default function InternshipCertificatePage() {
             color: #172117 !important;
             print-color-adjust: exact !important;
             -webkit-print-color-adjust: exact !important;
-            width: auto !important;
-            height: auto !important;
+            width: 297mm !important;
+            height: 210mm !important;
             min-height: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
-            overflow: visible !important;
+            overflow: hidden !important;
           }
           body {
             display: block !important;
@@ -121,13 +121,13 @@ export default function InternshipCertificatePage() {
             background: #fbfcf7 !important;
             background-image: none !important;
             color: #172117 !important;
-            width: 100% !important;
-            height: auto !important;
+            width: 297mm !important;
+            height: 210mm !important;
             min-height: 0 !important;
             max-width: none !important;
             margin: 0 !important;
             padding: 0 !important;
-            overflow: visible !important;
+            overflow: hidden !important;
           }
           * { visibility: hidden !important; }
           .certificate-document,
@@ -139,18 +139,17 @@ export default function InternshipCertificatePage() {
           .certificate-document {
             position: relative !important;
             display: block !important;
-            width: 100% !important;
-            height: 200mm !important;
+            width: 297mm !important;
+            height: 210mm !important;
             min-width: 0 !important;
             min-height: 0 !important;
             max-width: none !important;
             margin: 0 !important;
             padding: 3mm !important;
-            border: 1.2mm solid #214f31 !important;
+            border: 0 !important;
             outline: none !important;
             border-radius: 0 !important;
             box-shadow: none !important;
-            outline: none !important;
             overflow: visible !important;
             background: #fbfcf7 !important;
             color: #172117 !important;
@@ -169,7 +168,7 @@ export default function InternshipCertificatePage() {
             margin: 0 !important;
             padding: 4mm 7mm !important;
             overflow: visible !important;
-            border: 0.7mm double #b99a4a !important;
+            border: 1mm solid #214f31 !important;
             box-sizing: border-box !important;
             background: #fbfcf7 !important;
             color: #172117 !important;
@@ -178,7 +177,7 @@ export default function InternshipCertificatePage() {
             display: block !important;
             position: absolute !important;
             inset: 2mm !important;
-            border: 0.3mm solid #b99a4a !important;
+            border: 0.45mm double #b99a4a !important;
             opacity: 0.8 !important;
             pointer-events: none !important;
           }
