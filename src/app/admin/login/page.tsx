@@ -4,10 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useAuth } from "@/providers/AuthProvider";
 import { ShieldCheck, Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { adminLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -20,21 +22,13 @@ export default function AdminLoginPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/admin-login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-        body: JSON.stringify({ email: email.trim(), password }),
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        localStorage.setItem("snapforest_admin", JSON.stringify(data.data));
-        router.push("/admin");
+      // Use the shared AuthProvider so the admin session updates in React
+      // immediately; writing localStorage alone leaves isAdmin=false until reload.
+      const result = await adminLogin(email.trim(), password);
+      if (result.success) {
+        router.replace("/admin");
       } else {
-        setError(data.message || "Invalid email or password");
+        setError(result.message || "Invalid email or password");
       }
     } catch (loginError) {
       console.error("Login error:", loginError);
