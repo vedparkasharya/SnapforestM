@@ -50,13 +50,13 @@ export default function InternshipCertificatePage() {
         <div className="pointer-events-none absolute inset-3 border border-[#294b31]/20"/>
         <div className="relative text-center">
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-[#183d27] text-[#d7f2a4]"><span className="text-xl font-bold">S.</span></div>
-          <p className="mt-3 text-[10px] font-bold tracking-[.28em] text-[#36553a]">{certificate.organization.toUpperCase()} · PEOPLE & CULTURE</p>
-          <h1 className="mt-4 font-serif text-3xl font-bold tracking-tight text-[#183d27] sm:text-5xl">CERTIFICATE OF INTERNSHIP</h1>
+          <p className="mt-3 text-xs font-bold tracking-[.24em] text-[#294b31]">{certificate.organization.toUpperCase()} · PEOPLE & CULTURE</p>
+          <h1 className="mt-4 font-serif text-4xl font-extrabold tracking-wide text-[#183d27] sm:text-6xl">CERTIFICATE OF INTERNSHIP</h1>
           <div className="mx-auto mt-4 h-1 w-28 rounded-full bg-[#8a9f70]"/>
-          <p className="mt-5 text-sm font-medium text-[#405044]">PROUDLY PRESENTED TO</p>
-          <h2 className="mt-2 break-words font-serif text-4xl font-bold leading-tight text-[#123d27] sm:text-5xl">{certificate.fullName}</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#354235]">{certificate.description || "has been associated with the organization as an intern and completed the internship assignment described below."}</p>
-          <p className="mt-5 text-lg font-semibold text-[#183d27]">{certificate.internshipRole}</p>
+          <p className="mt-5 text-base font-semibold tracking-[.16em] text-[#263b29]">PROUDLY PRESENTED TO</p>
+          <h2 className="mt-2 break-words font-serif text-5xl font-extrabold leading-tight tracking-tight text-[#123d27] sm:text-6xl">{certificate.fullName}</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[#263b29]">{certificate.description || "has been associated with the organization as an intern and completed the internship assignment described below."}</p>
+          <p className="mt-5 text-xl font-bold text-[#183d27]">{certificate.internshipRole}</p>
           {certificate.department && <p className="mt-1 text-sm text-[#526052]">{certificate.department}</p>}
         </div>
         <div className="relative mx-auto mt-7 flex max-w-3xl flex-wrap items-center justify-center gap-2 border-y border-[#d5ddcd] py-3 text-[9px] font-bold uppercase tracking-wider text-[#294b31] sm:gap-3">
@@ -179,7 +179,7 @@ export default function InternshipCertificatePage() {
           }
           .certificate-document h1 {
             margin-top: 1.5mm !important;
-            font-size: 21pt !important;
+            font-size: 30pt !important;
             line-height: 1.08 !important;
             white-space: normal !important;
           }
