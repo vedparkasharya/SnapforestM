@@ -75,6 +75,16 @@ export default function InternshipCertificatePage() {
         <p className="relative mt-8 border-t border-[#d5ddcd] pt-3 text-center text-[9px] text-[#657264]">This certificate can be authenticated at snapforest.in/verify-certificate using the certificate number or QR code.</p>
       </div>
       <style jsx global>{`
+        .certificate-document h1, .certificate-document h2 {
+          color: #123d27 !important;
+          -webkit-text-fill-color: #123d27 !important;
+          opacity: 1 !important;
+          text-shadow: none !important;
+          filter: none !important;
+        }
+        .certificate-document p, .certificate-document span {
+          opacity: 1 !important;
+        }
         @media print {
           @page { size: A4 landscape; margin: 8mm; }
           html, body { background: #fff !important; color: #172117 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
