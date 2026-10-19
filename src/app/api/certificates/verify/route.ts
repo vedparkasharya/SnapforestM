@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
       issueDate: Date;
       description: string;
       skills?: string[];
+      deliveryMode?: "online" | "offline";
       status: string;
       createdAt: Date;
     };
@@ -48,6 +49,7 @@ export async function GET(request: NextRequest) {
       issueDate: certificateRecord.issueDate,
       description: certificateRecord.description,
       skills: certificateRecord.skills || [],
+      deliveryMode: certificateRecord.deliveryMode || "online",
       status: certificateRecord.status,
       createdAt: certificateRecord.createdAt,
     }, certificateRecord.status === "active" ? "Certificate record found" : "This certificate has been revoked");
