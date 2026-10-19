@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     if (!certificate || Array.isArray(certificate)) return errorResponse("No certificate was found with this number. Check the number and try again.", 404);
     // Mongoose lean() can be inferred as a document-or-array union in this model;
     // findOne() returns one record, so narrow it to the certificate record shape.
-    const certificateRecord = certificate as {
+    const certificateRecord = certificate as unknown as {
       certificateNumber: string;
       fullName: string;
       internshipRole: string;
