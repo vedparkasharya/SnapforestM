@@ -5,30 +5,27 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, CheckCircle2, GraduationCap, Laptop, MapPin, ShieldCheck } from "lucide-react";
 
 const roles = [
-  "Software Developer Intern",
-  "Frontend Developer Intern",
-  "Backend Developer Intern",
-  "Full Stack Developer Intern",
-  "UI/UX Design Intern",
-  "AI / Machine Learning Intern",
-  "Data Analytics Intern",
-  "Digital Marketing Intern",
-  "Content & Social Media Intern",
+  "Civil Engineering Design & Site Visit", "Mechanical Engineering Design & Workshop Visit", "AutoCAD (Civil)", "AutoCAD (Mechanical)", "AutoCAD (Electrical)", "CATIA", "STAAD PRO", "3D Modelling / Works (CE)", "3D Modelling / Works (ME)", "3D MAX", "Revit Design", "Steel Structure Design", "Building Construction Management", "Township Development Management", "Manufacturing Process Management", "Automobile Project Management", "PLC Programming", "Industrial Automation using PLC & SCADA", "Embedded System", "Robotics", "Electrical Measurement & Instrumentation", "Electronics Measurement and Instrumentation", "Electrical Wiring and Control", "Electrical Maintenance", "Solar System Installation", "Communication System", "Web Design using HTML, CSS & JavaScript", "Web Development using PHP & MySQL", "Software Development in .NET", "Web Development in .NET", "Software Development in Java", "Web Development in Java", "Android App Development", "Python Programming", "Digital Marketing", "System Analytics", "C Programming", "C++ Programming", "Java Programming", "Full Stack Web Development", "Full Stack Software Development", "MATLAB", "Internet of Things", "Artificial Intelligence", "J2EE (Advanced Java)", "Data Science using Python", "Machine Learning using Python", "MERN Stack Development (MongoDB, Express, React, Node.js)", "Database Administrator", "Data Analytics", "Big Data Analytics", "Cloud Computing", "Cyber Security", "Ethical Hacking",
 ];
 
 type FormState = {
   fullName: string; email: string; phone: string; college: string; branch: string;
   yearOfStudy: string; registrationNumber: string; internshipRole: string;
-  deliveryMode: "online" | "offline"; motivation: string; referralCode: string; referralSource: string;
+  deliveryMode: "online" | "offline"; motivation: string; referralCode: string; referralSource: string; boardCollegeUniversity: string; paymentMethod: "upi" | "razorpay";
 };
 const initial: FormState = {
   fullName: "", email: "", phone: "", college: "", branch: "", yearOfStudy: "",
-  registrationNumber: "", internshipRole: "", deliveryMode: "online", motivation: "", referralCode: "", referralSource: "",
+  registrationNumber: "", internshipRole: "", deliveryMode: "online", motivation: "", referralCode: "", referralSource: "", boardCollegeUniversity: "", paymentMethod: "upi",
 };
 
 export default function InternshipApplyPage() {
   const [form, setForm] = useState<FormState>(initial);
   const [utrNumber, setUtrNumber] = useState("");
+  const [collegeIdUrl, setCollegeIdUrl] = useState("");
+  const [paymentScreenshotUrl, setPaymentScreenshotUrl] = useState("");
+  const [nocLetterUrl, setNocLetterUrl] = useState("");
+  const [uploading, setUploading] = useState<string | null>(null);
+  const [razorpayPayment, setRazorpayPayment] = useState<{ razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState<{ applicationNumber: string; fullName: string; deliveryMode: string } | null>(null);
@@ -37,19 +34,74 @@ export default function InternshipApplyPage() {
     setForm(prev => ({ ...prev, [key]: value }));
   }
 
+  async function uploadDocument(file: File | undefined, kind: "collegeId" | "paymentScreenshot" | "nocLetter") {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { setError("Please upload a JPG, PNG or WebP image."); return; }
+    if (file.size > 10 * 1024 * 1024) { setError("File must be 10 MB or smaller."); return; }
+    setUploading(kind); setError("");
+    try {
+      const dataUri = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Could not read file."));
+        reader.onerror = () => reject(new Error("Could not read file."));
+        reader.readAsDataURL(file);
+      });
+      const response = await fetch("/api/internship-uploads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ file: dataUri, kind }) });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || "Upload failed.");
+      if (kind === "collegeId") setCollegeIdUrl(data.data.url);
+      if (kind === "paymentScreenshot") setPaymentScreenshotUrl(data.data.url);
+      if (kind === "nocLetter") setNocLetterUrl(data.data.url);
+    } catch (e) { setError(e instanceof Error ? e.message : "Upload failed."); }
+    finally { setUploading(null); }
+  }
+
+  async function payWithRazorpay() {
+    setError("");
+    try {
+      const orderResponse = await fetch("/api/internship-payment/order", { method: "POST" });
+      const orderData = await orderResponse.json();
+      if (!orderResponse.ok || !orderData.success) throw new Error(orderData.message || "Razorpay unavailable. Please use UPI QR.");
+      const loadScript = () => new Promise<boolean>((resolve) => {
+        if ((window as any).Razorpay) return resolve(true);
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+      });
+      if (!await loadScript()) throw new Error("Could not load Razorpay checkout. Please use UPI QR.");
+      const RazorpayCtor = (window as any).Razorpay;
+      const checkout = new RazorpayCtor({
+        key: orderData.data.keyId, amount: orderData.data.amount, currency: "INR",
+        name: "Snapforest", description: "Internship registration fee",
+        order_id: orderData.data.orderId,
+        prefill: { name: form.fullName, email: form.email, contact: form.phone },
+        theme: { color: "#214f31" },
+        handler: (result: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
+          setRazorpayPayment(result);
+          setForm(prev => ({ ...prev, paymentMethod: "razorpay" }));
+        },
+        modal: { ondismiss: () => setError("Payment window closed. You can retry or use UPI QR.") }
+      });
+      checkout.open();
+    } catch (e) { setError(e instanceof Error ? e.message : "Razorpay payment could not start."); }
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true); setError(""); setSuccess(null);
     try {
-      if (!utrNumber.trim()) throw new Error("Please enter the payment UTR / transaction ID.");
-      const payload = { ...form, utrNumber: utrNumber.trim() };
+      if (form.paymentMethod === "upi" && !utrNumber.trim()) throw new Error("Please enter the UPI payment UTR / transaction ID.");
+      if (form.paymentMethod === "razorpay" && !razorpayPayment) throw new Error("Complete the ₹100 Razorpay payment first.");
+      const payload = { ...form, utrNumber: utrNumber.trim(), collegeIdUrl, paymentScreenshotUrl, nocLetterUrl, ...(razorpayPayment || {}) };
       const response = await fetch("/api/internship-applications", {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
       });
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.message || "Application submission failed.");
       setSuccess(data.data);
-      setForm(initial); setUtrNumber("");
+      setForm(initial); setUtrNumber(""); setCollegeIdUrl(""); setPaymentScreenshotUrl(""); setNocLetterUrl(""); setRazorpayPayment(null);
       const formElement = event.currentTarget;
       formElement.reset();
     } catch (e) {
@@ -92,10 +144,10 @@ export default function InternshipApplyPage() {
         <section className={cardClass}>
           <div className="mb-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#6b8b5c]">Section 01</p><h2 className="mt-1 text-lg font-bold">Your details</h2><p className="mt-1 text-xs text-[#727d70]">Enter the contact details you actively use.</p></div>
           <div className="space-y-5">
-            <label className={labelClass}>Student full name *<input className={fieldClass} autoComplete="name" required maxLength={120} value={form.fullName} onChange={e=>setField("fullName",e.target.value)} placeholder="As shown on your college ID"/></label>
-            <label className={labelClass}>Student email *<input className={fieldClass} type="email" autoComplete="email" required maxLength={160} value={form.email} onChange={e=>setField("email",e.target.value)} placeholder="you@example.com"/></label>
+            <label className={labelClass}>Student Name *<input className={fieldClass} autoComplete="name" required maxLength={120} value={form.fullName} onChange={e=>setField("fullName",e.target.value)} placeholder="As shown on your college ID"/></label>
+            <label className={labelClass}>Student Email *<input className={fieldClass} type="email" autoComplete="email" required maxLength={160} value={form.email} onChange={e=>setField("email",e.target.value)} placeholder="you@example.com"/></label>
             <label className={labelClass}>Contact number (optional)<input className={fieldClass} type="tel" autoComplete="tel" inputMode="tel" maxLength={20} value={form.phone} onChange={e=>setField("phone",e.target.value)} placeholder="10-digit mobile number"/></label>
-            <label className={labelClass}>College / University name (optional)<input className={fieldClass} maxLength={180} value={form.college} onChange={e=>setField("college",e.target.value)} placeholder="Enter your institution name"/></label>
+            <label className={labelClass}>Board / College / University (optional)<input className={fieldClass} maxLength={180} value={form.college} onChange={e=>setField("college",e.target.value)} placeholder="Enter your institution name"/></label>
             <label className={labelClass}>Branch / Course (optional)<input className={fieldClass} maxLength={120} value={form.branch} onChange={e=>setField("branch",e.target.value)} placeholder="e.g. B.Tech Computer Science"/></label>
             <label className={labelClass}>Current year / semester (optional)<select className={fieldClass} value={form.yearOfStudy} onChange={e=>setField("yearOfStudy",e.target.value)}><option value="">Select year / semester</option><option>1st year</option><option>2nd year</option><option>3rd year</option><option>4th year</option><option>Recent graduate</option><option>Other</option></select></label>
             <label className={labelClass}>College roll / registration number (optional)<input className={fieldClass} maxLength={80} value={form.registrationNumber} onChange={e=>setField("registrationNumber",e.target.value)} placeholder="Enter your college registration number"/></label>
@@ -121,10 +173,17 @@ export default function InternshipApplyPage() {
           <label className={labelClass + " mt-5 block"}>How did you hear about Snapforest? (optional)<select className={fieldClass} value={form.referralSource} onChange={e=>setField("referralSource",e.target.value)}><option value="">Select source</option><option>Instagram / Facebook</option><option>WhatsApp Group / Channel</option><option>LinkedIn</option><option>College / University</option><option>Friend / Referral</option><option>Google / Website Search</option><option>Other</option></select></label>
           <label className={labelClass + " mt-5 block"}>Referral code (optional)<input className={fieldClass} maxLength={40} value={form.referralCode} onChange={e=>setField("referralCode",e.target.value)} placeholder="Enter your friend's referral code"/></label>
           <div className="mt-4 rounded-xl border border-[#dce8d3] bg-[#f2f7ed] p-4"><p className="font-semibold text-[#214f31]">Refer & Earn</p><p className="mt-2 text-sm leading-6 text-[#596456]">Refer 2 friends who complete paid registration to qualify for a free internship. Referral codes and eligibility are subject to verification by Snapforest.</p></div>
-          <label className={labelClass + " mt-5 block"}>UTR / Transaction ID *<input className={fieldClass} required maxLength={100} value={utrNumber} onChange={e=>setUtrNumber(e.target.value)} placeholder="Enter payment transaction reference"/></label>
+          <label className={labelClass + " mt-5 block"}>College ID Card / Admission Slip (optional)<input type="file" accept="image/*" onChange={e=>void uploadDocument(e.target.files?.[0],"collegeId")} className={fieldClass}/>{uploading==="collegeId"&&<span className="mt-1 block text-xs">Uploading…</span>}{collegeIdUrl&&<span className="mt-1 block text-xs text-emerald-700">Uploaded successfully</span>}</label>
+          <label className={labelClass + " mt-5 block"}>NOC Letter (optional)<input type="file" accept="image/*" onChange={e=>void uploadDocument(e.target.files?.[0],"nocLetter")} className={fieldClass}/>{uploading==="nocLetter"&&<span className="mt-1 block text-xs">Uploading…</span>}{nocLetterUrl&&<span className="mt-1 block text-xs text-emerald-700">Uploaded successfully</span>}</label>
+          {form.paymentMethod==="upi" ? <>
+            <label className={labelClass + " mt-5 block"}>Upload payment screenshot (optional)<input type="file" accept="image/*" onChange={e=>void uploadDocument(e.target.files?.[0],"paymentScreenshot")} className={fieldClass}/>{uploading==="paymentScreenshot"&&<span className="mt-1 block text-xs">Uploading…</span>}{paymentScreenshotUrl&&<span className="mt-1 block text-xs text-emerald-700">Uploaded successfully</span>}</label>
+            <label className={labelClass + " mt-5 block"}>UTR No. (Transaction ID) *<input className={fieldClass} required maxLength={100} value={utrNumber} onChange={e=>setUtrNumber(e.target.value)} placeholder="Enter payment transaction reference"/></label>
+          </> : <div className="mt-5"><button type="button" onClick={()=>void payWithRazorpay()} className="w-full rounded-xl border border-[#214f31] px-4 py-3 text-sm font-semibold text-[#214f31]">{razorpayPayment?"₹100 payment completed ✓":"Pay ₹100 securely with Razorpay"}</button><p className="mt-2 text-xs text-[#687363]">{razorpayPayment ? "Payment reference received. Submit the form to verify and register." : "Complete payment in the secure Razorpay checkout before submitting."}</p></div>}
+          <div className="mt-6"><h3 className="text-sm font-semibold">Certificate sample</h3><img src="/images/snapforest-certificate-sample.svg" alt="Snapforest internship certificate sample" className="mt-2 w-full rounded-lg border border-[#e2e7de]"/></div>
+          <div className="mt-6"><h3 className="text-sm font-semibold">Offer letter sample</h3><img src="/images/snapforest-offer-letter-sample.svg" alt="Snapforest offer letter sample" className="mt-2 w-full rounded-lg border border-[#e2e7de]"/></div>
         </section>
 
-        <section className="rounded-2xl border border-[#dce4d7] bg-[#edf3e8] p-5 sm:p-6"><h2 className="font-bold text-[#214f31]">Before you submit</h2><ul className="mt-3 space-y-2 text-sm leading-5 text-[#4e5c4a]"><li>• Follow the payment instructions shown on this page before submitting.</li><li>• Any certificate delivery fee, if applicable, will be communicated by Snapforest.</li><li>• Submitting an application does not guarantee selection. Your details will be reviewed by Snapforest.</li></ul><label className="mt-4 flex items-start gap-3 border-t border-[#d4dfcd] pt-4 text-sm text-[#334431]"><input required type="checkbox" className="mt-1 h-4 w-4 accent-[#315e38]"/><span>I confirm that the information provided is accurate and consent to its use for reviewing my internship application.</span></label></section>
+        <section className="rounded-2xl border border-[#dce4d7] bg-[#edf3e8] p-5 sm:p-6"><h2 className="font-bold text-[#214f31]">Before you submit</h2><ul className="mt-3 space-y-2 text-sm leading-5 text-[#4e5c4a]"><li>• Pay ₹100 by UPI QR or Razorpay. UPI payments require the transaction UTR.</li><li>• Keep your payment reference for verification.</li><li>• Resume is not required. Submitting an application does not guarantee selection.</li></ul><label className="mt-4 flex items-start gap-3 border-t border-[#d4dfcd] pt-4 text-sm text-[#334431]"><input required type="checkbox" className="mt-1 h-4 w-4 accent-[#315e38]"/><span>I confirm that the information provided is accurate and consent to its use for reviewing my internship application.</span></label></section>
 
         {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
         <button type="submit" disabled={busy} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#214f31] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#183d27] disabled:cursor-not-allowed disabled:opacity-60">{busy?"Submitting application…": "Submit internship application"}{!busy&&<ArrowRight className="h-4 w-4"/>}</button>
