@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogIn, LogOut, UserCircle, ChevronDown, ArrowUpRight } from "lucide-react";
+import { Menu, X, LogIn, LogOut, UserCircle, ChevronDown, ArrowUpRight, Search, Moon } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import AuthModal from "@/components/auth/AuthModal";
 
@@ -45,8 +45,8 @@ export default function Navbar() {
         transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
         className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5"
       >
-        <div className={`mx-auto max-w-6xl rounded-2xl border px-3 transition-all duration-500 sm:px-4 ${scrolled ? "border-white/[0.12] bg-[#0d0f0e]/85 shadow-2xl backdrop-blur-2xl" : "border-white/[0.08] bg-[#0d0f0e]/50 backdrop-blur-xl"}`}>
-          <div className="flex h-14 items-center justify-between">
+        <div className={`mx-auto w-full max-w-[1600px] rounded-[24px] border px-3 transition-all duration-500 sm:px-5 ${scrolled ? "border-white/[0.13] bg-[#07111e]/95 shadow-2xl backdrop-blur-2xl" : "border-white/[0.1] bg-[#07111e]/90 backdrop-blur-xl"}`}>
+          <div className="flex h-[62px] items-center justify-between gap-3 sm:h-[66px]">
             <Link href="/" className="group flex items-center gap-2.5" aria-label="Snapforest home">
               <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.06] shadow-sm">
                 <img src="/logo.png" alt="" className="h-7 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
@@ -54,18 +54,22 @@ export default function Navbar() {
               <span className="hidden text-sm font-semibold tracking-[-0.02em] text-white sm:block">Snapforest</span>
             </Link>
 
-            <div className="hidden items-center gap-1 rounded-full border border-white/[0.07] bg-white/[0.03] p-1 md:flex">
+            <div className="hidden items-center gap-1.5 lg:flex">
               <NavLink href="/" label="Home" active={pathname === "/"} />
               <NavLink href="/rooms" label="Studios" active={isActive("/rooms")} />
-              {isLoggedIn && <NavLink href="/dashboard" label="Bookings" active={pathname === "/dashboard"} />}
-              {isAdmin && <NavLink href="/admin" label="Admin" active={pathname === "/admin"} special />}
+              <NavLink href="/dashboard" label="Bookings" active={pathname === "/dashboard"} />
+              <NavLink href="/rooms#pricing" label="Pricing" active={pathname === "/rooms#pricing"} />
+              <NavLink href="/#how-it-works" label="How it works" active={false} />
+              <NavLink href="/rooms" label="Creator Hub" active={false} />
             </div>
 
             <div className="flex items-center gap-2">
+              <Link href="/rooms" aria-label="Search studios" className="hidden h-9 w-9 items-center justify-center rounded-full text-white/85 transition hover:bg-white/10 md:flex"><Search className="h-5 w-5"/></Link>
+              <button type="button" aria-label="Toggle appearance" onClick={() => document.documentElement.classList.toggle("sf-light-mode")} className="hidden h-9 w-9 items-center justify-center rounded-full text-white/85 transition hover:bg-white/10 md:flex"><Moon className="h-5 w-5"/></button>
               {isLoggedIn ? (
                 <div className="relative">
-                  <button type="button" onClick={() => setShowProfile((value) => !value)} className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-1.5 text-white transition-colors hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b9f5ca]">
-                    <span className="grid h-7 w-7 place-items-center rounded-full bg-[#c9f4d4] text-xs font-bold text-[#112018]">{user?.name?.charAt(0)?.toUpperCase() || "U"}</span>
+                  <button type="button" onClick={() => setShowProfile((value) => !value)} className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-1.5 text-white transition-colors hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d9ff4f]">
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-white text-xs font-bold text-[#101722]">{user?.name?.charAt(0)?.toUpperCase() || "U"}</span>
                     <span className="hidden max-w-[100px] truncate text-sm text-white/80 sm:block">{user?.name}</span>
                     <ChevronDown className={`h-3.5 w-3.5 text-white/40 transition-transform ${showProfile ? "rotate-180" : ""}`} />
                   </button>
@@ -86,7 +90,7 @@ export default function Navbar() {
               ) : (
                 <div className="hidden items-center gap-1.5 sm:flex">
                   <button type="button" onClick={openLogin} className="rounded-full px-3.5 py-2 text-sm text-white/65 transition-colors hover:bg-white/[0.05] hover:text-white">Sign in</button>
-                  <Link href="/rooms" className="inline-flex items-center gap-1.5 rounded-full bg-[#d9f7e2] px-4 py-2.5 text-sm font-semibold text-[#102017] transition-transform hover:-translate-y-0.5 hover:bg-white">Book a studio <ArrowUpRight className="h-3.5 w-3.5" /></Link>
+                  <Link href="/rooms" className="inline-flex items-center gap-1.5 rounded-full bg-[#d9ff4f] px-4 py-2.5 text-sm font-bold text-[#101722] transition-transform hover:-translate-y-0.5 hover:bg-[#e8ff91]">Book a studio <ArrowUpRight className="h-3.5 w-3.5" /></Link>
                 </div>
               )}
 
@@ -127,7 +131,7 @@ export default function Navbar() {
 }
 
 function NavLink({ href, label, active, special }: { href: string; label: string; active: boolean; special?: boolean }) {
-  return <Link href={href} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${active ? "bg-white text-[#101311]" : special ? "text-[#b9f5ca] hover:bg-[#b9f5ca]/10" : "text-white/55 hover:bg-white/[0.06] hover:text-white"}`}>{label}</Link>;
+  return <Link href={href} className={`rounded-full px-3.5 py-2.5 text-[13px] font-semibold transition-colors ${active ? "bg-[#d9ff4f] text-[#101722] shadow-sm" : special ? "text-[#d9ff4f] hover:bg-[#d9ff4f]/10" : "text-white/80 hover:bg-white/[0.07] hover:text-white"}`}>{label}</Link>;
 }
 
 function MobileLink({ href, label, active }: { href: string; label: string; active: boolean }) {
