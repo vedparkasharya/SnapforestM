@@ -68,7 +68,7 @@ export default function OfferLettersPanel() {
     } catch (e) { setError(e instanceof Error ? e.message : "Could not update status."); }
   }
   const urlFor = (number: string) => typeof window === "undefined" ? "" : `${window.location.origin}/offer-letter/${encodeURIComponent(number)}`;
-  const copy = async (number: string) => { try { await navigator.clipboard.writeText(urlFor(number)); toast.success("Offer link copied"); } catch { setError("Copy failed. Open the offer letter and copy its URL from the address bar."); } };
+  const copy = async (number: string) => { try { await navigator.clipboard.writeText(urlFor(number)); toast.showToast("Offer link copied.", "success"); } catch { setError("Copy failed. Open the offer letter and copy its URL from the address bar."); } };
   const filtered = items.filter(x => `${x.fullName} ${x.email} ${x.jobTitle} ${x.offerLetterNumber}`.toLowerCase().includes(search.toLowerCase()));
 
   return <div className="space-y-6">
