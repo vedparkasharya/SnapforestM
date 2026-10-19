@@ -8,7 +8,7 @@ import { representativeRoomImage } from "@/lib/representative-room-photos";
 import {
   ArrowDown, ArrowRight, ArrowUpRight, Camera, Check,
   CirclePlay, Clapperboard, Headphones, MapPin, Mic2, Music2,
-  Play, Search, Video, Waves, Wifi, Sparkles
+  Play, Search, Video, Waves, Wifi, Sparkles, ShieldCheck as ShieldCheckIcon, Users as UserCircleIcon, ArrowLeft as ArrowLeftIcon
 } from "lucide-react";
 
 type Room = {
@@ -76,41 +76,34 @@ export default function PremiumHome() {
 
   return (
     <main className="sf-premium sf-longhaul">
-      <section className="sf-hero sf-longhaul-hero">
-        <div className="sf-sky" aria-hidden="true">
-          <span className="sf-sun" /><span className="sf-mountain sf-mountain-back" />
-          <span className="sf-mountain sf-mountain-front" /><span className="sf-horizon-grid" />
-        </div>
-        <div className="sf-hero-topline"><span><i /> CREATOR SPACES / MADE FOR YOUR IDEA</span><span>INDIA · EST. 2024</span></div>
-        <div className="sf-wrap sf-longhaul-wrap">
-          <motion.div className="sf-longhaul-copy" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .7 }}>
-            <div className="sf-longhaul-brand"><span className="sf-brand-symbol">S.</span> SNAPFOREST <span className="sf-brand-rule" /> CREATOR SPACES</div>
-            <p className="sf-longhaul-kicker">A BETTER SETUP FOR WHAT YOU MAKE.</p>
-            <h1>MAKE<br /><span>GOOD</span><br />THINGS<span className="sf-title-period">.</span></h1>
-            <p className="sf-longhaul-lede">Your next podcast, shoot, stream or track deserves more than a makeshift setup. Find a creator-ready space, compare the details and make something worth sharing.</p>
+      <section className="sf-hero sf-longhaul-hero sf-reference-hero">
+        <div className="sf-reference-glow" aria-hidden="true" />
+        <div className="sf-wrap sf-reference-layout">
+          <motion.div className="sf-reference-copy" initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:.65}}>
+            <div className="sf-reference-kicker"><span><Sparkles size={12} fill="currentColor"/> CREATOR SPACES</span><p>Record <i>•</i> Shoot <i>•</i> Stream <i>•</i> Create</p></div>
+            <h1>MAKE<br/><span>GOOD</span><br/>THINGS.</h1>
+            <div className="sf-reference-swish" aria-hidden="true"/>
+            <p className="sf-reference-lede">Book professional studios for podcasts, YouTube, music, photography and more. A better setup for what you make.</p>
             <div className="sf-hero-actions">
-              <Link href="/rooms" className="sf-button sf-button-lime">Explore studios <ArrowRight size={17} /></Link>
-              <Link href="#how-it-works" className="sf-button sf-button-glass"><CirclePlay size={17} /> How it works</Link>
+              <Link href="/rooms" className="sf-button sf-button-lime"><span className="sf-cta-icon"><ArrowDown size={17}/></span>Explore Studios <ArrowRight size={18}/></Link>
+              <Link href="#how-it-works" className="sf-button sf-button-glass"><CirclePlay size={19} fill="currentColor"/> How it works</Link>
+            </div>
+            <div className="sf-reference-benefits">
+              <div><span><ShieldCheckIcon/></span><p><strong>Verified Studios</strong><small>Quality checked</small></p></div>
+              <div><span><Headphones size={20}/></span><p><strong>Flexible Booking</strong><small>Hourly slots</small></p></div>
+              <div><span><ShieldCheck size={20}/></span><p><strong>Secure Payments</strong><small>Razorpay powered</small></p></div>
+              <div><span><UserCircleIcon/></span><p><strong>For All Creators</strong><small>Podcast · Video · Music</small></p></div>
             </div>
           </motion.div>
-          <motion.div className="sf-cockpit" initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: .8, delay: .12 }}>
-            <div className="sf-cockpit-screen">
-              <Image src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1800&q=90" alt="Warm, professionally equipped creator recording studio" fill priority sizes="(max-width: 800px) 90vw, 48vw" />
-              <div className="sf-cockpit-screen-shade" />
-              <div className="sf-screen-top"><span>SNAPFOREST / CREATOR SESSION 001</span><span>● READY TO CREATE</span></div>
-              <div className="sf-screen-title"><span>THE NEXT TAKE</span><strong>GETS A SPACE.</strong></div>
-              <div className="sf-screen-corner">01 / 06</div>
-            </div>
-            <div className="sf-player">
-              <div className="sf-player-art"><Waves size={23} /></div>
-              <div className="sf-player-track"><small>THE CREATOR’S CHECKLIST</small><strong>Find your setup <span>— Snapforest</span></strong><div className="sf-track-line"><i /></div></div>
-              <button type="button" className="sf-player-play" aria-label="Explore studios" onClick={() => { window.location.href = "/rooms"; }}><Play size={15} fill="currentColor" /></button>
-              <div className="sf-player-wave" aria-hidden="true">{Array.from({ length: 19 }, (_, i) => <i key={i} style={{ height: (7 + ((i * 13) % 19)) + "px" }} />)}</div>
-            </div>
-            <div className="sf-cockpit-note"><span className="sf-note-icon"><Sparkles size={17} /></span><span><small>GOOD IDEAS NEED SPACE</small><strong>You bring the idea. We help you find the room.</strong></span></div>
+          <motion.div className="sf-reference-visual" initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} transition={{duration:.75,delay:.1}}>
+            <Image src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=2000&q=92" alt="Professional music and podcast recording studio with warm lighting" fill priority sizes="(max-width: 800px) 100vw, 62vw" className="sf-reference-photo"/>
+            <div className="sf-reference-photo-shade"/>
+            <div className="sf-reference-room-label"><span>FEATURED STUDIO</span><strong>Pro Audio Studio</strong><p><MapPin size={15}/> Patna, Bihar</p></div>
+            <div className="sf-reference-price"><strong>₹499</strong><span>/ hour</span><Link href="/rooms">Book Now <ArrowRight size={15}/></Link></div>
+            <div className="sf-reference-arrows"><Link href="/rooms" aria-label="Previous featured studio"><ArrowLeftIcon/></Link><Link href="/rooms" aria-label="Next featured studio"><ArrowRight size={20}/></Link></div>
+            <div className="sf-reference-dots" aria-hidden="true"><i className="active"/><i/><i/><i/></div>
           </motion.div>
         </div>
-        <div className="sf-hero-bottomline"><span>PODCAST · PHOTO · VIDEO · MUSIC</span><span className="sf-bottom-dash" /><span>MADE FOR CREATORS</span><a href="#spaces" aria-label="Scroll to studio spaces"><ArrowDown size={17} /></a></div>
       </section>
 
       <section className="sf-category-section" id="spaces">
