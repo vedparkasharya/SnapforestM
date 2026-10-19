@@ -99,13 +99,6 @@ export async function POST(request: NextRequest) {
       console.warn("[Admin Login] DB unavailable; authenticating from configured admin secret", dbError);
     }
 
-    if (user && user.role !== "admin") {
-      return NextResponse.json(
-        { success: false, message: "Access denied: Administrator privileges required" },
-        { status: 403, headers }
-      );
-    }
-
     let userId = "admin-configured";
     let userName = ADMIN_NAME;
     let userEmail = ADMIN_EMAIL;
@@ -117,7 +110,8 @@ export async function POST(request: NextRequest) {
       userName = user.name;
       userEmail = user.email;
       userImage = user.image;
-      userRole = user.role;
+      // The explicitly configured admin credentials grant admin access.
+      userRole = "admin";
     }
 
     resetLoginAttempts(`${clientIP}:${sanitizedEmail}`);
