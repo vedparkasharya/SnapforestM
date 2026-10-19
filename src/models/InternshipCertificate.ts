@@ -15,6 +15,7 @@ export interface IInternshipCertificate extends Document {
   issueDate: Date;
   description: string;
   skills: string[];
+  deliveryMode: "online" | "offline";
   status: "active" | "revoked";
   createdAt: Date;
   updatedAt: Date;
@@ -35,6 +36,7 @@ const InternshipCertificateSchema = new Schema<IInternshipCertificate>({
   issueDate: { type: Date, required: true },
   description: { type: String, default: "", trim: true, maxlength: 1500 },
   skills: { type: [String], default: [] },
+  deliveryMode: { type: String, enum: ["online", "offline"], default: "online", index: true },
   status: { type: String, enum: ["active", "revoked"], default: "active", index: true },
 }, { timestamps: true });
 
