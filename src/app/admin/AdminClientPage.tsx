@@ -21,6 +21,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useToast } from "@/providers/ToastProvider";
 import { formatPrice, formatDate } from "@/lib/utils";
 import CertificatesPanel from "@/components/admin/CertificatesPanel";
+import OfferLettersPanel from "@/components/admin/OfferLettersPanel";
 
 // ─── Types ────────────────────────────────────────────
 interface Booking {
@@ -1551,6 +1552,7 @@ function AdminDashboard({
             <TabsTrigger value="rooms" className="gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-neon-cyan/20 data-[state=active]:to-neon-purple/20 data-[state=active]:text-neon-cyan"><Eye className="w-3.5 h-3.5" />Rooms ({filteredDisplayRooms.length})</TabsTrigger>
             <TabsTrigger value="analytics" className="gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-neon-cyan/20 data-[state=active]:to-neon-purple/20 data-[state=active]:text-neon-cyan"><LineChart className="w-3.5 h-3.5" />Analytics</TabsTrigger>
             <TabsTrigger value="certificates" className="gap-1.5 data-[state=active]:bg-[#c9f36a]/10 data-[state=active]:text-[#c9f36a]"><QrCode className="w-3.5 h-3.5" />Certificates</TabsTrigger>
+            <TabsTrigger value="offer-letters" className="gap-1.5 data-[state=active]:bg-[#c9f36a]/10 data-[state=active]:text-[#c9f36a]"><Shield className="w-3.5 h-3.5" />Offer Letters</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -1817,6 +1819,10 @@ function AdminDashboard({
 
           <TabsContent value="certificates">
             <CertificatesPanel />
+          </TabsContent>
+
+          <TabsContent value="offer-letters">
+            <OfferLettersPanel />
           </TabsContent>
         </Tabs>
 
