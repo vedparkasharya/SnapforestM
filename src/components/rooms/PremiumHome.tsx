@@ -91,7 +91,7 @@ export default function PremiumHome() {
             <div className="sf-reference-benefits">
               <div><span><ShieldCheckIcon/></span><p><strong>Verified Studios</strong><small>Quality checked</small></p></div>
               <div><span><Headphones size={20}/></span><p><strong>Flexible Booking</strong><small>Hourly slots</small></p></div>
-              <div><span><ShieldCheck size={20}/></span><p><strong>Secure Payments</strong><small>Razorpay powered</small></p></div>
+              <div><span><ShieldCheckIcon size={20}/></span><p><strong>Secure Payments</strong><small>Razorpay powered</small></p></div>
               <div><span><UserCircleIcon/></span><p><strong>For All Creators</strong><small>Podcast · Video · Music</small></p></div>
             </div>
           </motion.div>
