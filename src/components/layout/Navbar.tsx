@@ -61,6 +61,7 @@ export default function Navbar() {
               <NavLink href="/rooms#pricing" label="Pricing" active={pathname === "/rooms#pricing"} />
               <NavLink href="/#how-it-works" label="How it works" active={false} />
               <NavLink href="/rooms" label="Creator Hub" active={false} />
+              <NavLink href="/internship/apply" label="Internships" active={pathname.startsWith("/internship")} />
             </div>
 
             <div className="flex items-center gap-2">
@@ -106,6 +107,7 @@ export default function Navbar() {
                 <div className="space-y-1 py-3">
                   <MobileLink href="/" label="Home" active={pathname === "/"} />
                   <MobileLink href="/rooms" label="Studios" active={isActive("/rooms")} />
+                  <MobileLink href="/internship/apply" label="Internships" active={pathname.startsWith("/internship")} />
                   {isLoggedIn && <MobileLink href="/dashboard" label="Bookings" active={pathname === "/dashboard"} />}
                   {isAdmin && <MobileLink href="/admin" label="Admin" active={pathname === "/admin"} />}
                   <div className="mt-2 border-t border-white/[0.08] pt-2">
