@@ -14,6 +14,7 @@ export interface IInternshipApplication extends Document {
   collegeIdUrl: string;
   resumeUrl: string;
   motivation: string;
+  adminNote?: string;
   status: "submitted" | "reviewing" | "accepted" | "rejected";
   createdAt: Date;
   updatedAt: Date;
@@ -33,6 +34,7 @@ const InternshipApplicationSchema = new Schema<IInternshipApplication>({
   collegeIdUrl: { type: String, required: true },
   resumeUrl: { type: String, default: "" },
   motivation: { type: String, default: "", trim: true, maxlength: 1500 },
+  adminNote: { type: String, default: "", trim: true, maxlength: 1500 },
   status: { type: String, enum: ["submitted", "reviewing", "accepted", "rejected"], default: "submitted", index: true },
 }, { timestamps: true });
 
