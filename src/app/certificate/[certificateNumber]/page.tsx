@@ -86,14 +86,14 @@ export default function InternshipCertificatePage() {
           opacity: 1 !important;
         }
         @media print {
-          @page { size: A4 landscape; margin: 5mm; }
-          html, body, main { width: 100% !important; height: auto !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important; background: #fff !important; color: #172117 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+          @page { size: A4 landscape; margin: 0; }
+          html, body, main { width: 100% !important; height: 100% !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important; background: #fff !important; color: #172117 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
           body * { visibility: hidden !important; background-color: transparent; }
           .certificate-document, .certificate-document * { visibility: visible !important; opacity: 1 !important; }
           .certificate-document h1, .certificate-document h2 { color: #123d27 !important; -webkit-text-fill-color: #123d27 !important; opacity: 1 !important; text-shadow: none !important; }
           .certificate-document p, .certificate-document span { -webkit-text-fill-color: currentColor; }
-          .certificate-document { position: fixed !important; top: 0 !important; left: 0 !important; z-index: 999999 !important; display: block !important; width: 100% !important; height: 190mm !important; max-width: none !important; margin: 0 !important; border: 1px solid #294b31 !important; box-shadow: none !important; padding: 0 !important; overflow: hidden !important; background: #fbfcf7 !important; color: #172117 !important; box-sizing: border-box !important; break-inside: avoid !important; page-break-inside: avoid !important; }
-          .certificate-document > div { height: 100% !important; box-sizing: border-box !important; padding: 5mm !important; overflow: hidden !important; }
+          .certificate-document { position: fixed !important; top: 0 !important; left: 0 !important; z-index: 999999 !important; display: block !important; width: 100vw !important; height: 100vh !important; max-width: none !important; margin: 0 !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; overflow: hidden !important; background: #fbfcf7 !important; color: #172117 !important; box-sizing: border-box !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+          .certificate-document > div { width: 100% !important; height: 100% !important; box-sizing: border-box !important; padding: 4mm !important; overflow: hidden !important; border: 1.5mm solid #294b31 !important; }
           .certificate-document h1 { margin-top: 2mm !important; font-size: 25pt !important; line-height: 1.1 !important; }
           .certificate-document h2 { margin-top: 2mm !important; font-size: 28pt !important; line-height: 1.1 !important; }
           .certificate-document .relative.mx-auto.mt-7.flex { margin-top: 3mm !important; padding-top: 2mm !important; padding-bottom: 2mm !important; }
