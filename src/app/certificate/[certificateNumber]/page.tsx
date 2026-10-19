@@ -112,8 +112,8 @@ export default function InternshipCertificatePage() {
             height: 200mm !important;
             min-height: 0 !important;
             margin: 0 !important;
-            padding: 0 !important;
-            border: 0 !important;
+            padding: 2.5mm !important;
+            border: 1.4mm solid #172117 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             overflow: hidden !important;
@@ -134,11 +134,42 @@ export default function InternshipCertificatePage() {
             margin: 0 !important;
             padding: 5mm 8mm !important;
             overflow: hidden !important;
-            border: 0 !important;
+            border: 0.6mm double #294b31 !important;
             box-sizing: border-box !important;
           }
-          .certificate-document > div::before,
-          .certificate-document > div > .pointer-events-none { display: none !important; content: none !important; }
+          .certificate-document > div::before { content: none !important; }
+          .certificate-document > div > .pointer-events-none {
+            display: block !important;
+            position: absolute !important;
+            inset: 2mm !important;
+            border: 0.35mm solid #294b31 !important;
+            opacity: 0.55 !important;
+            pointer-events: none !important;
+          }
+          .certificate-document h1,
+          .certificate-document h2,
+          .certificate-document .relative.text-center,
+          .certificate-document .relative.text-center p,
+          .certificate-document .relative.text-center span {
+            opacity: 1 !important;
+            visibility: visible !important;
+            -webkit-text-fill-color: currentColor !important;
+            text-shadow: none !important;
+          }
+          .certificate-document h1 {
+            color: #183d27 !important;
+            -webkit-text-fill-color: #183d27 !important;
+            font-weight: 800 !important;
+          }
+          .certificate-document h2 {
+            color: #123d27 !important;
+            -webkit-text-fill-color: #123d27 !important;
+            font-weight: 800 !important;
+          }
+          .certificate-document .relative.text-center > p {
+            color: #263b29 !important;
+            -webkit-text-fill-color: #263b29 !important;
+          }
           .certificate-document > div > * { position: relative !important; min-width: 0 !important; flex-shrink: 0 !important; }
           .certificate-document .relative.text-center { flex-shrink: 1 !important; }
           .certificate-document .relative.text-center > div:first-child {
