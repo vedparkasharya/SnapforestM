@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { BadgeCheck, Copy, ExternalLink, Loader2, Plus, RefreshCw, ShieldCheck, XCircle } from "lucide-react";
 import { useToast } from "@/providers/ToastProvider";
+import { useAuth } from "@/providers/AuthProvider";
 
 type Certificate = {
   _id: string; certificateNumber: string; fullName: string; email: string;
@@ -16,9 +17,6 @@ const initialForm = {
   allotmentDate:"", startDate:"", endDate:"", issueDate:new Date().toISOString().slice(0,10),
   description:"", skills:"",
 };
-function adminToken() {
-  try { return JSON.parse(localStorage.getItem("snapforest_admin") || "{}").token || ""; } catch { return ""; }
-}
 function fmt(value: string) {
   if (!value) return "—";
   const d = new Date(value);
@@ -27,9 +25,11 @@ function fmt(value: string) {
 
 export default function CertificatesPanel() {
   const toast = useToast();
-  // Read the dedicated admin token after mount; client components can also be server-rendered.
-  const [token, setToken] = useState("");
-  useEffect(() => { setToken(adminToken()); }, []);
+  // Use the exact session token validated and maintained by AuthProvider.
+  // Reading a separate localStorage snapshot here can send a stale token even
+  // while the header correctly shows the current admin session.
+  const { user, isLoading: authLoading } = useAuth();
+  const token = user?.role === "admin" ? user.token : "";
   const [form, setForm] = useState(initialForm);
   const [items, setItems] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +48,11 @@ export default function CertificatesPanel() {
     } catch (e) { setError(e instanceof Error ? e.message : "Could not load certificates."); }
     finally { setLoading(false); }
   }, [token]);
-  useEffect(() => { if (token) void load(); else { setLoading(false); setError("Admin session not found. Please sign out and sign in again."); } }, [load, token]);
+  useEffect(() => {
+    if (authLoading) return;
+    if (token) void load();
+    else { setLoading(false); setError("Your admin session is not available to the certificate panel. Please sign out, sign in again, and reopen this page."); }
+  }, [authLoading, load, token]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setSaving(true); setError(""); setIssued(null);
