@@ -21,7 +21,7 @@ function shape(item: any) {
     employmentType: item.employmentType, workLocation: item.workLocation, salary: item.salary,
     joiningDate: item.joiningDate, issueDate: item.issueDate, probationPeriod: item.probationPeriod,
     reportingTo: item.reportingTo, organization: item.organization, issuerName: item.issuerName,
-    issuerTitle: item.issuerTitle, terms: item.terms, status: item.status, createdAt: item.createdAt,
+    issuerTitle: item.issuerTitle, terms: item.terms, deliveryMode: item.deliveryMode || "online", status: item.status, createdAt: item.createdAt,
   };
 }
 
@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
       reportingTo: clean(body.reportingTo, 120) || "Team Lead", organization: clean(body.organization, 120) || "Snapforest",
       issuerName: clean(body.issuerName, 120) || "Snapforest",
       issuerTitle: clean(body.issuerTitle, 120) || "Authorized Signatory", terms: clean(body.terms, 5000),
+      deliveryMode: body.deliveryMode === "offline" ? "offline" : "online",
     });
     return successResponse(shape(record), "Offer letter created successfully.");
   } catch (error) {
