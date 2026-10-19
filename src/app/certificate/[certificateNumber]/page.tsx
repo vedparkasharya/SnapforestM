@@ -8,7 +8,7 @@ import { ArrowLeft, BadgeCheck, Printer, ShieldCheck } from "lucide-react";
 type Certificate = {
   certificateNumber:string; fullName:string; internshipRole:string; department:string; organization:string;
   issuerName:string; issuerTitle:string; allotmentDate:string; startDate:string; endDate:string; issueDate:string;
-  description:string; skills:string[]; status:"active"|"revoked";
+  description:string; skills:string[]; deliveryMode:"online"|"offline"; status:"active"|"revoked";
 };
 function date(value?: string) {
   if (!value) return "—";
@@ -84,7 +84,7 @@ export default function InternshipCertificatePage() {
           <div className="text-left"><p className="text-[10px] uppercase tracking-wider text-[#657264]">Certificate number</p><p className="mt-1 font-mono text-sm font-bold text-[#2d5138]">{certificate.certificateNumber}</p><div className="mt-3 flex items-center gap-2 text-[10px] text-[#526f55]"><BadgeCheck className="h-4 w-4"/>{certificate.status==="active"?"Verification record: Active":"Verification record: Revoked"}</div></div>
           <div className="flex items-end gap-5"><div className="text-right"><p className="font-serif text-lg italic text-[#52694f]">{certificate.issuerName}</p><div className="mt-1 w-40 border-t border-[#83947b] pt-2 text-left"><p className="text-xs font-semibold">{certificate.issuerName}</p><p className="mt-0.5 text-[10px] text-[#657264]">{certificate.issuerTitle}</p></div></div>{qrUrl && <div className="w-28 shrink-0 text-center"><img src={qrUrl} alt="Scan to verify certificate" className="h-28 w-28 bg-white p-1"/><p className="mt-1 text-[8px] text-[#526052]">SCAN TO VERIFY</p></div>}</div>
         </div>
-        <p className="relative mt-8 border-t border-[#e2e3d7] pt-3 text-center text-[9px] text-[#657264]">This certificate can be authenticated at snapforest.in/verify-certificate using the certificate number or QR code.</p>
+        <p className="relative mt-5 border-t border-[#e2e3d7] pt-3 text-center text-[9px] font-semibold uppercase tracking-wide text-[#52634f]">{certificate.deliveryMode === "offline" ? "Offline issue · Physical copy" : "Online issue · Digital copy · No physical collection required"}</p><p className="relative mt-2 text-center text-[9px] text-[#657264]">This certificate can be authenticated at snapforest.in/verify-certificate using the certificate number or QR code.</p>
       </div>
       <style jsx global>{`
         @media print {
