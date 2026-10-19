@@ -99,10 +99,9 @@ export function trackLoginAttempt(identifier: string): {
 
   const newAttempts = record.attempts + 1;
   if (newAttempts >= 5) {
-    const lockDuration = Math.min(
-      15 * 60 * 1000 * Math.pow(2, Math.floor(newAttempts / 5) - 1),
-      24 * 60 * 60 * 1000
-    );
+    // Keep temporary login lockouts short for legitimate admin recovery.
+    // Repeated lockouts remain rate-limited, with a one-minute lock duration.
+    const lockDuration = 60 * 1000;
     record.attempts = newAttempts;
     record.lockUntil = now + lockDuration;
     return { locked: true, remainingAttempts: 0, lockDuration };
