@@ -110,9 +110,11 @@ export default function InternshipCertificatePage() {
             padding: 0 !important;
             overflow: visible !important;
           }
-          {
+          body {
             display: block !important;
             background: #fbfcf7 !important;
+            background-image: none !important;
+            color: #172117 !important;
           }
           main {
             display: block !important;
