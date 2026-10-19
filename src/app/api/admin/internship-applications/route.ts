@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       { registrationNumber: { $regex: search, $options: "i" } },
     ];
     const [applications, total, submitted, reviewing, accepted, rejected] = await Promise.all([
-      InternshipApplication.find(filter).sort({ createdAt: -1 }).limit(200).select("-collegeIdUrl -resumeUrl").lean(),
+      InternshipApplication.find(filter).sort({ createdAt: -1 }).limit(200).select("-resumeUrl").lean(),
       InternshipApplication.countDocuments(),
       InternshipApplication.countDocuments({ status: "submitted" }),
       InternshipApplication.countDocuments({ status: "reviewing" }),
