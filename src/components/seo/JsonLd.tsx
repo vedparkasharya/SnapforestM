@@ -16,10 +16,6 @@ export function JsonLd() {
         alternateName: "Snapforest Creator Studios",
         url: "https://snapforest.in",
         logo: "https://snapforest.in/icon-512.png",
-        founder: {
-          "@type": "Person",
-          name: "Ved Prakash Arya",
-        },
         areaServed: {
           "@type": "City",
           name: "Patna",
