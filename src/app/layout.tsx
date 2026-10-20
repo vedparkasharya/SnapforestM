@@ -21,8 +21,6 @@ export const metadata: Metadata = {
   title: { default: "Snapforest — Creator spaces, made easy", template: "%s | Snapforest" },
   description: "Discover creator-ready studios in Patna, compare the setup and book a time that fits your session.",
   keywords: ["Snapforest", "creator studio Patna", "podcast studio Patna", "YouTube studio Patna", "photo studio Patna", "music room Patna", "studio booking Patna"],
-  authors: [{ name: "Ved Prakash Arya" }],
-  creator: "Ved Prakash Arya",
   publisher: "Snapforest",
   alternates: { canonical: "/" },
   openGraph: {
