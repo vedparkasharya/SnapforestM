@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, CheckCircle2, Clock3, FileText, Laptop, MapPin, ShieldCheck, Sparkles } from "lucide-react";
