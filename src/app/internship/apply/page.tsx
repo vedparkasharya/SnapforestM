@@ -15,7 +15,7 @@ type FormState = {
 };
 const initial: FormState = {
   fullName: "", email: "", phone: "", college: "", branch: "", yearOfStudy: "",
-  registrationNumber: "", internshipRole: "", deliveryMode: "online", motivation: "", referralCode: "", referralSource: "", boardCollegeUniversity: "", paymentMethod: "upi",
+  registrationNumber: "", internshipRole: "", deliveryMode: "online", motivation: "", referralCode: "", referralSource: "", boardCollegeUniversity: "", paymentMethod: "razorpay",
 };
 
 export default function InternshipApplyPage() {
@@ -61,7 +61,7 @@ export default function InternshipApplyPage() {
     try {
       const orderResponse = await fetch("/api/internship-payment/order", { method: "POST" });
       const orderData = await orderResponse.json();
-      if (!orderResponse.ok || !orderData.success) throw new Error(orderData.message || "Razorpay unavailable. Please use UPI QR.");
+      if (!orderResponse.ok || !orderData.success) throw new Error(orderData.message || "Razorpay is currently unavailable. Please try again later.");
       const loadScript = () => new Promise<boolean>((resolve) => {
         if ((window as any).Razorpay) return resolve(true);
         const script = document.createElement("script");
@@ -70,7 +70,7 @@ export default function InternshipApplyPage() {
         script.onerror = () => resolve(false);
         document.body.appendChild(script);
       });
-      if (!await loadScript()) throw new Error("Could not load Razorpay checkout. Please use UPI QR.");
+      if (!await loadScript()) throw new Error("Could not load Razorpay checkout. Please try again later.");
       const RazorpayCtor = (window as any).Razorpay;
       const checkout = new RazorpayCtor({
         key: orderData.data.keyId, amount: orderData.data.amount, currency: "INR",
@@ -82,7 +82,7 @@ export default function InternshipApplyPage() {
           setRazorpayPayment(result);
           setForm(prev => ({ ...prev, paymentMethod: "razorpay" }));
         },
-        modal: { ondismiss: () => setError("Payment window closed. You can retry or use UPI QR.") }
+        modal: { ondismiss: () => setError("Payment window closed. You can retry the Razorpay payment.") }
       });
       checkout.open();
     } catch (e) { setError(e instanceof Error ? e.message : "Razorpay payment could not start."); }
@@ -92,7 +92,7 @@ export default function InternshipApplyPage() {
     event.preventDefault();
     setBusy(true); setError(""); setSuccess(null);
     try {
-      if (form.paymentMethod === "upi" && !utrNumber.trim()) throw new Error("Please enter the UPI payment UTR / transaction ID.");
+      if (form.paymentMethod === "upi") throw new Error("UPI payments are no longer available. Please use Razorpay.");
       if (form.paymentMethod === "razorpay" && !razorpayPayment) throw new Error("Complete the ₹100 Razorpay payment first.");
       const payload = { ...form, utrNumber: utrNumber.trim(), collegeIdUrl, paymentScreenshotUrl, nocLetterUrl, ...(razorpayPayment || {}) };
       const response = await fetch("/api/internship-applications", {
@@ -128,7 +128,7 @@ export default function InternshipApplyPage() {
           <p className="mt-3 text-sm leading-6 text-[#596456]">Apply for a one-month internship and learn by working on practical projects with our team. Complete the form carefully; required fields are marked with an asterisk.</p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="flex items-start gap-3 rounded-xl bg-[#f2f6ee] p-3.5"><GraduationCap className="mt-0.5 h-5 w-5 shrink-0 text-[#315e38]"/><div><p className="text-sm font-semibold">One-month internship</p><p className="mt-1 text-xs leading-5 text-[#63715e]">Certificate after successful completion.</p></div></div>
-            <div className="flex items-start gap-3 rounded-xl bg-[#f2f6ee] p-3.5"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#315e38]"/><div><p className="text-sm font-semibold">₹100 registration fee</p><p className="mt-1 text-xs leading-5 text-[#63715e]">Pay by UPI QR or Razorpay at registration.</p></div></div>
+            <div className="flex items-start gap-3 rounded-xl bg-[#f2f6ee] p-3.5"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#315e38]"/><div><p className="text-sm font-semibold">₹100 registration fee</p><p className="mt-1 text-xs leading-5 text-[#63715e]">Pay securely through Razorpay at registration.</p></div></div>
           </div>
         </div>
       </header>
@@ -165,27 +165,18 @@ export default function InternshipApplyPage() {
         </section>
 
         <section className={cardClass}>
-          <div className="mb-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#6b8b5c]">Section 03</p><h2 className="mt-1 text-lg font-bold">Registration payment</h2><p className="mt-1 text-xs text-[#727d70]">Registration fee: ₹100. Choose one payment method.</p></div>
-          <div className="mb-4 grid gap-3 sm:grid-cols-2">
-            <button type="button" onClick={()=>{setForm(prev=>({...prev,paymentMethod:"upi"}));setRazorpayPayment(null);}} className={`rounded-xl border p-3 text-sm font-semibold ${form.paymentMethod==="upi"?"border-[#719564] bg-[#f2f6ee]":"border-[#e5e8e1]"}`}>UPI QR + UTR</button>
-            <button type="button" onClick={()=>{setForm(prev=>({...prev,paymentMethod:"razorpay"}));setUtrNumber("");}} className={`rounded-xl border p-3 text-sm font-semibold ${form.paymentMethod==="razorpay"?"border-[#719564] bg-[#f2f6ee]":"border-[#e5e8e1]"}`}>Razorpay · ₹100</button>
+          <div className="mb-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#6b8b5c]">Section 03</p><h2 className="mt-1 text-lg font-bold">Registration payment</h2><p className="mt-1 text-xs text-[#727d70]">Registration fee: ₹100. Pay securely through Razorpay.</p></div>
+          <div className="mt-2">
+            <button type="button" onClick={()=>void payWithRazorpay()} className="w-full rounded-xl border border-[#214f31] px-4 py-3 text-sm font-semibold text-[#214f31]">{razorpayPayment?"₹100 payment completed ✓":"Pay ₹100 securely with Razorpay"}</button>
+            <p className="mt-2 text-xs text-[#687363]">{razorpayPayment ? "Payment reference received. Submit the form to verify and register." : "Complete payment in the secure Razorpay checkout before submitting."}</p>
           </div>
-          {form.paymentMethod==="upi" ? <>
-            <div className="rounded-xl border border-[#e2e7de] bg-[#fafbf8] p-4 text-center">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=upi%3A%2F%2Fpay%3Fpa%3Dvedprakasharya9973%40oksbi%26pn%3DVed%2520Prakash%2520Arya%26am%3D100%26cu%3DINR" alt="Snapforest UPI payment QR code for ₹100" className="mx-auto h-56 w-56 max-w-full object-contain" />
-              <p className="mt-2 text-sm font-semibold">Amount: ₹100</p><p className="mt-1 text-xs text-[#687363]">UPI ID: vedprakasharya9973@oksbi</p>
-              <p className="mt-2 text-xs text-[#687363]">Verify the recipient and amount in your UPI app before paying.</p>
-            </div>
-            <label className={labelClass + " mt-5 block"}>Upload screenshot of payment (optional)<input type="file" accept="image/*" onChange={e=>void uploadDocument(e.target.files?.[0],"paymentScreenshot")} className={fieldClass}/>{uploading==="paymentScreenshot"&&<span className="mt-1 block text-xs">Uploading…</span>}{paymentScreenshotUrl&&<span className="mt-1 block text-xs text-emerald-700">Uploaded successfully</span>}</label>
-            <label className={labelClass + " mt-5 block"}>UTR No. (Transaction ID) *<input className={fieldClass} required maxLength={100} value={utrNumber} onChange={e=>setUtrNumber(e.target.value)} placeholder="Enter payment transaction reference"/></label>
-          </> : <div className="mt-2"><button type="button" onClick={()=>void payWithRazorpay()} className="w-full rounded-xl border border-[#214f31] px-4 py-3 text-sm font-semibold text-[#214f31]">{razorpayPayment?"₹100 payment completed ✓":"Pay ₹100 securely with Razorpay"}</button><p className="mt-2 text-xs text-[#687363]">{razorpayPayment ? "Payment reference received. Submit the form to verify and register." : "Complete payment in the secure Razorpay checkout before submitting."}</p></div>}
           <label className={labelClass + " mt-5 block"}>College ID Card / Admission Slip (optional)<input type="file" accept="image/*" onChange={e=>void uploadDocument(e.target.files?.[0],"collegeId")} className={fieldClass}/>{uploading==="collegeId"&&<span className="mt-1 block text-xs">Uploading…</span>}{collegeIdUrl&&<span className="mt-1 block text-xs text-emerald-700">Uploaded successfully</span>}</label>
           <label className={labelClass + " mt-5 block"}>NOC Letter (optional)<input type="file" accept="image/*" onChange={e=>void uploadDocument(e.target.files?.[0],"nocLetter")} className={fieldClass}/>{uploading==="nocLetter"&&<span className="mt-1 block text-xs">Uploading…</span>}{nocLetterUrl&&<span className="mt-1 block text-xs text-emerald-700">Uploaded successfully</span>}</label>
           <div className="mt-6"><h3 className="text-sm font-semibold">Certificate sample</h3><img src="/images/snapforest-certificate-sample.svg" alt="Snapforest internship certificate sample" className="mt-2 w-full rounded-lg border border-[#e2e7de]"/></div>
           <div className="mt-6"><h3 className="text-sm font-semibold">Offer letter sample</h3><img src="/images/snapforest-offer-letter-sample.svg" alt="Snapforest offer letter sample" className="mt-2 w-full rounded-lg border border-[#e2e7de]"/></div>
         </section>
 
-        <section className="rounded-2xl border border-[#dce4d7] bg-[#edf3e8] p-5 sm:p-6"><h2 className="font-bold text-[#214f31]">Before you submit</h2><ul className="mt-3 space-y-2 text-sm leading-5 text-[#4e5c4a]"><li>• Pay ₹100 by UPI QR or Razorpay. UPI payments require the transaction UTR.</li><li>• Keep your payment reference for verification.</li><li>• Resume is not required. Submitting an application does not guarantee selection.</li></ul><label className="mt-4 flex items-start gap-3 border-t border-[#d4dfcd] pt-4 text-sm text-[#334431]"><input required type="checkbox" className="mt-1 h-4 w-4 accent-[#315e38]"/><span>I confirm that the information provided is accurate and consent to its use for reviewing my internship application.</span></label></section>
+        <section className="rounded-2xl border border-[#dce4d7] bg-[#edf3e8] p-5 sm:p-6"><h2 className="font-bold text-[#214f31]">Before you submit</h2><ul className="mt-3 space-y-2 text-sm leading-5 text-[#4e5c4a]"><li>• Complete the ₹100 Razorpay payment before submitting.</li><li>• Keep your Razorpay payment reference for verification.</li><li>• Resume is not required. Submitting an application does not guarantee selection.</li></ul><label className="mt-4 flex items-start gap-3 border-t border-[#d4dfcd] pt-4 text-sm text-[#334431]"><input required type="checkbox" className="mt-1 h-4 w-4 accent-[#315e38]"/><span>I confirm that the information provided is accurate and consent to its use for reviewing my internship application.</span></label></section>
 
         {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
         <button type="submit" disabled={busy || Boolean(uploading)} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#214f31] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#183d27] disabled:cursor-not-allowed disabled:opacity-60">{busy?"Submitting application…":uploading?"Uploading document…":"Submit internship application"}{!busy&&<ArrowRight className="h-4 w-4"/>}</button>
