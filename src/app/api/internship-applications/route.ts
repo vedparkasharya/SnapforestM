@@ -21,6 +21,8 @@ export async function POST(request: NextRequest) {
     const yearOfStudy = clean(body.yearOfStudy, 60);
     const registrationNumber = clean(body.registrationNumber, 80);
     const internshipRole = clean(body.internshipRole, 120) || "Software Developer Intern";
+    const durationWeeks = clean(body.durationWeeks, 2) || "4";
+    if (!["2", "4", "6", "8", "12"].includes(durationWeeks)) return errorResponse("Please choose a valid internship duration.", 400);
     const deliveryMode = body.deliveryMode === "offline" ? "offline" : "online";
     const motivation = clean(body.motivation, 1500);
     const utrNumber = clean(body.utrNumber, 100);
@@ -60,7 +62,7 @@ export async function POST(request: NextRequest) {
     const applicationNumber = "SF-INT-" + new Date().getFullYear() + "-" + randomBytes(5).toString("hex").toUpperCase();
     const record = await InternshipApplication.create({
       applicationNumber, fullName, email, phone, college, branch, yearOfStudy,
-      registrationNumber, internshipRole, deliveryMode, utrNumber, referralCode,
+      registrationNumber, internshipRole, durationWeeks, deliveryMode, utrNumber, referralCode,
       referralSource, boardCollegeUniversity, paymentMethod, collegeIdUrl, paymentScreenshotUrl, nocLetterUrl, motivation,
     });
     return successResponse({
