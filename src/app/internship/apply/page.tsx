@@ -10,12 +10,12 @@ const roles = [
 
 type FormState = {
   fullName: string; email: string; phone: string; college: string; branch: string;
-  yearOfStudy: string; registrationNumber: string; internshipRole: string;
+  yearOfStudy: string; registrationNumber: string; internshipRole: string; durationWeeks: string;
   deliveryMode: "online" | "offline"; motivation: string; referralCode: string; referralSource: string; boardCollegeUniversity: string; paymentMethod: "upi" | "razorpay";
 };
 const initial: FormState = {
   fullName: "", email: "", phone: "", college: "", branch: "", yearOfStudy: "",
-  registrationNumber: "", internshipRole: "", deliveryMode: "online", motivation: "", referralCode: "", referralSource: "", boardCollegeUniversity: "", paymentMethod: "razorpay",
+  registrationNumber: "", internshipRole: "", durationWeeks: "4", deliveryMode: "online", motivation: "", referralCode: "", referralSource: "", boardCollegeUniversity: "", paymentMethod: "razorpay",
 };
 
 export default function InternshipApplyPage() {
@@ -121,13 +121,13 @@ export default function InternshipApplyPage() {
         <div className="p-5 sm:p-8">
           <div className="flex items-center gap-3">
             <img src="/logo.png" alt="Snapforest logo" className="h-12 w-12 rounded-xl border border-[#e2e7de] object-contain p-1"/>
-            <div><p className="text-xs font-bold tracking-[.2em] text-[#214f31]">SNAPFOREST</p><p className="mt-1 text-xs text-[#6b7668]">Creator spaces · Digital experiences</p></div>
+            <div><p className="text-xs font-bold tracking-[.2em] text-[#214f31]">SNAPFOREST</p><p className="mt-1 text-xs text-[#6b7668]">Internship Programme 2026</p></div>
           </div>
           <p className="mt-7 text-xs font-bold uppercase tracking-[.16em] text-[#6b8b5c]">Internship applications</p>
           <h1 className="mt-2 font-serif text-3xl leading-tight text-[#172117] sm:text-4xl">Start your journey with Snapforest</h1>
-          <p className="mt-3 text-sm leading-6 text-[#596456]">Apply for a one-month internship and learn by working on practical projects with our team. Complete the form carefully; required fields are marked with an asterisk.</p>
+          <p className="mt-3 text-sm leading-6 text-[#596456]">Choose your preferred domain, internship duration and online or offline mode. Complete the form carefully; required fields are marked with an asterisk.</p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <div className="flex items-start gap-3 rounded-xl bg-[#f2f6ee] p-3.5"><GraduationCap className="mt-0.5 h-5 w-5 shrink-0 text-[#315e38]"/><div><p className="text-sm font-semibold">One-month internship</p><p className="mt-1 text-xs leading-5 text-[#63715e]">Certificate after successful completion.</p></div></div>
+            <div className="flex items-start gap-3 rounded-xl bg-[#f2f6ee] p-3.5"><GraduationCap className="mt-0.5 h-5 w-5 shrink-0 text-[#315e38]"/><div><p className="text-sm font-semibold">Flexible duration</p><p className="mt-1 text-xs leading-5 text-[#63715e]">Choose 2, 4, 6, 8 or 12 weeks.</p></div></div>
             <div className="flex items-start gap-3 rounded-xl bg-[#f2f6ee] p-3.5"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#315e38]"/><div><p className="text-sm font-semibold">₹100 registration fee</p><p className="mt-1 text-xs leading-5 text-[#63715e]">Pay securely through Razorpay at registration.</p></div></div>
           </div>
         </div>
@@ -155,8 +155,9 @@ export default function InternshipApplyPage() {
         </section>
 
         <section className={cardClass}>
-          <div className="mb-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#6b8b5c]">Section 02</p><h2 className="mt-1 text-lg font-bold">Internship preferences</h2><p className="mt-1 text-xs text-[#727d70]">Choose one role and your preferred training mode.</p></div>
+          <div className="mb-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#6b8b5c]">Section 02</p><h2 className="mt-1 text-lg font-bold">Internship preferences</h2><p className="mt-1 text-xs text-[#727d70]">Choose your preferred domain, duration and training mode.</p></div>
           <fieldset><legend className={labelClass}>Area / Internship role (optional)</legend><div className="mt-3 space-y-2">{roles.map(role=><label key={role} className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 text-sm transition ${form.internshipRole===role?"border-[#719564] bg-[#f2f6ee]":"border-[#e5e8e1] hover:bg-[#fafbf8]"}`}><input type="radio" name="internshipRole" checked={form.internshipRole===role} onChange={()=>setField("internshipRole",role)} className="h-4 w-4 accent-[#315e38]"/><span>{role}</span></label>)}</div></fieldset>
+          <div className="mt-6"><label className={labelClass}>Internship duration *<select required className={fieldClass} value={form.durationWeeks} onChange={e=>setField("durationWeeks",e.target.value)}><option value="2">2 weeks</option><option value="4">4 weeks (1 month)</option><option value="6">6 weeks</option><option value="8">8 weeks (2 months)</option><option value="12">12 weeks (3 months)</option></select><p className="mt-1 text-xs font-normal text-[#727d70]">Choose the duration you want to apply for.</p></label></div>
           <fieldset className="mt-6"><legend className={labelClass}>Internship mode (optional)</legend><div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label className={`cursor-pointer rounded-xl border p-4 ${form.deliveryMode==="online"?"border-[#719564] bg-[#f2f6ee]":"border-[#e5e8e1]"}`}><input type="radio" name="deliveryMode" checked={form.deliveryMode==="online"} onChange={()=>setField("deliveryMode","online")} className="sr-only"/><Laptop className="h-5 w-5 text-[#315e38]"/><p className="mt-2 text-sm font-bold">Online Internship</p><p className="mt-1 text-xs leading-5 text-[#687363]">Remote participation.</p></label>
             <label className={`cursor-pointer rounded-xl border p-4 ${form.deliveryMode==="offline"?"border-[#719564] bg-[#f2f6ee]":"border-[#e5e8e1]"}`}><input type="radio" name="deliveryMode" checked={form.deliveryMode==="offline"} onChange={()=>setField("deliveryMode","offline")} className="sr-only"/><MapPin className="h-5 w-5 text-[#315e38]"/><p className="mt-2 text-sm font-bold">Offline Internship</p><p className="mt-1 text-xs leading-5 text-[#687363]">In-person participation, subject to confirmation.</p></label>
@@ -176,7 +177,7 @@ export default function InternshipApplyPage() {
           <div className="mt-6"><h3 className="text-sm font-semibold">Offer letter sample</h3><img src="/images/snapforest-offer-letter-sample.svg" alt="Snapforest offer letter sample" className="mt-2 w-full rounded-lg border border-[#e2e7de]"/></div>
         </section>
 
-        <section className="rounded-2xl border border-[#dce4d7] bg-[#edf3e8] p-5 sm:p-6"><h2 className="font-bold text-[#214f31]">Before you submit</h2><ul className="mt-3 space-y-2 text-sm leading-5 text-[#4e5c4a]"><li>• Complete the ₹100 Razorpay payment before submitting.</li><li>• Keep your Razorpay payment reference for verification.</li><li>• Resume is not required. Submitting an application does not guarantee selection.</li></ul><label className="mt-4 flex items-start gap-3 border-t border-[#d4dfcd] pt-4 text-sm text-[#334431]"><input required type="checkbox" className="mt-1 h-4 w-4 accent-[#315e38]"/><span>I confirm that the information provided is accurate and consent to its use for reviewing my internship application.</span></label></section>
+        <section className="rounded-2xl border border-[#dce4d7] bg-[#edf3e8] p-5 sm:p-6"><h2 className="font-bold text-[#214f31]">Before you submit</h2><ul className="mt-3 space-y-2 text-sm leading-5 text-[#4e5c4a]"><li>• Complete the ₹100 Razorpay payment before submitting.</li><li>• Keep your Razorpay payment reference for verification.\n            • Offer letter follows successful payment verification; certificate depends on programme completion.</li><li>• Resume is not required. Submitting an application does not guarantee selection.</li></ul><label className="mt-4 flex items-start gap-3 border-t border-[#d4dfcd] pt-4 text-sm text-[#334431]"><input required type="checkbox" className="mt-1 h-4 w-4 accent-[#315e38]"/><span>I confirm that the information provided is accurate and consent to its use for reviewing my internship application.</span></label></section>
 
         {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
         <button type="submit" disabled={busy || Boolean(uploading)} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#214f31] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#183d27] disabled:cursor-not-allowed disabled:opacity-60">{busy?"Submitting application…":uploading?"Uploading document…":"Submit internship application"}{!busy&&<ArrowRight className="h-4 w-4"/>}</button>
