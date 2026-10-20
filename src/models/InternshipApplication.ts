@@ -10,6 +10,7 @@ export interface IInternshipApplication extends Document {
   yearOfStudy: string;
   registrationNumber: string;
   internshipRole: string;
+  durationWeeks: string;
   deliveryMode: "online" | "offline";
   utrNumber: string;
   referralCode: string;
@@ -37,6 +38,7 @@ const InternshipApplicationSchema = new Schema<IInternshipApplication>({
   yearOfStudy: { type: String, default: "", trim: true, maxlength: 60 },
   registrationNumber: { type: String, default: "", trim: true, maxlength: 80 },
   internshipRole: { type: String, default: "Software Developer Intern", trim: true, maxlength: 120 },
+  durationWeeks: { type: String, enum: ["2", "4", "6", "8", "12"], default: "4" },
   deliveryMode: { type: String, enum: ["online", "offline"], default: "online" },
   utrNumber: { type: String, default: "", trim: true, maxlength: 100 },
   referralCode: { type: String, default: "", trim: true, uppercase: true, maxlength: 40, index: true },
