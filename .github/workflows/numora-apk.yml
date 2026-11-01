@@ -6,7 +6,7 @@ on:
       - 'numora-android/**'
       - '.github/workflows/numora-apk.yml'
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,10 +29,25 @@ jobs:
       - name: Build debug APK
         working-directory: numora-android
         run: gradle --no-daemon assembleDebug
-      - name: Upload APK
+      - name: Rename APK
+        run: cp numora-android/app/build/outputs/apk/debug/app-debug.apk Numora-v1.0.2.apk
+      - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Numora-Android-APK
-          path: numora-android/app/build/outputs/apk/debug/app-debug.apk
+          name: Numora-Android-APK-v1.0.2
+          path: Numora-v1.0.2.apk
           if-no-files-found: error
           retention-days: 30
+      - name: Publish app update release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.2
+          name: Numora v1.0.2
+          body: |
+            Numora Android update.
+            versionCode=3
+            Includes WebView redirect/loading fixes and in-app update checking.
+          files: Numora-v1.0.2.apk
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
