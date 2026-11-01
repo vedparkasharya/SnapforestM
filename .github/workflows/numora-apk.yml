@@ -7,7 +7,6 @@ on:
       - '.github/workflows/numora-apk.yml'
 permissions:
   contents: read
-  actions: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,9 +16,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
-      - name: Install Android platform
-        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+      - name: Accept Android SDK licenses and install platform
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
       - name: Install Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
